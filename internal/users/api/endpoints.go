@@ -3,65 +3,50 @@ package api
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-playground/validator/v10"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 )
 
-func makeRegisterUserEndpoint(service core.UsersService, validator *validator.Validate) endpoint.Endpoint {
+func makeRegisterUserEndpoint(service core.UsersService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		if apiRequest, ok := request.(domain.RegisterUserApiRequest); ok {
-			if err := validator.Struct(apiRequest); err != nil {
-				return nil, api.NewValidationError(err)
-			}
+		apiRequest := request.(domain.RegisterUserApiRequest)
+		response, err := service.RegisterUser(ctx, &domain.RegisterUserServiceRequest{
+			Email:    apiRequest.User.Email,
+			Username: apiRequest.User.Username,
+			Password: apiRequest.User.Password,
+		})
 
-			response, err := service.RegisterUser(ctx, &domain.RegisterUserServiceRequest{
-				Email:    apiRequest.User.Email,
-				Username: apiRequest.User.Username,
-				Password: apiRequest.User.Password,
-			})
-
-			if err != nil {
-				return nil, err
-			}
-
-			apiResponse := domain.UserResponse{
-				User: *response,
-			}
-
-			return apiResponse, nil
+		if err != nil {
+			return nil, err
 		}
 
-		return nil, utilities.ErrInternalServerError
+		apiResponse := domain.UserResponse{
+			User: *response,
+		}
+
+		return apiResponse, nil
 	}
 }
 
-func makeLoginUserEndpoint(service core.UsersService, validator *validator.Validate) endpoint.Endpoint {
+func makeLoginUserEndpoint(service core.UsersService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		if apiRequest, ok := request.(domain.LoginUserApiRequest); ok {
-			if err := validator.Struct(apiRequest); err != nil {
-				return nil, api.NewValidationError(err)
-			}
+		apiRequest := request.(domain.LoginUserApiRequest)
+		response, err := service.LoginUser(ctx, &domain.LoginUserServiceRequest{
+			Email:    apiRequest.User.Email,
+			Password: apiRequest.User.Password,
+		})
 
-			response, err := service.LoginUser(ctx, &domain.LoginUserServiceRequest{
-				Email:    apiRequest.User.Email,
-				Password: apiRequest.User.Password,
-			})
-
-			if err != nil {
-				return nil, err
-			}
-
-			apiResponse := domain.UserResponse{
-				User: *response,
-			}
-
-			return apiResponse, nil
+		if err != nil {
+			return nil, err
 		}
 
-		return nil, utilities.ErrInternalServerError
+		apiResponse := domain.UserResponse{
+			User: *response,
+		}
+
+		return apiResponse, nil
 	}
 }
 
@@ -85,54 +70,48 @@ func makeGetUserEndpoint(service core.UsersService) endpoint.Endpoint {
 	}
 }
 
-func makeUpdateUserEndpoint(service core.UsersService, validator *validator.Validate) endpoint.Endpoint {
+func makeUpdateUserEndpoint(service core.UsersService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		if apiRequest, ok := request.(domain.UpdateUserApiRequest); ok {
-			if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
-				serviceRequest := &domain.UpdateUserServiceRequest{
-					UserId:   tokenMeta.UserId,
-					Email:    apiRequest.User.Email,
-					Username: apiRequest.User.Username,
-					Password: apiRequest.User.Password,
-					Image:    apiRequest.User.Image,
-					Bio:      apiRequest.User.Bio,
-				}
-
-				response, err := service.UpdateUser(ctx, serviceRequest)
-
-				if err != nil {
-					return nil, err
-				}
-
-				apiResponse := domain.UserResponse{
-					User: *response,
-				}
-
-				return apiResponse, nil
-			} else {
-				return nil, utilities.ErrUnauthorized
+		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+			apiRequest := request.(domain.UpdateUserApiRequest)
+			serviceRequest := &domain.UpdateUserServiceRequest{
+				UserId:   tokenMeta.UserId,
+				Email:    apiRequest.User.Email,
+				Username: apiRequest.User.Username,
+				Password: apiRequest.User.Password,
+				Image:    apiRequest.User.Image,
+				Bio:      apiRequest.User.Bio,
 			}
-		}
 
-		return nil, utilities.ErrInternalServerError
-	}
-}
-
-func makeGetUserProfileEndpoint(service core.UsersService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		if apiRequest, ok := request.(domain.GetUserProfileApiRequest); ok {
-			response, err := service.GetUserProfile(ctx, apiRequest.ProfileUsername, apiRequest.CurrentUserId)
+			response, err := service.UpdateUser(ctx, serviceRequest)
 
 			if err != nil {
 				return nil, err
 			}
 
-			return domain.ProfileResponse{
-				Profile: *response,
-			}, nil
+			apiResponse := domain.UserResponse{
+				User: *response,
+			}
+
+			return apiResponse, nil
 		}
 
-		return nil, utilities.ErrInternalServerError
+		return nil, utilities.ErrUnauthorized
+	}
+}
+
+func makeGetUserProfileEndpoint(service core.UsersService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		apiRequest := request.(domain.GetUserProfileApiRequest)
+		response, err := service.GetUserProfile(ctx, apiRequest.ProfileUsername, apiRequest.CurrentUserId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return domain.ProfileResponse{
+			Profile: *response,
+		}, nil
 	}
 }
 
@@ -150,7 +129,7 @@ func makeAddUserFollowEndpoint(service core.UsersService) endpoint.Endpoint {
 			}, nil
 		}
 
-		return nil, utilities.ErrInternalServerError
+		return nil, utilities.ErrUnauthorized
 	}
 }
 
@@ -168,6 +147,6 @@ func makeRemoveUserFollowEndpoint(service core.UsersService) endpoint.Endpoint {
 			}, nil
 		}
 
-		return nil, utilities.ErrInternalServerError
+		return nil, utilities.ErrUnauthorized
 	}
 }

@@ -1,15 +1,17 @@
 package main
 
 import (
-	"github.com/go-chi/chi/v5"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
+	articlesApi "github.com/joeymckenzie/realworld-go-kit/internal/articles/api"
+	articlesCore "github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
+	articlesMiddlewares "github.com/joeymckenzie/realworld-go-kit/internal/articles/core/middlewares"
 	articlesPersistence "github.com/joeymckenzie/realworld-go-kit/internal/articles/persistence"
 	usersApi "github.com/joeymckenzie/realworld-go-kit/internal/users/api"
-	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
-	"github.com/joeymckenzie/realworld-go-kit/internal/users/core/middlewares"
+	usersCore "github.com/joeymckenzie/realworld-go-kit/internal/users/core"
+	usersMiddlewares "github.com/joeymckenzie/realworld-go-kit/internal/users/core/middlewares"
 	usersPersistence "github.com/joeymckenzie/realworld-go-kit/internal/users/persistence"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/services"
@@ -70,27 +72,32 @@ func main() {
 		articlesRepository = articlesPersistence.NewArticlesRepositoryLoggingMiddleware(logger)(articlesRepository)
 	}
 
-	var usersService core.UsersService
+	var usersService usersCore.UsersService
 	{
 		requestCount, requestLatency := utilities.NewServiceMetrics("users_service")
-		usersService = core.NewUsersService(requestValidator, usersRepository, services.NewTokenService(), services.NewSecurityService())
-		usersService = middlewares.NewUsersServiceLoggingMiddleware(logger)(usersService)
-		usersService = middlewares.NewUsersServiceMetrics(requestCount, requestLatency)(usersService)
-		usersService = middlewares.NewUsersServiceRequestValidationMiddleware(logger, requestValidator)(usersService)
+		usersService = usersCore.NewUsersService(requestValidator, usersRepository, services.NewTokenService(), services.NewSecurityService())
+		usersService = usersMiddlewares.NewUsersServiceLoggingMiddleware(logger)(usersService)
+		usersService = usersMiddlewares.NewUsersServiceMetrics(requestCount, requestLatency)(usersService)
+		usersService = usersMiddlewares.NewUsersServiceRequestValidationMiddleware(logger, requestValidator)(usersService)
+	}
+
+	var articlesService articlesCore.ArticlesService
+	{
+		requestCount, requestLatency := utilities.NewServiceMetrics("articles_service")
+		articlesService = articlesCore.NewArticlesServices(requestValidator, articlesRepository)
+		articlesService = articlesMiddlewares.NewArticlesServiceLoggingMiddleware(logger)(articlesService)
+		articlesService = articlesMiddlewares.NewArticlesServiceMetrics(requestCount, requestLatency)(articlesService)
+		articlesService = articlesMiddlewares.NewArticlesServiceRequestValidationMiddleware(logger, requestValidator)(articlesService)
 	}
 
 	router := api.MakeChiRouter()
 	router.Get("/metrics", promhttp.Handler().ServeHTTP)
-	router.Mount("/api", makeApiTransports(logger, usersService, requestValidator))
+	router = usersApi.MakeUsersTransport(router, logger, usersService)
+	router = articlesApi.MakeArticlesTransport(router, logger, articlesService)
+	router.Mount("/api", router)
 
 	if err = http.ListenAndServe(":8080", router); err != nil {
 		level.Error(logger).Log("main", "error during server startup", "error", err)
 		os.Exit(1)
 	}
-}
-
-func makeApiTransports(logger log.Logger, usersService core.UsersService, validator *validator.Validate) http.Handler {
-	router := chi.NewRouter()
-	router.Mount("/", usersApi.MakeUsersTransport(logger, usersService, validator))
-	return router
 }

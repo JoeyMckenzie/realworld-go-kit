@@ -8,7 +8,7 @@ import (
 func NewServiceMetrics(service string) (*kitPrometheus.Counter, *kitPrometheus.Summary) {
 	// Setup service metrics
 	namespace := "realworld_go_git"
-	subsystem := "service"
+	subsystem := service
 	fieldKeys := []string{"method", "error"}
 
 	requestCount := kitPrometheus.NewCounterFrom(stdPrometheus.CounterOpts{

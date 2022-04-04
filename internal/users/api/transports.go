@@ -7,7 +7,6 @@ import (
 	"github.com/go-kit/kit/transport"
 	httpTransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
-	"github.com/go-playground/validator/v10"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
@@ -16,21 +15,21 @@ import (
 	"net/http"
 )
 
-func MakeUsersTransport(logger log.Logger, service core.UsersService, validator *validator.Validate) *chi.Mux {
+func MakeUsersTransport(router *chi.Mux, logger log.Logger, service core.UsersService) *chi.Mux {
 	options := []httpTransport.ServerOption{
 		httpTransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
 		httpTransport.ServerErrorEncoder(api.EncodeError),
 	}
 
 	registerUserHandler := httpTransport.NewServer(
-		makeRegisterUserEndpoint(service, validator),
+		makeRegisterUserEndpoint(service),
 		decodeRegisterUserRequest,
 		api.EncodeSuccessfulResponse,
 		options...,
 	)
 
 	loginUserHandler := httpTransport.NewServer(
-		makeLoginUserEndpoint(service, validator),
+		makeLoginUserEndpoint(service),
 		decodeLoginUserRequest,
 		api.EncodeSuccessfulResponse,
 		options...,
@@ -51,7 +50,7 @@ func MakeUsersTransport(logger log.Logger, service core.UsersService, validator 
 	)
 
 	updateUserHandler := httpTransport.NewServer(
-		makeUpdateUserEndpoint(service, validator),
+		makeUpdateUserEndpoint(service),
 		decodeUpdateUserRequest,
 		api.EncodeSuccessfulResponse,
 		options...,
@@ -70,8 +69,6 @@ func MakeUsersTransport(logger log.Logger, service core.UsersService, validator 
 		api.EncodeSuccessfulResponse,
 		options...,
 	)
-
-	router := chi.NewRouter()
 
 	router.Route("/profiles", func(r chi.Router) {
 		router.Get("/{username}", getUserProfileHandler.ServeHTTP)
