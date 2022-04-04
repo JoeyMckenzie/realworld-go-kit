@@ -1,0 +1,89 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  ENV_FILE: .env
+  MODULE:
+    sh: go list -m
+  VERSION:
+    sh: git describe --tags --always --dirty --match=v* 2> /dev/null || echo "1.0.0"
+  DSN:
+    sh: sed -n 's/^CONNECTION_STRING=\(.*\)/\1/p' {{.ENV_FILE}}
+
+tasks:
+  build:api:
+    summary: Build the API
+    cmds:
+      - go build -a ./cmd/api
+
+  build:atlas:
+    summary: Build the atlas executable
+    cmds:
+      - go build -a ./cmd/atlas
+
+  start:api:
+    summary: Start the API
+    cmds:
+      - go run ./cmd/api
+
+  start:atlas:
+    summary: Run the atlas executable
+    cmds:
+      - go run ./cmd/atlas
+
+  test:
+    summary: Run all unit and integration tests
+    cmds:
+      - go test ./...
+
+  format:
+    summary: Format all go files in the current directory
+    cmds:
+      - go fmt ./...
+
+  lint:
+    summary: Lint all go files in the current directory
+    cmds:
+      - go vet ./...
+
+  start:postgres:
+    summary: Starts the Postgres docker container
+    cmds:
+      - docker-compose -f ./docker-compose.postgres.yml up --build
+
+  atlas:inspect:
+    summary: Runs the atals inspect managment UI
+    cmds:
+      - atlas schema inspect --dsn {{.DSN}} -w
+
+  atlas:migrate:
+    summary: Runs the atlas schema apply command
+    cmds:
+      - go run ./cmd/atlas
+      - atlas schema format .
+      - atlas schema apply --dsn {{.DSN}} -f atlas.hcl
+
+  install:deps:
+    cmds:
+      - go get github.com/go-chi/chi/v5
+      - go get github.com/jmoiron/sqlx
+      - go get github.com/joho/godotenv
+      - go get github.com/lib/pq
+      - go get github.com/rs/cors
+      - go get github.com/go-kit/log
+      - go get github.com/go-kit/kit/endpoint
+      - go get github.com/go-kit/kit/transport/http
+      - go get github.com/go-kit/kit/metrics/prometheus
+      - go get github.com/prometheus/client_golang/prometheus
+      - go get github.com/hashicorp/hcl/v2/hclsimple
+      - go get github.com/go-playground/validator/v10
+      - go get github.com/golang-jwt/jwt
+      - go get golang.org/x/crypto
+      - go get github.com/gosimple/slug
+
+  run:postman-tests:
+    cmds:
+      # Be sure to run give yourself execute permission before running postman tests
+      # e.g. sudo chmod -x ./run-postman-tests.sh
+      - ./run-postman-tests
