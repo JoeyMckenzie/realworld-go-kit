@@ -1,0 +1,11 @@
+{
+  "name": "realworld-go-kit",
+  "version": "1.0.0",
+  "description": "Realworld implementation using Go and go-kit",
+  "author": "Joey McKenzie",
+  "repository": "https://github.com/JoeyMckenzie/realworld-go-kit",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^7.0.0"
+  }
+}
