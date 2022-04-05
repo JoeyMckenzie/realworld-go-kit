@@ -43,7 +43,7 @@ table "articles" {
   }
   column "tags" {
     null = false
-    type = sql("text[]")
+    type = sql("integer[]")
   }
   foreign_key "articles_users_fk" {
     columns     = [column.user_id]

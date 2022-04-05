@@ -27,7 +27,6 @@ var (
 	StubTag = &TagEntity{
 		Id:        1,
 		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
 		Tag:       "stub tag",
 	}
 )
@@ -50,19 +49,14 @@ func (m *MockArticlesRepository) FindArticleBySlug(ctx context.Context, slug str
 	return handleNilArticleMockOrDefault[ArticleEntity](args)
 }
 
-func (m *MockArticlesRepository) CreateArticle(ctx context.Context, userId int, title, slug, description, body string) (*ArticleEntity, error) {
-	args := m.Called(ctx, userId, title, slug, description, body)
+func (m *MockArticlesRepository) CreateArticle(ctx context.Context, userId int, title, slug, description, body string, tagList []int) (*ArticleEntity, error) {
+	args := m.Called(ctx, userId, title, slug, description, body, tagList)
 	return handleNilArticleMockOrDefault[ArticleEntity](args)
 }
 
-func (m *MockArticlesRepository) CreateArticleTag(ctx context.Context, tagId int, articleId int) (*ArticleTagEntity, error) {
-	args := m.Called(ctx, tagId, articleId)
-	return handleNilArticleMockOrDefault[ArticleTagEntity](args)
-}
-
-func (m *MockArticlesRepository) GetArticleTags(ctx context.Context, tags []string) (*[]ArticleTagEntity, error) {
+func (m *MockArticlesRepository) GetTags(ctx context.Context, tags []string) (*[]TagEntity, error) {
 	args := m.Called(ctx, tags)
-	return handleNilArticleMockOrDefault[[]ArticleTagEntity](args)
+	return handleNilArticleMockOrDefault[[]TagEntity](args)
 }
 
 func (m *MockArticlesRepository) CreateTag(ctx context.Context, tag string) (*TagEntity, error) {
@@ -70,17 +64,7 @@ func (m *MockArticlesRepository) CreateTag(ctx context.Context, tag string) (*Ta
 	return handleNilArticleMockOrDefault[TagEntity](args)
 }
 
-func (m *MockArticlesRepository) GetTag(ctx context.Context, tag string) (*TagEntity, error) {
-	args := m.Called(ctx, tag)
-	return handleNilArticleMockOrDefault[TagEntity](args)
-}
-
-func (m *MockArticlesRepository) GetTags(ctx context.Context, tags []string) (*[]TagEntity, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func handleNilArticleMockOrDefault[T ArticleEntity | []ArticleEntity | ArticleTagEntity | []ArticleTagEntity | TagEntity](args mock.Arguments) (*T, error) {
+func handleNilArticleMockOrDefault[T ArticleEntity | []ArticleEntity | ArticleTagEntity | []ArticleTagEntity | TagEntity | []TagEntity](args mock.Arguments) (*T, error) {
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}

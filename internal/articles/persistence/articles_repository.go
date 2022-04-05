@@ -31,18 +31,14 @@ type (
 	TagEntity struct {
 		Id        int       `db:"id"`
 		CreatedAt time.Time `db:"created_at"`
-		UpdatedAt time.Time `db:"updated_at"`
 		Tag       string    `db:"tag"`
 	}
 
 	ArticlesRepository interface {
 		FindArticleBySlug(ctx context.Context, slug string) (*ArticleEntity, error)
 		GetArticles(ctx context.Context, tag, author, favorited string, limit, offset int) (*[]ArticleEntity, error)
-		CreateArticle(ctx context.Context, userId int, title, slug, description, body string) (*ArticleEntity, error)
-		CreateArticleTag(ctx context.Context, tagId int, articleId int) (*ArticleTagEntity, error)
-		GetArticleTags(ctx context.Context, tags []string) (*[]ArticleTagEntity, error)
+		CreateArticle(ctx context.Context, userId int, title, slug, description, body string, tagList []int) (*ArticleEntity, error)
 		CreateTag(ctx context.Context, tag string) (*TagEntity, error)
-		GetTag(ctx context.Context, tag string) (*TagEntity, error)
 		GetTags(ctx context.Context, tags []string) (*[]TagEntity, error)
 	}
 
@@ -95,34 +91,19 @@ WHERE t.tag = $1`)
 	return nil, nil
 }
 
-func (ar *articlesRepository) CreateArticle(ctx context.Context, userId int, title, slug, description, body string) (*ArticleEntity, error) {
+func (ar *articlesRepository) CreateArticle(ctx context.Context, userId int, title, slug, description, body string, tagList []int) (*ArticleEntity, error) {
 	var article ArticleEntity
 
 	const sql = `
-INSERT INTO public.articles (created_at, updated_at, title, slug, description, body, user_id)
-VALUES (current_timestamp, current_timestamp, $1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::INTEGER)
+INSERT INTO public.articles (created_at, updated_at, title, slug, description, body, user_id, tags)
+VALUES (current_timestamp, current_timestamp, $1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::INTEGER, $6::INTEGER[])
 RETURNING *`
 
-	if err := ar.db.GetContext(ctx, &article, sql, title, slug, description, body, userId); err != nil {
+	if err := ar.db.GetContext(ctx, &article, sql, title, slug, description, body, userId, tagList); err != nil {
 		return nil, err
 	}
 
 	return &article, nil
-}
-
-func (ar *articlesRepository) CreateArticleTag(ctx context.Context, tagId int, articleId int) (*ArticleTagEntity, error) {
-	var articleTag ArticleTagEntity
-
-	const sql = `
-INSERT INTO public.article_tags (created_at, updated_at, tag_id, article_id)
-VALUES (current_timestamp, current_timestamp, $1::INTEGER, $2::INTEGER)
-RETURNING *`
-
-	if err := ar.db.GetContext(ctx, &articleTag, sql, tagId, articleId); err != nil {
-		return nil, err
-	}
-
-	return &articleTag, nil
 }
 
 func (ar *articlesRepository) FindArticleBySlug(ctx context.Context, slug string) (*ArticleEntity, error) {
@@ -140,51 +121,40 @@ WHERE slug = $1::VARCHAR`
 	return &article, nil
 }
 
-func (ar *articlesRepository) GetTags(ctx context.Context, tags []string) (*[]TagEntity, error) {
-	var articleTags []TagEntity
+func (ar *articlesRepository) CreateTag(ctx context.Context, tag string) (*TagEntity, error) {
+	var createdTag TagEntity
 
 	const sql = `
+INSERT INTO tags (created_at, tag)
+VALUES (current_timestamp, $1::VARCHAR)
+RETURNING *`
+
+	if err := ar.db.GetContext(ctx, &tag, sql, tag); err != nil {
+		return nil, err
+	}
+
+	return &createdTag, nil
+}
+
+func (ar *articlesRepository) GetTags(ctx context.Context, tags []string) (*[]TagEntity, error) {
+	var articleTags []TagEntity
+	var sql string
+	{
+		if len(tags) > 0 {
+			sql = `
 SELECT *
 FROM public.tags
 WHERE tag IN ($1::VARCHAR)`
+		} else {
+			sql = `
+SELECT *
+FROM public.tags`
+		}
+	}
 
 	if err := ar.db.SelectContext(ctx, &articleTags, sql, strings.Join(tags, ",")); err != nil {
 		return nil, err
 	}
 
 	return &articleTags, nil
-}
-
-func (ar *articlesRepository) CreateTag(ctx context.Context, tag string) (*TagEntity, error) {
-	var articleTag TagEntity
-
-	const sql = `
-INSERT INTO public.tags (created_at, updated_at, tag)
-VALUES (current_timestamp, current_timestamp, $1::VARCHAR)
-RETURNING *`
-
-	if err := ar.db.GetContext(ctx, &articleTag, sql, tag); err != nil {
-		return nil, err
-	}
-
-	return &articleTag, nil
-}
-
-func (ar *articlesRepository) GetArticleTags(ctx context.Context, tags []string) (*[]ArticleTagEntity, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (ar *articlesRepository) GetTag(ctx context.Context, tag string) (*TagEntity, error) {
-	var articleTag TagEntity
-
-	const sql = `
-SELECT *
-FROM public.tags
-WHERE tag = $1::VARCHAR`
-	if err := ar.db.GetContext(ctx, &articleTag, sql, tag); err != nil {
-		return nil, err
-	}
-
-	return &articleTag, nil
 }

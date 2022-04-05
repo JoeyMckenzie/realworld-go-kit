@@ -46,7 +46,7 @@ table "articles" {
   }
   column "tags" {
     null = false
-    type = sql("text[]")
+    type = sql("integer[]")
   }
   foreign_key "articles_users_fk" {
     columns     = [column.user_id]
@@ -118,10 +118,6 @@ table "tags" {
     null = false
     type = timestamp_with_time_zone
   }
-  column "updated_at" {
-    null = false
-    type = timestamp_with_time_zone
-  }
   column "tag" {
     null    = false
     type    = character_varying
@@ -133,7 +129,6 @@ table "tags" {
     ]
     unique = true
   }
-
   primary_key {
     columns = [column.id]
   }

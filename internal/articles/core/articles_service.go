@@ -48,46 +48,40 @@ func (as *articlesServices) CreateArticle(ctx context.Context, request *domain.C
 		return nil, api.NewApiErrorWithContext(http.StatusConflict, "article", utilities.ErrArticleTitleExists)
 	}
 
-	// Create the article
-	createdArticle, err := as.repository.CreateArticle(ctx, request.UserId, request.Title, articleSlug, request.Description, request.Body)
-	if err != nil {
-		return nil, api.NewInternalServerErrorWithContext("article", err)
-	}
-
-	var articleTagIdsToCreate []int
-	var returnedTagList []string
-
-	// Create any tags on the request
-	if request.TagList != nil && len(*request.TagList) > 0 {
-		returnedTagList = *request.TagList
-
-		for _, tag := range *request.TagList {
-			// Check for an existing tag
-			existingTag, err := as.repository.GetTag(ctx, tag)
-
+	tagsToCreate := removeDuplicates(request.TagList)
+	var articleTagsToCreate []int
+	{
+		// Create any tags on the request
+		if len(tagsToCreate) > 0 {
+			// Get the existing tags for checking against those on the request
+			existingTags, err := as.repository.GetTags(ctx, tagsToCreate)
 			if err != nil && err != sql.ErrNoRows {
 				return nil, api.NewInternalServerErrorWithContext("tags", err)
 			}
 
-			// If an existing tag is not found, created it and add it to the list of associated article tags to create
-			if existingTag == nil {
-				existingTag, err = as.repository.CreateTag(ctx, tag)
+			// Roll through the existing tags to see if we should create any new tags
+			for _, tag := range tagsToCreate {
+				// If the tag already exists, skip creating it and add it to the list of reference IDs for the article
+				if existingTag := findTag(tag, existingTags); existingTags == nil {
+					articleTagsToCreate = append(articleTagsToCreate, existingTag.Id)
+					continue
+				}
+
+				// Create the tag and rollup any errors
+				createdTag, err := as.repository.CreateTag(ctx, tag)
 				if err != nil {
 					return nil, api.NewInternalServerErrorWithContext("tags", err)
 				}
-			}
 
-			articleTagIdsToCreate = append(articleTagIdsToCreate, existingTag.Id)
+				// Add the created tag ID to the list to reference from articles
+				articleTagsToCreate = append(articleTagsToCreate, createdTag.Id)
+			}
 		}
 	}
 
-	// Finally, create the tags associated with the article
-	if len(articleTagIdsToCreate) > 0 {
-		for _, tagId := range articleTagIdsToCreate {
-			if _, err = as.repository.CreateArticleTag(ctx, tagId, createdArticle.Id); err != nil {
-				return nil, api.NewInternalServerErrorWithContext("articleTags", err)
-			}
-		}
+	createdArticle, err := as.repository.CreateArticle(ctx, request.UserId, request.Title, articleSlug, request.Description, request.Body, articleTagsToCreate)
+	if err != nil {
+		return nil, api.NewInternalServerErrorWithContext("articles", err)
 	}
 
 	return &domain.ArticleDto{
@@ -95,11 +89,58 @@ func (as *articlesServices) CreateArticle(ctx context.Context, request *domain.C
 		Title:          createdArticle.Title,
 		Description:    createdArticle.Description,
 		Body:           createdArticle.Body,
-		TagList:        returnedTagList,
+		TagList:        tagsToCreate,
 		CreatedAt:      createdArticle.CreatedAt,
 		UpdatedAt:      createdArticle.UpdatedAt,
 		Favorited:      false,
 		FavoritesCount: 0,
 		Author:         domain.AuthorDto{},
 	}, nil
+}
+
+func removeDuplicates(tags *[]string) []string {
+	if tags == nil {
+		return []string{}
+	}
+
+	var depudedTags []string
+	{
+		for _, tag := range *tags {
+			for _, depudedTag := range depudedTags {
+				if tag != depudedTag {
+					depudedTags = append(depudedTags)
+				}
+			}
+		}
+	}
+
+	return depudedTags
+}
+
+func containsTag(searchValue string, tags *[]persistence.TagEntity) bool {
+	if tags == nil {
+		return false
+	}
+
+	for _, value := range *tags {
+		if value.Tag == searchValue {
+			return true
+		}
+	}
+
+	return false
+}
+
+func findTag(searchTag string, tags *[]persistence.TagEntity) *persistence.TagEntity {
+	if !containsTag(searchTag, tags) {
+		return nil
+	}
+
+	for _, tag := range *tags {
+		if tag.Tag == searchTag {
+			return &tag
+		}
+	}
+
+	return nil
 }

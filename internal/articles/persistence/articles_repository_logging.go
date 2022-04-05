@@ -14,11 +14,6 @@ type articlesRepositoryLoggingMiddleware struct {
 	next   ArticlesRepository
 }
 
-func (mw *articlesRepositoryLoggingMiddleware) GetTags(ctx context.Context, tags []string) (*[]TagEntity, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func NewArticlesRepositoryLoggingMiddleware(logger log.Logger) ArticlesRepositoryMiddleware {
 	return func(next ArticlesRepository) ArticlesRepository {
 		return &articlesRepositoryLoggingMiddleware{
@@ -50,7 +45,7 @@ func (mw *articlesRepositoryLoggingMiddleware) GetArticles(ctx context.Context, 
 	return mw.next.GetArticles(ctx, tag, author, favorited, limit, offset)
 }
 
-func (mw *articlesRepositoryLoggingMiddleware) CreateArticle(ctx context.Context, userId int, title, slug, description, body string) (article *ArticleEntity, err error) {
+func (mw *articlesRepositoryLoggingMiddleware) CreateArticle(ctx context.Context, userId int, title, slug, description, body string, tagList []int) (article *ArticleEntity, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "CreateArticle",
@@ -66,26 +61,7 @@ func (mw *articlesRepositoryLoggingMiddleware) CreateArticle(ctx context.Context
 		"description", description,
 	)
 
-	return mw.next.CreateArticle(ctx, userId, title, slug, description, body)
-}
-
-func (mw *articlesRepositoryLoggingMiddleware) CreateArticleTag(ctx context.Context, tagId int, articleId int) (articleTag *ArticleTagEntity, err error) {
-	defer func(begin time.Time) {
-		level.Info(mw.logger).Log(
-			"method", "CreateArticleTag",
-			"exec_time", time.Since(begin),
-			"created", fmt.Sprint(articleTag != nil),
-			"error", fmt.Sprint(err != nil),
-		)
-	}(time.Now())
-
-	level.Info(mw.logger).Log(
-		"method", "CreateArticleTag",
-		"tagId", tagId,
-		"articleId", articleId,
-	)
-
-	return mw.next.CreateArticleTag(ctx, tagId, articleId)
+	return mw.next.CreateArticle(ctx, userId, title, slug, description, body, tagList)
 }
 
 func (mw *articlesRepositoryLoggingMiddleware) FindArticleBySlug(ctx context.Context, slug string) (article *ArticleEntity, err error) {
@@ -106,30 +82,38 @@ func (mw *articlesRepositoryLoggingMiddleware) FindArticleBySlug(ctx context.Con
 	return mw.next.FindArticleBySlug(ctx, slug)
 }
 
-func (mw *articlesRepositoryLoggingMiddleware) GetArticleTags(ctx context.Context, tags []string) (articleTags *[]ArticleTagEntity, err error) {
+func (mw *articlesRepositoryLoggingMiddleware) CreateTag(ctx context.Context, tag string) (createdTag *TagEntity, err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "CreateTag",
+			"exec_time", time.Since(begin),
+			"created", fmt.Sprint(createdTag != nil),
+			"error", fmt.Sprint(err != nil),
+		)
+	}(time.Now())
+
+	level.Info(mw.logger).Log(
+		"method", "CreateTag",
+		"tag", tag,
+	)
+
+	return mw.next.CreateTag(ctx, tag)
+}
+
+func (mw *articlesRepositoryLoggingMiddleware) GetTags(ctx context.Context, searchTags []string) (tags *[]TagEntity, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "GetTags",
 			"exec_time", time.Since(begin),
-			"found", fmt.Sprint(articleTags != nil),
+			"found", fmt.Sprint(searchTags != nil),
 			"error", fmt.Sprint(err != nil),
 		)
 	}(time.Now())
 
 	level.Info(mw.logger).Log(
 		"method", "GetTags",
-		"tags", fmt.Sprintf("[%s]", strings.Join(tags, ",")),
+		"tags", fmt.Sprintf("[%s]", strings.Join(searchTags, ",")),
 	)
 
-	return mw.next.GetArticleTags(ctx, tags)
-}
-
-func (mw *articlesRepositoryLoggingMiddleware) CreateTag(ctx context.Context, tag string) (*TagEntity, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (mw *articlesRepositoryLoggingMiddleware) GetTag(ctx context.Context, tag string) (*TagEntity, error) {
-	//TODO implement me
-	panic("implement me")
+	return mw.next.GetTags(ctx, searchTags)
 }
