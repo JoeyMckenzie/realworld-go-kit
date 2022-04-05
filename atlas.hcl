@@ -44,6 +44,10 @@ table "articles" {
     null = false
     type = bigint
   }
+  column "tags" {
+    null = false
+    type = sql("text[]")
+  }
   foreign_key "articles_users_fk" {
     columns     = [column.user_id]
     ref_columns = [table.users.column.id]
@@ -215,3 +219,4 @@ table "users" {
     columns = [column.id]
   }
 }
+

@@ -57,6 +57,11 @@ tasks:
     cmds:
       - atlas schema inspect --dsn {{.DSN}} -w
 
+  atlas:pull:
+    summary: Runs the atals inspect managment UI
+    cmds:
+      - atlas schema inspect --dsn {{.DSN}} > atlas.hcl
+
   atlas:migrate:
     summary: Runs the atlas schema apply command
     cmds:
@@ -67,10 +72,10 @@ tasks:
   install:deps:
     cmds:
       - go get github.com/go-chi/chi/v5
+      - go get github.com/go-chi/cors
       - go get github.com/jmoiron/sqlx
       - go get github.com/joho/godotenv
       - go get github.com/lib/pq
-      - go get github.com/rs/cors
       - go get github.com/go-kit/log
       - go get github.com/go-kit/kit/endpoint
       - go get github.com/go-kit/kit/transport/http

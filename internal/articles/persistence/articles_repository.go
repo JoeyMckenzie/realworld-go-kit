@@ -17,6 +17,7 @@ type (
 		Description string    `db:"description"`
 		Body        string    `db:"body"`
 		UserId      int       `db:"user_id"`
+		Tags        []string  `db:"tags"`
 	}
 
 	ArticleTagEntity struct {
@@ -36,6 +37,7 @@ type (
 
 	ArticlesRepository interface {
 		FindArticleBySlug(ctx context.Context, slug string) (*ArticleEntity, error)
+		GetArticles(ctx context.Context, tag, author, favorited string, limit, offset int) (*[]ArticleEntity, error)
 		CreateArticle(ctx context.Context, userId int, title, slug, description, body string) (*ArticleEntity, error)
 		CreateArticleTag(ctx context.Context, tagId int, articleId int) (*ArticleTagEntity, error)
 		GetArticleTags(ctx context.Context, tags []string) (*[]ArticleTagEntity, error)
@@ -55,6 +57,42 @@ func NewArticlesRepository(db *sqlx.DB) ArticlesRepository {
 	return &articlesRepository{
 		db: db,
 	}
+}
+
+func (ar *articlesRepository) GetArticles(ctx context.Context, tag, author, favorited string, limit, offset int) (*[]ArticleEntity, error) {
+	var articles []ArticleEntity
+	var sql strings.Builder
+
+	const sqlTest = `
+SELECT a.id,
+       a.created_at,
+       a.updated_at,
+       a.title,
+       a.slug,
+       a.description,
+       a.body
+FROM public.articles a
+JOIN article_tags at on a.id = at.article_id
+JOIN tags t on at.tag_id = t.id
+WHERE t.tag = $1
+`
+
+	sql.WriteString(`
+SELECT *
+FROM public.articles a
+LEFT JOIN public.article_tags at on a.id = at.article_id`)
+
+	if tag != "" {
+		sql.WriteString(`
+JOIN tags t on at.tag_id = t.id
+WHERE t.tag = $1`)
+	}
+
+	if err := ar.db.SelectContext(ctx, articles, sqlTest, tag, author, favorited, limit, offset); err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 func (ar *articlesRepository) CreateArticle(ctx context.Context, userId int, title, slug, description, body string) (*ArticleEntity, error) {

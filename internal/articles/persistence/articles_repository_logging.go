@@ -28,6 +28,28 @@ func NewArticlesRepositoryLoggingMiddleware(logger log.Logger) ArticlesRepositor
 	}
 }
 
+func (mw *articlesRepositoryLoggingMiddleware) GetArticles(ctx context.Context, tag, author, favorited string, limit, offset int) (articles *[]ArticleEntity, err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "GetArticles",
+			"exec_time", time.Since(begin),
+			"found", fmt.Sprint(articles != nil),
+			"error", fmt.Sprint(err != nil),
+		)
+	}(time.Now())
+
+	level.Info(mw.logger).Log(
+		"method", "GetArticles",
+		"tag", tag,
+		"author", author,
+		"favorited", favorited,
+		"limit", limit,
+		"offset", offset,
+	)
+
+	return mw.next.GetArticles(ctx, tag, author, favorited, limit, offset)
+}
+
 func (mw *articlesRepositoryLoggingMiddleware) CreateArticle(ctx context.Context, userId int, title, slug, description, body string) (article *ArticleEntity, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(

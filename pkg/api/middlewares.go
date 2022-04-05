@@ -2,8 +2,8 @@ package api
 
 import (
 	"context"
+	"github.com/go-chi/cors"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/services"
-	"github.com/rs/cors"
 	"net/http"
 )
 

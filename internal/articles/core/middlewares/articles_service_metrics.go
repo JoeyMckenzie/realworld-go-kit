@@ -25,6 +25,16 @@ func NewArticlesServiceMetrics(requestCount metrics.Counter, requestLatency metr
 	}
 }
 
+func (mw *articlesServiceMetricsMiddleware) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (articles []*domain.ArticleDto, err error) {
+	defer func(begin time.Time) {
+		labelValues := []string{"method", "GetArticles", "error", fmt.Sprint(err != nil)}
+		mw.requestCount.With(labelValues...).Add(1)
+		mw.requestLatency.With(labelValues...).Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return mw.service.GetArticles(ctx, request)
+}
+
 func (mw *articlesServiceMetricsMiddleware) CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (article *domain.ArticleDto, err error) {
 	defer func(begin time.Time) {
 		labelValues := []string{"method", "CreateArticle", "error", fmt.Sprint(err != nil)}

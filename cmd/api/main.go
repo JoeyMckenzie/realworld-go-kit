@@ -90,7 +90,7 @@ func main() {
 		articlesService = articlesMiddlewares.NewArticlesServiceRequestValidationMiddleware(logger, requestValidator)(articlesService)
 	}
 
-	router := api.MakeChiRouter()
+	router := api.NewChiRouter()
 	router.Get("/metrics", promhttp.Handler().ServeHTTP)
 	router = usersApi.MakeUsersTransport(router, logger, usersService)
 	router = articlesApi.MakeArticlesTransport(router, logger, articlesService)

@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/go-chi/chi/v5 v5.0.7
+	github.com/go-chi/cors v1.2.0
 	github.com/go-kit/kit v0.12.0
 	github.com/go-kit/log v0.2.0
 	github.com/go-playground/validator/v10 v10.10.1
@@ -14,7 +15,6 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.4
 	github.com/prometheus/client_golang v1.12.1
-	github.com/rs/cors v1.8.2
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29
 )

@@ -21,7 +21,23 @@ type (
 		Body        string `validate:"required"`
 		TagList     *[]string
 	}
+
+	GetArticlesServiceRequest struct {
+		Tag       string
+		Author    string
+		Favorited string
+		Limit     int
+		Offset    int
+	}
 )
+
+func (request *GetArticlesServiceRequest) ToSafeLoggingStruct() string {
+	if request == nil {
+		return "<nil>"
+	}
+
+	return fmt.Sprintf("tag: %s; author: %s; favoried: %s; limit: %d; offset: %d", request.Tag, request.Author, request.Favorited, request.Limit, request.Offset)
+}
 
 func (request *CreateArticleServiceRequest) ToSafeLoggingStruct() string {
 	if request == nil {

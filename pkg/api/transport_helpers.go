@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func MakeChiRouter() *chi.Mux {
+func NewChiRouter() *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(CorsMiddleware)
 	router.Use(JsonContentTypeMiddleware)

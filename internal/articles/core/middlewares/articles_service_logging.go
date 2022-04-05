@@ -23,6 +23,24 @@ func NewArticlesServiceLoggingMiddleware(logger log.Logger) core.ArticlesService
 	}
 }
 
+func (mw *articlesServiceLoggingMiddleware) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (articles []*domain.ArticleDto, err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "CreateArticle",
+			"request_time", time.Since(begin),
+			"articles_found", len(articles),
+			"error", err,
+		)
+	}(time.Now())
+
+	level.Info(mw.logger).Log(
+		"method", "GetArticles",
+		"request", request.ToSafeLoggingStruct(),
+	)
+
+	return mw.next.GetArticles(ctx, request)
+}
+
 func (mw *articlesServiceLoggingMiddleware) CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (article *domain.ArticleDto, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(

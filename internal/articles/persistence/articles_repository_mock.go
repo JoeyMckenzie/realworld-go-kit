@@ -36,13 +36,13 @@ type MockArticlesRepository struct {
 	mock.Mock
 }
 
-func (m *MockArticlesRepository) GetTags(ctx context.Context, tags []string) (*[]TagEntity, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func NewMockArticlesRepository() ArticlesRepository {
 	return &MockArticlesRepository{}
+}
+
+func (m *MockArticlesRepository) GetArticles(ctx context.Context, tag, author, favorited string, limit, offset int) (*[]ArticleEntity, error) {
+	args := m.Called(ctx)
+	return handleNilArticleMockOrDefault[[]ArticleEntity](args)
 }
 
 func (m *MockArticlesRepository) FindArticleBySlug(ctx context.Context, slug string) (*ArticleEntity, error) {
@@ -75,7 +75,12 @@ func (m *MockArticlesRepository) GetTag(ctx context.Context, tag string) (*TagEn
 	return handleNilArticleMockOrDefault[TagEntity](args)
 }
 
-func handleNilArticleMockOrDefault[T ArticleEntity | ArticleTagEntity | []ArticleTagEntity | TagEntity](args mock.Arguments) (*T, error) {
+func (m *MockArticlesRepository) GetTags(ctx context.Context, tags []string) (*[]TagEntity, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func handleNilArticleMockOrDefault[T ArticleEntity | []ArticleEntity | ArticleTagEntity | []ArticleTagEntity | TagEntity](args mock.Arguments) (*T, error) {
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}

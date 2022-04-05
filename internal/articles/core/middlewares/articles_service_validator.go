@@ -15,6 +15,10 @@ type articlesServiceRequestValidationMiddleware struct {
 	next      core.ArticlesService
 }
 
+func (mw *articlesServiceRequestValidationMiddleware) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error) {
+	return mw.next.GetArticles(ctx, request)
+}
+
 func NewArticlesServiceRequestValidationMiddleware(logger log.Logger, validator *validator.Validate) core.ArticlesServiceMiddleware {
 	return func(next core.ArticlesService) core.ArticlesService {
 		return &articlesServiceRequestValidationMiddleware{

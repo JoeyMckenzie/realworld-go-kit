@@ -14,6 +14,7 @@ import (
 
 type (
 	ArticlesService interface {
+		GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error)
 		CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (*domain.ArticleDto, error)
 	}
 
@@ -30,6 +31,10 @@ func NewArticlesServices(validator *validator.Validate, repository persistence.A
 		validator:  validator,
 		repository: repository,
 	}
+}
+
+func (as *articlesServices) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error) {
+	return nil, nil
 }
 
 func (as *articlesServices) CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (*domain.ArticleDto, error) {
