@@ -9,14 +9,14 @@ import (
 )
 
 var (
-	stubCreateArticleRequest = domain.CreateArticleServiceRequest{
+	StubCreateArticleRequest = domain.CreateArticleServiceRequest{
 		UserId:      1,
 		Title:       "stub title",
 		Description: "stub description",
 		Body:        "stub body",
 		TagList:     &[]string{"stub tag"},
 	}
-	stubCreateArticleRequestWithoutTagList = domain.CreateArticleServiceRequest{
+	StubCreateArticleRequestWithoutTagList = domain.CreateArticleServiceRequest{
 		UserId:      1,
 		Title:       "stub title",
 		Description: "stub description",
@@ -37,7 +37,7 @@ func newArticlesServiceTestFixture() *articlesServiceTestFixture {
 
 	return &articlesServiceTestFixture{
 		mockArticlesRepository: mockArticlesRepository,
-		mockUsersRepository: mockUsersRepository,
+		mockUsersRepository:    mockUsersRepository,
 		service:                core.NewArticlesServices(nil, mockArticlesRepository, mockUsersRepository),
 		ctx:                    context.Background(),
 	}
