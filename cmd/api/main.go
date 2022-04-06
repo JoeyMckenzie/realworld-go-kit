@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/go-playground/validator/v10"
@@ -14,6 +16,7 @@ import (
 	usersMiddlewares "github.com/joeymckenzie/realworld-go-kit/internal/users/core/middlewares"
 	usersPersistence "github.com/joeymckenzie/realworld-go-kit/internal/users/persistence"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
+	"github.com/joeymckenzie/realworld-go-kit/pkg/config"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/services"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"github.com/joho/godotenv"
@@ -38,12 +41,27 @@ func main() {
 		defer level.Info(logger).Log("main", "application shutting down...")
 	}
 
-	// Load in configuration
+	// Load in environment variables
 	if err := godotenv.Load(); err != nil {
 		level.Error(logger).Log(
-			"configuration", "error while bootstrapping environment",
+			"environment", "error while bootstrapping environment",
 			"error", err,
 		)
+		os.Exit(1)
+	}
+
+	// Load in configuration
+	environment := flag.String("env", "development", "Environment to run the application under")
+	flag.Parse()
+
+	if environment == nil || *environment == "" {
+		level.Error(logger).Log("environment", "no environment provided at startup")
+		os.Exit(1)
+	}
+
+	configuration, err := config.InitializeConfiguration(*environment)
+	if err != nil {
+		level.Error(logger).Log("configuration", "configuration was not properly loaded", "error", err)
 		os.Exit(1)
 	}
 
@@ -96,7 +114,10 @@ func main() {
 	router = articlesApi.MakeArticlesTransport(router, logger, articlesService)
 	router.Mount("/api", router)
 
-	if err = http.ListenAndServe(":8080", router); err != nil {
+	port := fmt.Sprintf(":%d", configuration.Service.Port)
+	level.Info(logger).Log("server_start", fmt.Sprintf("listening on port %s", port))
+
+	if err = http.ListenAndServe(port, router); err != nil {
 		level.Error(logger).Log("main", "error during server startup", "error", err)
 		os.Exit(1)
 	}

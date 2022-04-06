@@ -25,7 +25,7 @@ tasks:
   start:api:
     summary: Start the API
     cmds:
-      - go run ./cmd/api
+      - go run ./cmd/api -env development
 
   start:atlas:
     summary: Run the atlas executable
@@ -47,10 +47,30 @@ tasks:
     cmds:
       - go vet ./...
 
+  start:docker:
+    summary: Starts the API docker container
+    cmds:
+      - docker-compose -f ./docker-compose.postgres.yml -f ./docker-compose.prometheus.yml -f ./docker-compose.api.yml up --build
+
+  start:api:docker:
+    summary: Starts the API docker container
+    cmds:
+      - docker-compose -f ./docker-compose.postgres.yml -f ./docker-compose.api.yml up --build
+
   start:postgres:
     summary: Starts the Postgres docker container
     cmds:
       - docker-compose -f ./docker-compose.postgres.yml up --build
+
+  start:metrics:
+    summary: Starts the Promethus docker container
+    cmds:
+      - docker-compose -f ./docker-compose.prometheus.yml up --build
+
+  start:backend:
+    summary: Starts both the database and metrics containers
+    cmds:
+      - docker-compose -f ./docker-compose.prometheus.yml -f ./docker-compose.postgres.yml up --build
 
   atlas:inspect:
     summary: Runs the atals inspect managment UI

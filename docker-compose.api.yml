@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  api:
+    image: api
+    build:
+      context: .
+      dockerfile: cmd/api/Dockerfile
+    volumes:
+      - /tmp/app:/var/log/app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      GO_ENV: docker
+    depends_on:
+      postgres:
+        condition: service_healthy

@@ -14,3 +14,11 @@ services:
       retries: 5
     ports:
       - "5432:5432"
+
+  prometheus:
+    container_name: realworld_prometheus_metrics
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
