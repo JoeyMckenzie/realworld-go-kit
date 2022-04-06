@@ -14,14 +14,14 @@ type Configuration struct {
 	Service ServiceConfig `hcl:"service,block"`
 }
 
-func (c *Configuration) IsValidEnvironment() bool {
+func (c Configuration) IsValidEnvironment() bool {
 	return c.Service.Environment == production || c.Service.Environment == development || c.Service.Environment == docker
 }
 
-func (c *Configuration) IsProduction() bool {
+func (c Configuration) IsProduction() bool {
 	return c.Service.Environment == production
 }
 
-func (c *Configuration) IsDocker() bool {
+func (c Configuration) IsDocker() bool {
 	return c.Service.Environment == docker
 }

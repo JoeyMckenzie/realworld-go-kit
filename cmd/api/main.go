@@ -66,7 +66,17 @@ func main() {
 	}
 
 	// Build out our connection to the database
-	db, err := sqlx.Open(postgresDiver, os.Getenv("CONNECTION_STRING"))
+	var connectionString string
+	{
+		// Our API running within a docker context will need to communicate to the postgres container within the swarm
+		if configuration.IsDocker() {
+			connectionString = os.Getenv("CONNECTION_STRING_DOCKER")
+		} else {
+			connectionString = os.Getenv("CONNECTION_STRING")
+		}
+	}
+
+	db, err := sqlx.Open(postgresDiver, connectionString)
 
 	if err != nil {
 		level.Error(logger).Log(
