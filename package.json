@@ -5,6 +5,9 @@
   "author": "Joey McKenzie",
   "repository": "https://github.com/JoeyMckenzie/realworld-go-kit",
   "license": "ISC",
+  "lint-staged": {
+    "*.go": "task format"
+  },
   "devDependencies": {
     "husky": "^7.0.0"
   }

@@ -4,7 +4,8 @@ import (
 	"context"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/persistence"
+	articlesPersistence "github.com/joeymckenzie/realworld-go-kit/internal/articles/persistence"
+	usersPersistence "github.com/joeymckenzie/realworld-go-kit/internal/users/persistence"
 )
 
 var (
@@ -24,17 +25,20 @@ var (
 )
 
 type articlesServiceTestFixture struct {
-	mockRepository *persistence.MockArticlesRepository
-	service        core.ArticlesService
-	ctx            context.Context
+	mockArticlesRepository *articlesPersistence.MockArticlesRepository
+	mockUsersRepository    *usersPersistence.MockUsersRepository
+	service                core.ArticlesService
+	ctx                    context.Context
 }
 
 func newArticlesServiceTestFixture() *articlesServiceTestFixture {
-	mockRepository := new(persistence.MockArticlesRepository)
+	mockArticlesRepository := new(articlesPersistence.MockArticlesRepository)
+	mockUsersRepository := new(usersPersistence.MockUsersRepository)
 
 	return &articlesServiceTestFixture{
-		mockRepository: mockRepository,
-		service:        core.NewArticlesServices(nil, mockRepository),
-		ctx:            context.Background(),
+		mockArticlesRepository: mockArticlesRepository,
+		mockUsersRepository: mockUsersRepository,
+		service:                core.NewArticlesServices(nil, mockArticlesRepository, mockUsersRepository),
+		ctx:                    context.Background(),
 	}
 }

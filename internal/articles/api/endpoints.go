@@ -3,14 +3,13 @@ package api
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-playground/validator/v10"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 )
 
-func makeCreateArticlesEndpoint(service core.ArticlesService, validator *validator.Validate) endpoint.Endpoint {
+func makeCreateArticlesEndpoint(service core.ArticlesService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
 			apiRequest := request.(domain.UpsertArticleApiRequest)

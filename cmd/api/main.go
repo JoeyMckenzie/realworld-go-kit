@@ -84,7 +84,7 @@ func main() {
 	var articlesService articlesCore.ArticlesService
 	{
 		requestCount, requestLatency := utilities.NewServiceMetrics("articles_service")
-		articlesService = articlesCore.NewArticlesServices(requestValidator, articlesRepository)
+		articlesService = articlesCore.NewArticlesServices(requestValidator, articlesRepository, usersRepository)
 		articlesService = articlesMiddlewares.NewArticlesServiceLoggingMiddleware(logger)(articlesService)
 		articlesService = articlesMiddlewares.NewArticlesServiceMetrics(requestCount, requestLatency)(articlesService)
 		articlesService = articlesMiddlewares.NewArticlesServiceRequestValidationMiddleware(logger, requestValidator)(articlesService)
