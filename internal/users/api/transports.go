@@ -71,10 +71,10 @@ func MakeUsersTransport(router *chi.Mux, logger log.Logger, service core.UsersSe
 	)
 
 	router.Route("/profiles", func(r chi.Router) {
-		router.Get("/{username}", getUserProfileHandler.ServeHTTP)
+		r.Get("/{username}", getUserProfileHandler.ServeHTTP)
 
 		// Authorized profile requests for following/unfollowing users
-		router.Group(func(r chi.Router) {
+		r.Group(func(r chi.Router) {
 			r.Use(api.AuthorizedRequestMiddleware)
 			r.Post("/{username}/follow", addUserFollowHandler.ServeHTTP)
 			r.Delete("/{username}/follow", removeUserFollowHandler.ServeHTTP)

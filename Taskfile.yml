@@ -50,7 +50,7 @@ tasks:
   start:docker:
     summary: Starts the API docker container
     cmds:
-      - docker-compose -f ./docker-compose.postgres.yml -f ./docker-compose.prometheus.yml -f ./docker-compose.api.yml up --build
+      - docker-compose -f ./docker-compose.postgres.yml -f ./docker-compose.metrics.yml -f ./docker-compose.api.yml up --build
 
   start:api:docker:
     summary: Starts the API docker container
@@ -65,12 +65,12 @@ tasks:
   start:metrics:
     summary: Starts the Promethus docker container
     cmds:
-      - docker-compose -f ./docker-compose.prometheus.yml up --build
+      - docker-compose -f ./docker-compose.metrics.yml up --build
 
   start:backend:
     summary: Starts both the database and metrics containers
     cmds:
-      - docker-compose -f ./docker-compose.prometheus.yml -f ./docker-compose.postgres.yml up --build
+      - docker-compose -f ./docker-compose.metrics.yml -f ./docker-compose.postgres.yml up --build
 
   atlas:inspect:
     summary: Runs the atals inspect managment UI
