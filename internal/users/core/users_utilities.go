@@ -14,7 +14,11 @@ func updateIfRequired(existingField string, requestField *string) string {
 }
 
 func isValidDatabaseErr(err error) bool {
-	return err != nil && err != sql.ErrNoRows
+	return err != nil && !isNotFound(err)
+}
+
+func isNotFound(err error) bool {
+	return err == sql.ErrNoRows
 }
 
 func handleRepositoryErrors(err error) error {

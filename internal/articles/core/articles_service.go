@@ -101,7 +101,7 @@ func (as *articlesServices) CreateArticle(ctx context.Context, request *domain.C
 		Title:          createdArticle.Title,
 		Description:    createdArticle.Description,
 		Body:           createdArticle.Body,
-		TagList:        createdArticle.Tags,
+		// TagList:        createdArticle.Tags,
 		CreatedAt:      createdArticle.CreatedAt,
 		UpdatedAt:      createdArticle.UpdatedAt,
 		Favorited:      false,

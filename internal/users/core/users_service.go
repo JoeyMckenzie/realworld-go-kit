@@ -188,8 +188,13 @@ func (us *usersService) AddUserFollow(ctx context.Context, followerUserId int, f
 
 	if isValidDatabaseErr(err) {
 		return nil, err
-	} else if err == sql.ErrNoRows {
+	} else if isNotFound(err) {
 		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
+	}
+
+	// Verify the user is not trying to follow themselves (common... you're better than that)
+	if userToFollow.Id == followerUserId {
+		return nil, api.NewApiErrorWithContext(http.StatusBadRequest, "follows", utilities.ErrCannotFollowSelf)
 	}
 
 	if _, err = us.repository.CreateUserFollow(ctx, followerUserId, userToFollow.Id); err != nil {
