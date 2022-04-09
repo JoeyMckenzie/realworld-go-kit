@@ -101,7 +101,7 @@ func (as *articlesServices) CreateArticle(ctx context.Context, request *domain.C
 		Title:          createdArticle.Title,
 		Description:    createdArticle.Description,
 		Body:           createdArticle.Body,
-		// TagList:        createdArticle.Tags,
+		TagList:        tagsToCreate,
 		CreatedAt:      createdArticle.CreatedAt,
 		UpdatedAt:      createdArticle.UpdatedAt,
 		Favorited:      false,
@@ -113,51 +113,4 @@ func (as *articlesServices) CreateArticle(ctx context.Context, request *domain.C
 			Following: false,
 		},
 	}, nil
-}
-
-func removeDuplicates(tags *[]string) []string {
-	if tags == nil {
-		return []string{}
-	}
-
-	var depudedTags []string
-	{
-		for _, tag := range *tags {
-			for _, depudedTag := range depudedTags {
-				if tag != depudedTag {
-					depudedTags = append(depudedTags)
-				}
-			}
-		}
-	}
-
-	return depudedTags
-}
-
-func containsTag(searchValue string, tags *[]persistence.TagEntity) bool {
-	if tags == nil {
-		return false
-	}
-
-	for _, value := range *tags {
-		if value.Tag == searchValue {
-			return true
-		}
-	}
-
-	return false
-}
-
-func findTag(searchTag string, tags *[]persistence.TagEntity) *persistence.TagEntity {
-	if !containsTag(searchTag, tags) {
-		return nil
-	}
-
-	for _, tag := range *tags {
-		if tag.Tag == searchTag {
-			return &tag
-		}
-	}
-
-	return nil
 }
