@@ -29,6 +29,12 @@ var (
 		CreatedAt: time.Now(),
 		Tag:       "stub tag",
 	}
+
+	StubAnotherTag = &TagEntity{
+		Id:        2,
+		CreatedAt: time.Now(),
+		Tag:       "another stub tag",
+	}
 )
 
 type MockArticlesRepository struct {

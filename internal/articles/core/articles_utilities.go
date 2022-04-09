@@ -26,7 +26,7 @@ func removeDuplicates(tags *[]string) []string {
 }
 
 func containsTag(searchValue string, tags *[]persistence.TagEntity) bool {
-    if tags == nil {
+    if tags == nil || len(*tags) == 0 {
         return false
     }
 
