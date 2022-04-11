@@ -11,9 +11,7 @@ func removeDuplicates(tags *[]string) []string {
     tagCountMap := make(map[string]int)
 
     for _, tag := range *tags {
-        if _, exists := tagCountMap[tag]; exists {
-            tagCountMap[tag]++
-        } else {
+        if _, exists := tagCountMap[tag]; !exists {
             tagCountMap[tag] = 1
         }
     }

@@ -2,7 +2,6 @@ package core
 
 import (
 	"database/sql"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 )
 
 func updateIfRequired(existingField string, requestField *string) string {
@@ -19,14 +18,4 @@ func isValidDatabaseErr(err error) bool {
 
 func isNotFound(err error) bool {
 	return err == sql.ErrNoRows
-}
-
-func handleRepositoryErrors(err error) error {
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	} else if err == sql.ErrNoRows {
-		return utilities.ErrUserNotFound
-	}
-
-	return nil
 }

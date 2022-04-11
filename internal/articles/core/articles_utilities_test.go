@@ -99,13 +99,12 @@ func Test_findTag_GivenSearchValueInTags_ReturnsTag(t *testing.T) {
 	}
 
 	// Assert
-    result := findTag("another stub tag", &tags)
+	result := findTag("another stub tag", &tags)
 
 	// Act
-    assert.NotNil(t, result)
-    assert.EqualValues(t, tags[1], *result)
+	assert.NotNil(t, result)
+	assert.EqualValues(t, tags[1], *result)
 }
-
 
 func Test_findTag_GivenSearchValueNotInTags_ReturnsNil(t *testing.T) {
 	// Arrange
@@ -115,8 +114,8 @@ func Test_findTag_GivenSearchValueNotInTags_ReturnsNil(t *testing.T) {
 	}
 
 	// Assert
-    result := findTag("not in tag collection", &tags)
+	result := findTag("not in tag collection", &tags)
 
 	// Act
-    assert.Nil(t, result)
+	assert.Nil(t, result)
 }
