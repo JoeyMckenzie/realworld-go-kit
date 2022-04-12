@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	createArticleRequestStub = &domain.CreateArticleServiceRequest{
+	createArticleRequestStub = &domain.UpsertArticleServiceRequest{
 		UserId:      1,
 		Title:       "stub title",
 		Description: "stub description",
@@ -18,7 +18,7 @@ var (
 		TagList:     &[]string{"stub tag"},
 	}
 
-	createArticleRequestStubWithoutTagList = &domain.CreateArticleServiceRequest{
+	createArticleRequestStubWithoutTagList = &domain.UpsertArticleServiceRequest{
 		UserId:      1,
 		Title:       "stub title",
 		Description: "stub description",

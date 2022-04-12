@@ -9,14 +9,14 @@ import (
 )
 
 var (
-	StubCreateArticleRequest = domain.CreateArticleServiceRequest{
+	StubCreateArticleRequest = domain.UpsertArticleServiceRequest{
 		UserId:      1,
 		Title:       "stub title",
 		Description: "stub description",
 		Body:        "stub body",
 		TagList:     &[]string{"stub tag"},
 	}
-	StubCreateArticleRequestWithoutTagList = domain.CreateArticleServiceRequest{
+	StubCreateArticleRequestWithoutTagList = domain.UpsertArticleServiceRequest{
 		UserId:      1,
 		Title:       "stub title",
 		Description: "stub description",

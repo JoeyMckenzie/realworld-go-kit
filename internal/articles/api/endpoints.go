@@ -13,7 +13,7 @@ func makeCreateArticlesEndpoint(service core.ArticlesService) endpoint.Endpoint 
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
 			apiRequest := request.(domain.UpsertArticleApiRequest)
-			response, err := service.CreateArticle(ctx, &domain.CreateArticleServiceRequest{
+			response, err := service.CreateArticle(ctx, &domain.UpsertArticleServiceRequest{
 				UserId:      tokenMeta.UserId,
 				Title:       apiRequest.Article.Title,
 				Description: apiRequest.Article.Description,
