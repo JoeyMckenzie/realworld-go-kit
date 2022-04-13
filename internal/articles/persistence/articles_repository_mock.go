@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"context"
+	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
 	"github.com/stretchr/testify/mock"
 	"time"
 )
@@ -19,7 +20,6 @@ var (
 	StubArticleTag = &ArticleTagEntity{
 		Id:        1,
 		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
 		TagId:     1,
 		ArticleId: StubArticle.Id,
 	}
@@ -45,7 +45,7 @@ func NewMockArticlesRepository() ArticlesRepository {
 	return &MockArticlesRepository{}
 }
 
-func (m *MockArticlesRepository) GetArticles(ctx context.Context, tag, author, favorited string, limit, offset int) (*[]ArticleEntity, error) {
+func (m *MockArticlesRepository) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]ArticleEntity, error) {
 	args := m.Called(ctx)
 	return handleNilArticleMockOrDefault[[]ArticleEntity](args)
 }
@@ -55,8 +55,8 @@ func (m *MockArticlesRepository) FindArticleBySlug(ctx context.Context, slug str
 	return handleNilArticleMockOrDefault[ArticleEntity](args)
 }
 
-func (m *MockArticlesRepository) CreateArticle(ctx context.Context, userId int, title, slug, description, body string, tagList []int) (*ArticleEntity, error) {
-	args := m.Called(ctx, userId, title, slug, description, body, tagList)
+func (m *MockArticlesRepository) CreateArticle(ctx context.Context, userId int, title, slug, description, body string) (*ArticleEntity, error) {
+	args := m.Called(ctx, userId, title, slug, description, body)
 	return handleNilArticleMockOrDefault[ArticleEntity](args)
 }
 
@@ -68,6 +68,10 @@ func (m *MockArticlesRepository) GetTags(ctx context.Context, tags []string) (*[
 func (m *MockArticlesRepository) CreateTag(ctx context.Context, tag string) (*TagEntity, error) {
 	args := m.Called(ctx, tag)
 	return handleNilArticleMockOrDefault[TagEntity](args)
+}
+func (m *MockArticlesRepository) CreateArticleTag(ctx context.Context, tagId, articleId int) (*ArticleTagEntity, error) {
+	args := m.Called(ctx, tagId, articleId)
+	return handleNilArticleMockOrDefault[ArticleTagEntity](args)
 }
 
 func handleNilArticleMockOrDefault[T ArticleEntity | []ArticleEntity | ArticleTagEntity | []ArticleTagEntity | TagEntity | []TagEntity](args mock.Arguments) (*T, error) {

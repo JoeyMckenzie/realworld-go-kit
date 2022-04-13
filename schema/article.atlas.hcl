@@ -41,9 +41,11 @@ table "articles" {
     null = false
     type = bigint
   }
-  column "tags" {
-    null = false
-    type = sql("integer[]")
+  index "slug_idx" {
+    columns = [
+      column.slug
+    ]
+    unique = true
   }
   foreign_key "articles_users_fk" {
     columns     = [column.user_id]

@@ -20,4 +20,5 @@ var (
 	ErrInvalidRequestBody   = errors.New("request body is invalid")
 	ErrInvalidTokenHeader   = errors.New("authorization token is malformed")
 	ErrCannotFollowSelf     = errors.New("cannot follow or unfollow self")
+	ErrNilInput             = errors.New("cannot pass nil value")
 )

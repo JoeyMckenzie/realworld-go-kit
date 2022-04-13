@@ -47,8 +47,12 @@ func Test_CreateArticle_GivenValidRequestWithoutExistingTags_ReturnsSuccessfulRe
 		Return(articlesPersistence.StubTag, nil)
 
 	fixture.mockArticlesRepository.
-		On("CreateArticle", fixture.ctx, mock.AnythingOfType("int"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("[]int")).
+		On("CreateArticle", fixture.ctx, mock.AnythingOfType("int"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).
 		Return(articlesPersistence.StubArticle, nil)
+
+	fixture.mockArticlesRepository.
+		On("CreateArticleTag", fixture.ctx, mock.AnythingOfType("int"), mock.AnythingOfType("int")).
+		Return(articlesPersistence.StubArticleTag, nil)
 
 	// Act
 	response, err := fixture.service.CreateArticle(fixture.ctx, createArticleRequestStub)
@@ -60,6 +64,7 @@ func Test_CreateArticle_GivenValidRequestWithoutExistingTags_ReturnsSuccessfulRe
 	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "FindArticleBySlug", 1)
 	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "GetTags", 1)
 	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "CreateTag", 1)
+	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "CreateArticleTag", 1)
 }
 
 func Test_CreateArticle_GivenValidRequestWithoutTags_ReturnsSuccessfulResponseWithoutCreatingTag(t *testing.T) {
@@ -79,8 +84,12 @@ func Test_CreateArticle_GivenValidRequestWithoutTags_ReturnsSuccessfulResponseWi
 		Return(nil, nil)
 
 	fixture.mockArticlesRepository.
-		On("CreateArticle", fixture.ctx, mock.AnythingOfType("int"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("[]int")).
+		On("CreateArticle", fixture.ctx, mock.AnythingOfType("int"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).
 		Return(articlesPersistence.StubArticle, nil)
+
+	fixture.mockArticlesRepository.
+		On("CreateArticleTag", fixture.ctx, mock.AnythingOfType("int"), mock.AnythingOfType("int")).
+		Return(articlesPersistence.StubArticleTag, nil)
 
 	// Act
 	response, err := fixture.service.CreateArticle(fixture.ctx, createArticleRequestStubWithoutTagList)
@@ -92,4 +101,5 @@ func Test_CreateArticle_GivenValidRequestWithoutTags_ReturnsSuccessfulResponseWi
 	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "FindArticleBySlug", 1)
 	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "GetTags", 0)
 	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "CreateTag", 0)
+	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "CreateArticleTag", 0)
 }

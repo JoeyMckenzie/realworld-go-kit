@@ -1,4 +1,4 @@
-table "article_tags" {
+table "article_favorites" {
   schema = schema.public
   column "id" {
     null = false
@@ -13,23 +13,23 @@ table "article_tags" {
     null = false
     type = timestamp_with_time_zone
   }
-  column "tag_id" {
-    null = false
-    type = bigint
-  }
   column "article_id" {
     null = false
     type = bigint
   }
-  foreign_key "article_tags_articles_fk" {
+  column "user_id" {
+    null = false
+    type = bigint
+  }
+  foreign_key "article_favorites_articles_fk" {
     columns     = [column.article_id]
     ref_columns = [table.articles.column.id]
     on_delete   = CASCADE
     on_update   = NO_ACTION
   }
-  foreign_key "article_tags_tags_fk" {
-    columns     = [column.tag_id]
-    ref_columns = [table.tags.column.id]
+  foreign_key "article_favorites_users_fk" {
+    columns     = [column.user_id]
+    ref_columns = [table.users.column.id]
     on_delete   = CASCADE
     on_update   = NO_ACTION
   }

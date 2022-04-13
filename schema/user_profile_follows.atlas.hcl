@@ -13,10 +13,6 @@ table "user_profile_follows" {
     null = false
     type = timestamp_with_time_zone
   }
-  column "updated_at" {
-    null = false
-    type = timestamp_with_time_zone
-  }
   column "follower_user_id" {
     null = false
     type = integer

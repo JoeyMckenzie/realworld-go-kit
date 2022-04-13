@@ -7,6 +7,7 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
+	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 )
 
 type articlesServiceRequestValidationMiddleware struct {
@@ -16,6 +17,10 @@ type articlesServiceRequestValidationMiddleware struct {
 }
 
 func (mw *articlesServiceRequestValidationMiddleware) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error) {
+	if request == nil {
+		return nil, utilities.ErrNilInput
+	}
+
 	return mw.next.GetArticles(ctx, request)
 }
 
