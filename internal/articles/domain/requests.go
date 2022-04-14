@@ -23,6 +23,7 @@ type (
 	}
 
 	GetArticlesServiceRequest struct {
+		UserId    int
 		Tag       string
 		Author    string
 		Favorited string

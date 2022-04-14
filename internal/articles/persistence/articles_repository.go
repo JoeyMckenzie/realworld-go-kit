@@ -19,6 +19,7 @@ type (
 		Description string    `db:"description"`
 		Body        string    `db:"body"`
 		UserId      int       `db:"user_id"`
+		Favorites   int       `db:"favorites"`
 	}
 
 	ArticleTagEntity struct {
@@ -70,8 +71,9 @@ select a.id,
        a.slug,
        a.description,
        a.body,
-	   a.user_id
-from public.articles a`)
+	   a.user_id,
+       (select count(*) from article_favorites where article_id = a.id) as "favorites"
+from articles a`)
 	}
 
 	whereClauseIncluded := false
@@ -83,15 +85,15 @@ from public.articles a`)
 		includeTag = true
 		parameterizedInput = append(parameterizedInput, request.Tag)
 		sql.WriteString(fmt.Sprintf(`
-join public.article_tags at on at.article_id = a.id
-join public.tags t on t.id = at.tag_id`))
+join article_tags at on at.article_id = a.id
+join tags t on t.id = at.tag_id`))
 	}
 
 	if request.Author != "" {
 		parameterizedInput = append(parameterizedInput, request.Author)
 		includeAuthor = true
 		sql.WriteString(`
-join public.users u on u.id = a.user_id`)
+join users u on u.id = a.user_id`)
 	}
 
 	if request.Favorited != "" {
@@ -132,9 +134,7 @@ limit $%d::integer
 offset $%d::integer
 `, len(parameterizedInput)-1, len(parameterizedInput)))
 
-	getArticlesSql := sql.String()
-
-	if err := ar.db.SelectContext(ctx, &articles, getArticlesSql, parameterizedInput...); err != nil {
+	if err := ar.db.SelectContext(ctx, &articles, sql.String(), parameterizedInput...); err != nil {
 		return nil, err
 	}
 
@@ -145,7 +145,7 @@ func (ar *articlesRepository) CreateArticle(ctx context.Context, userId int, tit
 	var article ArticleEntity
 
 	const sql = `
-insert into public.articles (created_at, updated_at, title, slug, description, body, user_id)
+insert into articles (created_at, updated_at, title, slug, description, body, user_id)
 values (current_timestamp, current_timestamp, $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bigint)
 returning *`
 
@@ -161,7 +161,7 @@ func (ar *articlesRepository) FindArticleBySlug(ctx context.Context, slug string
 
 	const sql = `
 select *
-from public.articles
+from articles
 where slug = $1::varchar`
 
 	if err := ar.db.GetContext(ctx, &article, sql, slug); err != nil {
@@ -193,12 +193,12 @@ func (ar *articlesRepository) GetTags(ctx context.Context, tags []string) (*[]Ta
 		if len(tags) > 0 {
 			sql = `
 select *
-from public.tags
+from tags
 where tag in ($1::varchar)`
 		} else {
 			sql = `
 select *
-from public.tags`
+from tags`
 		}
 	}
 
@@ -213,8 +213,8 @@ func (ar *articlesRepository) GetArticleTags(ctx context.Context, articleId int)
 	var articleTags []string
 	const sql = `
 select t.tag
-from public.article_tags at
-join public.tags t on at.tag_id = t.id
+from article_tags at
+join tags t on at.tag_id = t.id
 where article_id = $1::integer
 and t.id = at.tag_id`
 

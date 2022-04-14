@@ -91,6 +91,11 @@ func (m *MockUsersRepository) RemoveUserFollow(ctx context.Context, followerUser
 	return args.Error(0)
 }
 
+func (m *MockUsersRepository) IsFollowingUser(ctx context.Context, followerUserId, followeeUserId int) bool {
+	args := m.Called(ctx, followerUserId, followeeUserId)
+	return args.Bool(0)
+}
+
 func handleNilUserMockOrDefault[T UserProfileFollowEntity | UserEntity](args mock.Arguments) (*T, error) {
 	if args.Get(0) == nil {
 		return nil, args.Error(1)

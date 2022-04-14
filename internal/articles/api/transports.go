@@ -10,6 +10,7 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
+	"github.com/joeymckenzie/realworld-go-kit/pkg/services"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"net/http"
 	"strconv"
@@ -59,37 +60,19 @@ func decodeUpsertArticleRequest(_ context.Context, r *http.Request) (interface{}
 }
 
 func decodeGetArticlesRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var limit int
-	{
-		limit = 20
+	limit, limitOk := getDefaultParamValue(20, r.URL.Query().Get("limit"))
+	offset, offsetOk := getDefaultParamValue(0, r.URL.Query().Get("offset"))
 
-		if limitQueryParam := r.URL.Query().Get("limit"); limitQueryParam != "" {
-			parsedLimit, err := strconv.ParseInt(limitQueryParam, 10, 64)
+    if !limitOk || !offsetOk {
+        return nil, utilities.ErrInvalidLimitOrOffsetValue
+    }
 
-			if err != nil {
-				return nil, utilities.ErrInvalidLimitOrOffsetValue
-			}
-
-			limit = int(parsedLimit)
-		}
-	}
-
-	var offset int
-	{
-		offset = 0
-
-		if offsetQueryParam := r.URL.Query().Get("offset"); offsetQueryParam != "" {
-			parsedOffset, err := strconv.ParseInt(offsetQueryParam, 10, 64)
-
-			if err != nil {
-				return nil, utilities.ErrInvalidLimitOrOffsetValue
-			}
-
-			offset = int(parsedOffset)
-		}
-	}
+	userId, _ := services.
+		NewTokenService().
+		GetOptionalUserIdFromAuthorizationHeader(r.Header.Get("Authorization"))
 
 	request := domain.GetArticlesServiceRequest{
+		UserId:    userId,
 		Tag:       r.URL.Query().Get("tag"),
 		Author:    r.URL.Query().Get("author"),
 		Favorited: r.URL.Query().Get("favorited"),
@@ -97,4 +80,19 @@ func decodeGetArticlesRequest(_ context.Context, r *http.Request) (interface{}, 
 		Offset:    offset,
 	}
 	return request, nil
+}
+
+func getDefaultParamValue(defaultValue int, queryParamValue string) (int, bool) {
+	value := defaultValue
+
+	if queryParamValue != "" {
+		parsedQueryParamValue, err := strconv.ParseInt(queryParamValue, 10, 64)
+		if err != nil {
+			return value, false
+		}
+
+		value = int(parsedQueryParamValue)
+	}
+
+	return value, true
 }
