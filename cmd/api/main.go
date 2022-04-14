@@ -7,6 +7,7 @@ import (
 	"github.com/go-kit/log/level"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
+	"github.com/joeymckenzie/realworld-go-kit/internal"
 	articlesApi "github.com/joeymckenzie/realworld-go-kit/internal/articles/api"
 	articlesCore "github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
 	articlesMiddlewares "github.com/joeymckenzie/realworld-go-kit/internal/articles/core/middlewares"
@@ -113,6 +114,10 @@ func main() {
 		articlesService = articlesMiddlewares.NewArticlesServiceRequestValidationMiddleware(logger, requestValidator)(articlesService)
 	}
 
+	// Seed data in the database for testing
+	internal.SeedData(logger, usersRepository, articlesRepository)
+
+	// Spin up the API router
 	router := api.NewChiRouter()
 	router.Get("/metrics", promhttp.Handler().ServeHTTP)
 	router = usersApi.MakeUsersTransport(router, logger, usersService)

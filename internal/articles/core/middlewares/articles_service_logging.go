@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
@@ -23,12 +24,12 @@ func NewArticlesServiceLoggingMiddleware(logger log.Logger) core.ArticlesService
 	}
 }
 
-func (mw *articlesServiceLoggingMiddleware) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (articles []*domain.ArticleDto, err error) {
+func (mw *articlesServiceLoggingMiddleware) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (articles *[]domain.ArticleDto, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "CreateArticle",
 			"request_time", time.Since(begin),
-			"articles_found", len(articles),
+			"articles_found", fmt.Sprint(articles != nil),
 			"error", err,
 		)
 	}(time.Now())

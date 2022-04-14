@@ -40,6 +40,7 @@ type (
 		CreateArticle(ctx context.Context, userId int, title, slug, description, body string) (*ArticleEntity, error)
 		CreateTag(ctx context.Context, tag string) (*TagEntity, error)
 		GetTags(ctx context.Context, tags []string) (*[]TagEntity, error)
+		GetArticleTags(ctx context.Context, articleId int) (*[]string, error)
 		CreateArticleTag(ctx context.Context, tagId, articleId int) (*ArticleTagEntity, error)
 	}
 
@@ -68,31 +69,60 @@ select a.id,
        a.title,
        a.slug,
        a.description,
-       a.body
+       a.body,
 	   a.user_id
 from public.articles a`)
 	}
 
+	whereClauseIncluded := false
+	includeTag := false
+	includeAuthor := false
+	includeFavorited := false
+
 	if request.Tag != "" {
+		includeTag = true
 		parameterizedInput = append(parameterizedInput, request.Tag)
 		sql.WriteString(fmt.Sprintf(`
 join public.article_tags at on at.article_id = a.id
-join public.tags t on t.id = at.tag_id
-where t.tag = %d::varchar`, parameterizedInput))
+join public.tags t on t.id = at.tag_id`))
 	}
 
 	if request.Author != "" {
 		parameterizedInput = append(parameterizedInput, request.Author)
-		sql.WriteString(fmt.Sprintf(`
-join public.users u on u.id = a.user_id
-where u.username = %d::varchar`, parameterizedInput))
+		includeAuthor = true
+		sql.WriteString(`
+join public.users u on u.id = a.user_id`)
 	}
 
 	if request.Favorited != "" {
 		parameterizedInput = append(parameterizedInput, request.Favorited)
+		includeFavorited = true
+	}
+
+	if includeTag {
+		whereClauseIncluded = true
 		sql.WriteString(fmt.Sprintf(`
-join public.users uu on uu.id = a.user_id
-where uu.username = %d::varchar`, parameterizedInput))
+where t.tag = $%d::varchar`, indexOf(parameterizedInput, request.Tag)))
+	}
+
+	if includeAuthor {
+		if whereClauseIncluded {
+			sql.WriteString(fmt.Sprintf(`
+and u.username = $%d::varchar`, indexOf(parameterizedInput, request.Author)))
+		} else {
+			sql.WriteString(fmt.Sprintf(`
+where u.username = $%d::varchar`, indexOf(parameterizedInput, request.Author)))
+		}
+	}
+
+	if includeFavorited {
+		if whereClauseIncluded {
+			sql.WriteString(fmt.Sprintf(`
+and u.username = $%d::varchar`, indexOf(parameterizedInput, request.Favorited)))
+		} else {
+			sql.WriteString(fmt.Sprintf(`
+where u.username = $%d::varchar`, indexOf(parameterizedInput, request.Favorited)))
+		}
 	}
 
 	parameterizedInput = append(parameterizedInput, request.Limit)
@@ -179,6 +209,22 @@ from public.tags`
 	return &articleTags, nil
 }
 
+func (ar *articlesRepository) GetArticleTags(ctx context.Context, articleId int) (*[]string, error) {
+	var articleTags []string
+	const sql = `
+select t.tag
+from public.article_tags at
+join public.tags t on at.tag_id = t.id
+where article_id = $1::integer
+and t.id = at.tag_id`
+
+	if err := ar.db.SelectContext(ctx, &articleTags, sql, articleId); err != nil {
+		return nil, err
+	}
+
+	return &articleTags, nil
+}
+
 func (ar *articlesRepository) CreateArticleTag(ctx context.Context, tagId, articleId int) (*ArticleTagEntity, error) {
 	var createdArticleTag ArticleTagEntity
 
@@ -192,4 +238,14 @@ returning *`
 	}
 
 	return &createdArticleTag, nil
+}
+
+func indexOf(parameterizedInput []interface{}, searchValue interface{}) int {
+	for index, value := range parameterizedInput {
+		if value == searchValue {
+			return index + 1
+		}
+	}
+
+	return -1
 }

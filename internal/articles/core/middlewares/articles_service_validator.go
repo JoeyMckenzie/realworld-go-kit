@@ -16,14 +16,6 @@ type articlesServiceRequestValidationMiddleware struct {
 	next      core.ArticlesService
 }
 
-func (mw *articlesServiceRequestValidationMiddleware) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error) {
-	if request == nil {
-		return nil, utilities.ErrNilInput
-	}
-
-	return mw.next.GetArticles(ctx, request)
-}
-
 func NewArticlesServiceRequestValidationMiddleware(logger log.Logger, validator *validator.Validate) core.ArticlesServiceMiddleware {
 	return func(next core.ArticlesService) core.ArticlesService {
 		return &articlesServiceRequestValidationMiddleware{
@@ -32,6 +24,14 @@ func NewArticlesServiceRequestValidationMiddleware(logger log.Logger, validator 
 			next:      next,
 		}
 	}
+}
+
+func (mw *articlesServiceRequestValidationMiddleware) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]domain.ArticleDto, error) {
+	if request == nil {
+		return nil, utilities.ErrNilInput
+	}
+
+	return mw.next.GetArticles(ctx, request)
 }
 
 func (mw *articlesServiceRequestValidationMiddleware) CreateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error) {

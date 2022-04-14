@@ -15,7 +15,7 @@ import (
 
 type (
 	ArticlesService interface {
-		GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error)
+		GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]domain.ArticleDto, error)
 		CreateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error)
 	}
 
@@ -36,15 +36,61 @@ func NewArticlesServices(validator *validator.Validate, repository persistence.A
 	}
 }
 
-func (as *articlesServices) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error) {
-	_, err := as.repository.GetArticles(ctx, request)
-	if err != nil && err != sql.ErrNoRows {
+func (as *articlesServices) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]domain.ArticleDto, error) {
+	articles, err := as.repository.GetArticles(ctx, request)
+	articlesNotFound := articles == nil || utilities.IsNotFound(err) || len(*articles) == 0
+
+	if utilities.IsValidDbError(err) {
 		return nil, api.NewInternalServerErrorWithContext("articles", err)
-	} else if err == sql.ErrNoRows {
-		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", err)
+	} else if articlesNotFound {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "articles", utilities.ErrArticlesNotFound)
 	}
 
-	return nil, nil
+	var response []domain.ArticleDto
+	{
+		for _, article := range *articles {
+			user, err := as.usersRepository.GetUser(ctx, article.UserId)
+			if err != nil {
+				return nil, api.NewInternalServerErrorWithContext("articles", err)
+			}
+
+			var mappedArticleTags []string
+			{
+				articleTags, err := as.repository.GetArticleTags(ctx, article.Id)
+				if utilities.IsValidDbError(err) {
+					return nil, api.NewInternalServerErrorWithContext("articles", err)
+				}
+
+				if articleTags != nil {
+					for _, tag := range *articleTags {
+						mappedArticleTags = append(mappedArticleTags, tag)
+					}
+				}
+			}
+
+			mappedArticle := &domain.ArticleDto{
+				Slug:           article.Slug,
+				Title:          article.Title,
+				Description:    article.Description,
+				Body:           article.Body,
+				TagList:        mappedArticleTags,
+				CreatedAt:      article.CreatedAt,
+				UpdatedAt:      article.UpdatedAt,
+				Favorited:      false,
+				FavoritesCount: 0,
+				Author: domain.AuthorDto{
+					Username:  user.Username,
+					Bio:       user.Bio,
+					Image:     user.Image,
+					Following: false,
+				},
+			}
+
+			response = append(response, *mappedArticle)
+		}
+	}
+
+	return &response, nil
 }
 
 func (as *articlesServices) CreateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error) {

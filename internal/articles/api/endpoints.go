@@ -49,12 +49,14 @@ func makeCreateArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
 func makeGetArticlesEndpoint(service core.ArticlesService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		apiRequest := request.(domain.GetArticlesServiceRequest)
-		_, err := service.GetArticles(ctx, &apiRequest)
+		articles, err := service.GetArticles(ctx, &apiRequest)
 
 		if err != nil {
 			return nil, err
 		}
 
-		return nil, nil
+		return &domain.GetArticlesResponse{
+			Articles: *articles,
+		}, nil
 	}
 }
