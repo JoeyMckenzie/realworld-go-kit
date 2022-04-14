@@ -1,8 +1,8 @@
 package utilities
 
 import (
-    "fmt"
-    "reflect"
+	"fmt"
+	"reflect"
 )
 
 type postgresTypeMap map[reflect.Kind]string
@@ -23,11 +23,11 @@ func GetValueFromType(value interface{}) string {
 }
 
 func GetParameterizedValue(value interface{}, parameterizedInput []interface{}) string {
-    reflectedKind := reflect.TypeOf(value).Kind()
+	reflectedKind := reflect.TypeOf(value).Kind()
 
-    if typeMapValue, exists := postgresTypeMapValues[reflectedKind]; exists {
-        return fmt.Sprintf("$%v::%s", len(parameterizedInput), typeMapValue)
-    }
+	if typeMapValue, exists := postgresTypeMapValues[reflectedKind]; exists {
+		return fmt.Sprintf("$%v::%s", len(parameterizedInput), typeMapValue)
+	}
 
-    return ""
+	return ""
 }

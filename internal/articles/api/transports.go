@@ -59,11 +59,11 @@ func decodeUpsertArticleRequest(_ context.Context, r *http.Request) (interface{}
 
 func decodeGetArticlesRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	request := domain.GetArticlesServiceRequest{
-        Tag:       "",
-        Author:    "",
-        Favorited: "",
-        Limit:     20,
-        Offset:    0,
-    }
+		Tag:       "",
+		Author:    "",
+		Favorited: "",
+		Limit:     20,
+		Offset:    0,
+	}
 	return request, nil
 }
