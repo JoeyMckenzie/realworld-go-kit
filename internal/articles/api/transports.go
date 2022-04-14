@@ -20,16 +20,28 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
 		httpTransport.ServerErrorEncoder(api.EncodeError),
 	}
 
+	endpoints := NewArticleEndpoints(service)
+
 	createArticleHandler := httpTransport.NewServer(
-		makeCreateArticlesEndpoint(service),
+		endpoints.MakeCreateArticleEndpoint,
 		decodeUpsertArticleRequest,
 		api.EncodeSuccessfulResponse,
 		options...,
 	)
 
+	getArticleHandler := httpTransport.NewServer(
+		endpoints.MakeGetArticlesEndpoint,
+		decodeGetArticlesRequest,
+		api.EncodeSuccessfulResponse,
+		options...,
+	)
+
 	router.Route("/articles", func(r chi.Router) {
-		r.Use(api.AuthorizedRequestMiddleware)
-		r.Post("/", createArticleHandler.ServeHTTP)
+		r.Get("/", getArticleHandler.ServeHTTP)
+		r.Group(func(innerRouter chi.Router) {
+			innerRouter.Use(api.AuthorizedRequestMiddleware)
+			innerRouter.Post("/", createArticleHandler.ServeHTTP)
+		})
 	})
 
 	return router
@@ -42,5 +54,16 @@ func decodeUpsertArticleRequest(_ context.Context, r *http.Request) (interface{}
 		return nil, utilities.ErrInvalidRequestBody
 	}
 
+	return request, nil
+}
+
+func decodeGetArticlesRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	request := domain.GetArticlesServiceRequest{
+        Tag:       "",
+        Author:    "",
+        Favorited: "",
+        Limit:     20,
+        Offset:    0,
+    }
 	return request, nil
 }

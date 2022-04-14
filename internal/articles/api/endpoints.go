@@ -1,35 +1,60 @@
 package api
 
 import (
-	"context"
-	"github.com/go-kit/kit/endpoint"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
+    "context"
+    "github.com/go-kit/kit/endpoint"
+    "github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
+    "github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
+    "github.com/joeymckenzie/realworld-go-kit/pkg/api"
+    "github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 )
 
-func makeCreateArticlesEndpoint(service core.ArticlesService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
-			apiRequest := request.(domain.UpsertArticleApiRequest)
-			response, err := service.CreateArticle(ctx, &domain.UpsertArticleServiceRequest{
-				UserId:      tokenMeta.UserId,
-				Title:       apiRequest.Article.Title,
-				Description: apiRequest.Article.Description,
-				Body:        apiRequest.Article.Body,
-				TagList:     apiRequest.Article.TagList,
-			})
+type ArticleEndpoints struct {
+    MakeCreateArticleEndpoint endpoint.Endpoint
+    MakeGetArticlesEndpoint   endpoint.Endpoint
+}
 
-			if err != nil {
-				return nil, err
-			}
+func NewArticleEndpoints(service core.ArticlesService) *ArticleEndpoints {
+    return &ArticleEndpoints{
+        MakeCreateArticleEndpoint: makeCreateArticleEndpoint(service),
+        MakeGetArticlesEndpoint:   makeGetArticlesEndpoint(service),
+    }
+}
 
-			return &domain.UpsertArticleResponse{
-				Article: response,
-			}, nil
-		}
+func makeCreateArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
+    return func(ctx context.Context, request interface{}) (interface{}, error) {
+        if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+            apiRequest := request.(domain.UpsertArticleApiRequest)
+            response, err := service.CreateArticle(ctx, &domain.UpsertArticleServiceRequest{
+                UserId:      tokenMeta.UserId,
+                Title:       apiRequest.Article.Title,
+                Description: apiRequest.Article.Description,
+                Body:        apiRequest.Article.Body,
+                TagList:     apiRequest.Article.TagList,
+            })
 
-		return nil, utilities.ErrUnauthorized
-	}
+            if err != nil {
+                return nil, err
+            }
+
+            return &domain.UpsertArticleResponse{
+                Article: response,
+            }, nil
+        }
+
+        return nil, utilities.ErrUnauthorized
+    }
+}
+
+func makeGetArticlesEndpoint(service core.ArticlesService) endpoint.Endpoint {
+    return func(ctx context.Context, request interface{}) (interface{}, error) {
+        apiRequest := request.(domain.GetArticlesServiceRequest)
+        _, err := service.GetArticles(ctx, &apiRequest)
+
+        if err != nil {
+            return nil, err
+        }
+
+        return nil, nil
+    }
 }
