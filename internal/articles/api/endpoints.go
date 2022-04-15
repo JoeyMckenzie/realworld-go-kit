@@ -12,12 +12,14 @@ import (
 type ArticleEndpoints struct {
 	MakeCreateArticleEndpoint endpoint.Endpoint
 	MakeGetArticlesEndpoint   endpoint.Endpoint
+	MakeGetFeedEndpoint       endpoint.Endpoint
 }
 
 func NewArticleEndpoints(service core.ArticlesService) *ArticleEndpoints {
 	return &ArticleEndpoints{
 		MakeCreateArticleEndpoint: makeCreateArticleEndpoint(service),
 		MakeGetArticlesEndpoint:   makeGetArticlesEndpoint(service),
+		MakeGetFeedEndpoint:       makeGetFeedEndpoint(service),
 	}
 }
 
@@ -50,6 +52,21 @@ func makeGetArticlesEndpoint(service core.ArticlesService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		apiRequest := request.(domain.GetArticlesServiceRequest)
 		articles, err := service.GetArticles(ctx, &apiRequest)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &domain.GetArticlesResponse{
+			Articles: *articles,
+		}, nil
+	}
+}
+
+func makeGetFeedEndpoint(service core.ArticlesService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		apiRequest := request.(domain.GetArticlesServiceRequest)
+		articles, err := service.GetFeed(ctx, &apiRequest)
 
 		if err != nil {
 			return nil, err

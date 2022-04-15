@@ -38,11 +38,13 @@ type (
 	ArticlesRepository interface {
 		FindArticleBySlug(ctx context.Context, slug string) (*ArticleEntity, error)
 		GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]ArticleEntity, error)
+		GetFeedArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]ArticleEntity, error)
 		CreateArticle(ctx context.Context, userId int, title, slug, description, body string) (*ArticleEntity, error)
 		CreateTag(ctx context.Context, tag string) (*TagEntity, error)
 		GetTags(ctx context.Context, tags []string) (*[]TagEntity, error)
 		GetArticleTags(ctx context.Context, articleId int) (*[]string, error)
 		CreateArticleTag(ctx context.Context, tagId, articleId int) (*ArticleTagEntity, error)
+		UserHasFavoritedArticle(ctx context.Context, userId, articleId int) bool
 	}
 
 	articlesRepository struct {
@@ -99,6 +101,8 @@ join users u on u.id = a.user_id`)
 	if request.Favorited != "" {
 		parameterizedInput = append(parameterizedInput, request.Favorited)
 		includeFavorited = true
+		sql.WriteString(`
+join article_favorites af on af.article_id = a.id`)
 	}
 
 	if includeTag {
@@ -132,9 +136,28 @@ where u.username = $%d::varchar`, indexOf(parameterizedInput, request.Favorited)
 	sql.WriteString(fmt.Sprintf(`
 limit $%d::integer
 offset $%d::integer
+order by a.created_at desc
 `, len(parameterizedInput)-1, len(parameterizedInput)))
 
 	if err := ar.db.SelectContext(ctx, &articles, sql.String(), parameterizedInput...); err != nil {
+		return nil, err
+	}
+
+	return &articles, nil
+}
+
+func (ar *articlesRepository) GetFeedArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]ArticleEntity, error) {
+	var articles []ArticleEntity
+
+	const sql = `
+select *
+from user_profile_follows upf
+join articles a on a.user_id = upf.follower_user_id
+where upf.follower_user_id = $1::integer
+limit $2::integer
+offset $3::integer`
+
+	if err := ar.db.SelectContext(ctx, &articles, sql, request.UserId, request.Limit, request.Offset); err != nil {
 		return nil, err
 	}
 
@@ -238,6 +261,19 @@ returning *`
 	}
 
 	return &createdArticleTag, nil
+}
+
+func (ar *articlesRepository) UserHasFavoritedArticle(ctx context.Context, userId, articleId int) bool {
+	const sql = `
+select 1
+from article_favorites
+where (user_id, article_id) = ($1::integer, $2::integer)`
+
+	if result, err := ar.db.QueryxContext(ctx, sql, userId, articleId); err != nil || !result.Next() {
+		return false
+	}
+
+	return true
 }
 
 func indexOf(parameterizedInput []interface{}, searchValue interface{}) int {

@@ -46,7 +46,12 @@ func NewMockArticlesRepository() ArticlesRepository {
 }
 
 func (m *MockArticlesRepository) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]ArticleEntity, error) {
-	args := m.Called(ctx)
+	args := m.Called(ctx, request)
+	return handleNilArticleMockOrDefault[[]ArticleEntity](args)
+}
+
+func (m *MockArticlesRepository) GetFeedArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]ArticleEntity, error) {
+	args := m.Called(ctx, request)
 	return handleNilArticleMockOrDefault[[]ArticleEntity](args)
 }
 
@@ -77,6 +82,11 @@ func (m *MockArticlesRepository) CreateArticleTag(ctx context.Context, tagId, ar
 func (m *MockArticlesRepository) GetArticleTags(ctx context.Context, articleId int) (*[]string, error) {
 	args := m.Called(ctx, articleId)
 	return handleNilArticleMockOrDefault[[]string](args)
+}
+
+func (m *MockArticlesRepository) UserHasFavoritedArticle(ctx context.Context, userId, articleId int) bool {
+	args := m.Called(ctx, userId, articleId)
+	return args.Bool(0)
 }
 
 func handleNilArticleMockOrDefault[T ArticleEntity |

@@ -30,7 +30,20 @@ type (
 		Limit     int
 		Offset    int
 	}
+
+	GetArticleServiceRequest struct {
+		UserId int
+		Slug   string
+	}
 )
+
+func (request *GetArticleServiceRequest) ToSafeLoggingStruct() string {
+	if request == nil {
+		return "<nil>"
+	}
+
+	return fmt.Sprintf("userId: %d; slug: %s", request.UserId, request.Slug)
+}
 
 func (request *GetArticlesServiceRequest) ToSafeLoggingStruct() string {
 	if request == nil {
