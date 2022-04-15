@@ -89,6 +89,29 @@ tasks:
       - atlas schema format .
       - atlas schema apply --dsn {{.DSN}} -f atlas.hcl
 
+  ent:init:
+    summary: Runs the create entity ent command
+    cmds:
+      - go run entgo.io/ent/cmd/ent init
+
+  ent:generate:
+    summary: Generates the ent entity code
+    cmds:
+      - go generate ./ent
+
+  ent:clean:
+    summary: Generates the ent entity code
+    cmds:
+      - mkdir ./tmp
+      - cp -r ./ent/schema ./tmp
+      - cp ./ent/generate.go ./tmp
+      - rm -rf ./ent
+      - mkdir ./ent
+      - cp -r ./tmp/schema ./ent
+      - cp ./tmp/generate.go ./ent
+      - rm -rf ./tmp
+
+
   install:deps:
     cmds:
       - go get github.com/go-chi/chi/v5
