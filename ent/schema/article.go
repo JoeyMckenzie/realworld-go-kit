@@ -21,9 +21,14 @@ func (Article) Fields() []ent.Field {
         field.String("body").
             NotEmpty().
             Default(""),
+        field.String("description").
+            NotEmpty().
+            Default(""),
         field.String("slug").
             NotEmpty().
             Unique(),
+        field.Int("user_id").
+            Optional(),
     }
 }
 
@@ -32,7 +37,10 @@ func (Article) Edges() []ent.Edge {
     return []ent.Edge{
         edge.From("author", User.Type).
             Ref("articles").
-            Unique(),
+            Unique().
+            Field("user_id"),
+        edge.To("favorites", Favorite.Type),
+        edge.To("article_tags", ArticleTag.Type),
     }
 }
 

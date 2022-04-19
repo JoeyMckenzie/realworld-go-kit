@@ -22,6 +22,58 @@ func (f ArticleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return f(ctx, mv)
 }
 
+// The ArticleTagFunc type is an adapter to allow the use of ordinary
+// function as ArticleTag mutator.
+type ArticleTagFunc func(context.Context, *ent.ArticleTagMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ArticleTagFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ArticleTagMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ArticleTagMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The FavoriteFunc type is an adapter to allow the use of ordinary
+// function as Favorite mutator.
+type FavoriteFunc func(context.Context, *ent.FavoriteMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f FavoriteFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.FavoriteMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FavoriteMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The FollowFunc type is an adapter to allow the use of ordinary
+// function as Follow mutator.
+type FollowFunc func(context.Context, *ent.FollowMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f FollowFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.FollowMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FollowMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The TagFunc type is an adapter to allow the use of ordinary
+// function as Tag mutator.
+type TagFunc func(context.Context, *ent.TagMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TagFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.TagMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TagMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)

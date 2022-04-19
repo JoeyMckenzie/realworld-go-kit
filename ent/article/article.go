@@ -19,10 +19,18 @@ const (
 	FieldTitle = "title"
 	// FieldBody holds the string denoting the body field in the database.
 	FieldBody = "body"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
 	// FieldSlug holds the string denoting the slug field in the database.
 	FieldSlug = "slug"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
 	// EdgeAuthor holds the string denoting the author edge name in mutations.
 	EdgeAuthor = "author"
+	// EdgeFavorites holds the string denoting the favorites edge name in mutations.
+	EdgeFavorites = "favorites"
+	// EdgeArticleTags holds the string denoting the article_tags edge name in mutations.
+	EdgeArticleTags = "article_tags"
 	// Table holds the table name of the article in the database.
 	Table = "articles"
 	// AuthorTable is the table that holds the author relation/edge.
@@ -31,7 +39,21 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	AuthorInverseTable = "users"
 	// AuthorColumn is the table column denoting the author relation/edge.
-	AuthorColumn = "user_articles"
+	AuthorColumn = "user_id"
+	// FavoritesTable is the table that holds the favorites relation/edge.
+	FavoritesTable = "favorites"
+	// FavoritesInverseTable is the table name for the Favorite entity.
+	// It exists in this package in order to avoid circular dependency with the "favorite" package.
+	FavoritesInverseTable = "favorites"
+	// FavoritesColumn is the table column denoting the favorites relation/edge.
+	FavoritesColumn = "article_id"
+	// ArticleTagsTable is the table that holds the article_tags relation/edge.
+	ArticleTagsTable = "article_tags"
+	// ArticleTagsInverseTable is the table name for the ArticleTag entity.
+	// It exists in this package in order to avoid circular dependency with the "articletag" package.
+	ArticleTagsInverseTable = "article_tags"
+	// ArticleTagsColumn is the table column denoting the article_tags relation/edge.
+	ArticleTagsColumn = "article_id"
 )
 
 // Columns holds all SQL columns for article fields.
@@ -41,24 +63,15 @@ var Columns = []string{
 	FieldUpdateTime,
 	FieldTitle,
 	FieldBody,
+	FieldDescription,
 	FieldSlug,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "articles"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"user_articles",
+	FieldUserID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -80,6 +93,10 @@ var (
 	DefaultBody string
 	// BodyValidator is a validator for the "body" field. It is called by the builders before save.
 	BodyValidator func(string) error
+	// DefaultDescription holds the default value on creation for the "description" field.
+	DefaultDescription string
+	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	DescriptionValidator func(string) error
 	// SlugValidator is a validator for the "slug" field. It is called by the builders before save.
 	SlugValidator func(string) error
 )

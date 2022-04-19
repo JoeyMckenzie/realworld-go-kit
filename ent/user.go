@@ -39,9 +39,15 @@ type User struct {
 type UserEdges struct {
 	// Articles holds the value of the articles edge.
 	Articles []*Article `json:"articles,omitempty"`
+	// Favorites holds the value of the favorites edge.
+	Favorites []*Favorite `json:"favorites,omitempty"`
+	// Followers holds the value of the followers edge.
+	Followers []*Follow `json:"followers,omitempty"`
+	// Followees holds the value of the followees edge.
+	Followees []*Follow `json:"followees,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [4]bool
 }
 
 // ArticlesOrErr returns the Articles value or an error if the edge
@@ -51,6 +57,33 @@ func (e UserEdges) ArticlesOrErr() ([]*Article, error) {
 		return e.Articles, nil
 	}
 	return nil, &NotLoadedError{edge: "articles"}
+}
+
+// FavoritesOrErr returns the Favorites value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) FavoritesOrErr() ([]*Favorite, error) {
+	if e.loadedTypes[1] {
+		return e.Favorites, nil
+	}
+	return nil, &NotLoadedError{edge: "favorites"}
+}
+
+// FollowersOrErr returns the Followers value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) FollowersOrErr() ([]*Follow, error) {
+	if e.loadedTypes[2] {
+		return e.Followers, nil
+	}
+	return nil, &NotLoadedError{edge: "followers"}
+}
+
+// FolloweesOrErr returns the Followees value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) FolloweesOrErr() ([]*Follow, error) {
+	if e.loadedTypes[3] {
+		return e.Followees, nil
+	}
+	return nil, &NotLoadedError{edge: "followees"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -135,6 +168,21 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 // QueryArticles queries the "articles" edge of the User entity.
 func (u *User) QueryArticles() *ArticleQuery {
 	return (&UserClient{config: u.config}).QueryArticles(u)
+}
+
+// QueryFavorites queries the "favorites" edge of the User entity.
+func (u *User) QueryFavorites() *FavoriteQuery {
+	return (&UserClient{config: u.config}).QueryFavorites(u)
+}
+
+// QueryFollowers queries the "followers" edge of the User entity.
+func (u *User) QueryFollowers() *FollowQuery {
+	return (&UserClient{config: u.config}).QueryFollowers(u)
+}
+
+// QueryFollowees queries the "followees" edge of the User entity.
+func (u *User) QueryFollowees() *FollowQuery {
+	return (&UserClient{config: u.config}).QueryFollowees(u)
 }
 
 // Update returns a builder for updating this User.

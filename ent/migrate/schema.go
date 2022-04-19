@@ -15,8 +15,9 @@ var (
 		{Name: "update_time", Type: field.TypeTime},
 		{Name: "title", Type: field.TypeString, Default: ""},
 		{Name: "body", Type: field.TypeString, Default: ""},
+		{Name: "description", Type: field.TypeString, Default: ""},
 		{Name: "slug", Type: field.TypeString, Unique: true},
-		{Name: "user_articles", Type: field.TypeInt, Nullable: true},
+		{Name: "user_id", Type: field.TypeInt, Nullable: true},
 	}
 	// ArticlesTable holds the schema information for the "articles" table.
 	ArticlesTable = &schema.Table{
@@ -26,11 +27,104 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "articles_users_articles",
-				Columns:    []*schema.Column{ArticlesColumns[6]},
+				Columns:    []*schema.Column{ArticlesColumns[7]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
+	}
+	// ArticleTagsColumns holds the columns for the "article_tags" table.
+	ArticleTagsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "article_id", Type: field.TypeInt, Nullable: true},
+		{Name: "tag_id", Type: field.TypeInt, Nullable: true},
+	}
+	// ArticleTagsTable holds the schema information for the "article_tags" table.
+	ArticleTagsTable = &schema.Table{
+		Name:       "article_tags",
+		Columns:    ArticleTagsColumns,
+		PrimaryKey: []*schema.Column{ArticleTagsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "article_tags_articles_article_tags",
+				Columns:    []*schema.Column{ArticleTagsColumns[2]},
+				RefColumns: []*schema.Column{ArticlesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "article_tags_tags_article_tags",
+				Columns:    []*schema.Column{ArticleTagsColumns[3]},
+				RefColumns: []*schema.Column{TagsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// FavoritesColumns holds the columns for the "favorites" table.
+	FavoritesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "article_id", Type: field.TypeInt, Nullable: true},
+		{Name: "user_id", Type: field.TypeInt, Nullable: true},
+	}
+	// FavoritesTable holds the schema information for the "favorites" table.
+	FavoritesTable = &schema.Table{
+		Name:       "favorites",
+		Columns:    FavoritesColumns,
+		PrimaryKey: []*schema.Column{FavoritesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "favorites_articles_favorites",
+				Columns:    []*schema.Column{FavoritesColumns[2]},
+				RefColumns: []*schema.Column{ArticlesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "favorites_users_favorites",
+				Columns:    []*schema.Column{FavoritesColumns[3]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// FollowsColumns holds the columns for the "follows" table.
+	FollowsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "follower_id", Type: field.TypeInt, Nullable: true},
+		{Name: "followee_id", Type: field.TypeInt, Nullable: true},
+	}
+	// FollowsTable holds the schema information for the "follows" table.
+	FollowsTable = &schema.Table{
+		Name:       "follows",
+		Columns:    FollowsColumns,
+		PrimaryKey: []*schema.Column{FollowsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "follows_users_followers",
+				Columns:    []*schema.Column{FollowsColumns[2]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "follows_users_followees",
+				Columns:    []*schema.Column{FollowsColumns[3]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// TagsColumns holds the columns for the "tags" table.
+	TagsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "tag", Type: field.TypeString, Unique: true},
+	}
+	// TagsTable holds the schema information for the "tags" table.
+	TagsTable = &schema.Table{
+		Name:       "tags",
+		Columns:    TagsColumns,
+		PrimaryKey: []*schema.Column{TagsColumns[0]},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -40,8 +134,8 @@ var (
 		{Name: "username", Type: field.TypeString, Unique: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password", Type: field.TypeString, Default: ""},
-		{Name: "bio", Type: field.TypeString, Default: ""},
-		{Name: "image", Type: field.TypeString, Default: ""},
+		{Name: "bio", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "image", Type: field.TypeString, Nullable: true, Default: ""},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -52,10 +146,20 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ArticlesTable,
+		ArticleTagsTable,
+		FavoritesTable,
+		FollowsTable,
+		TagsTable,
 		UsersTable,
 	}
 )
 
 func init() {
 	ArticlesTable.ForeignKeys[0].RefTable = UsersTable
+	ArticleTagsTable.ForeignKeys[0].RefTable = ArticlesTable
+	ArticleTagsTable.ForeignKeys[1].RefTable = TagsTable
+	FavoritesTable.ForeignKeys[0].RefTable = ArticlesTable
+	FavoritesTable.ForeignKeys[1].RefTable = UsersTable
+	FollowsTable.ForeignKeys[0].RefTable = UsersTable
+	FollowsTable.ForeignKeys[1].RefTable = UsersTable
 }

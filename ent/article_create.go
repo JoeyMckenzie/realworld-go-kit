@@ -11,6 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
+	"github.com/joeymckenzie/realworld-go-kit/ent/articletag"
+	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
 	"github.com/joeymckenzie/realworld-go-kit/ent/user"
 )
 
@@ -77,9 +79,37 @@ func (ac *ArticleCreate) SetNillableBody(s *string) *ArticleCreate {
 	return ac
 }
 
+// SetDescription sets the "description" field.
+func (ac *ArticleCreate) SetDescription(s string) *ArticleCreate {
+	ac.mutation.SetDescription(s)
+	return ac
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (ac *ArticleCreate) SetNillableDescription(s *string) *ArticleCreate {
+	if s != nil {
+		ac.SetDescription(*s)
+	}
+	return ac
+}
+
 // SetSlug sets the "slug" field.
 func (ac *ArticleCreate) SetSlug(s string) *ArticleCreate {
 	ac.mutation.SetSlug(s)
+	return ac
+}
+
+// SetUserID sets the "user_id" field.
+func (ac *ArticleCreate) SetUserID(i int) *ArticleCreate {
+	ac.mutation.SetUserID(i)
+	return ac
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (ac *ArticleCreate) SetNillableUserID(i *int) *ArticleCreate {
+	if i != nil {
+		ac.SetUserID(*i)
+	}
 	return ac
 }
 
@@ -100,6 +130,36 @@ func (ac *ArticleCreate) SetNillableAuthorID(id *int) *ArticleCreate {
 // SetAuthor sets the "author" edge to the User entity.
 func (ac *ArticleCreate) SetAuthor(u *User) *ArticleCreate {
 	return ac.SetAuthorID(u.ID)
+}
+
+// AddFavoriteIDs adds the "favorites" edge to the Favorite entity by IDs.
+func (ac *ArticleCreate) AddFavoriteIDs(ids ...int) *ArticleCreate {
+	ac.mutation.AddFavoriteIDs(ids...)
+	return ac
+}
+
+// AddFavorites adds the "favorites" edges to the Favorite entity.
+func (ac *ArticleCreate) AddFavorites(f ...*Favorite) *ArticleCreate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return ac.AddFavoriteIDs(ids...)
+}
+
+// AddArticleTagIDs adds the "article_tags" edge to the ArticleTag entity by IDs.
+func (ac *ArticleCreate) AddArticleTagIDs(ids ...int) *ArticleCreate {
+	ac.mutation.AddArticleTagIDs(ids...)
+	return ac
+}
+
+// AddArticleTags adds the "article_tags" edges to the ArticleTag entity.
+func (ac *ArticleCreate) AddArticleTags(a ...*ArticleTag) *ArticleCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return ac.AddArticleTagIDs(ids...)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
@@ -189,6 +249,10 @@ func (ac *ArticleCreate) defaults() {
 		v := article.DefaultBody
 		ac.mutation.SetBody(v)
 	}
+	if _, ok := ac.mutation.Description(); !ok {
+		v := article.DefaultDescription
+		ac.mutation.SetDescription(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -213,6 +277,14 @@ func (ac *ArticleCreate) check() error {
 	if v, ok := ac.mutation.Body(); ok {
 		if err := article.BodyValidator(v); err != nil {
 			return &ValidationError{Name: "body", err: fmt.Errorf(`ent: validator failed for field "Article.body": %w`, err)}
+		}
+	}
+	if _, ok := ac.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Article.description"`)}
+	}
+	if v, ok := ac.mutation.Description(); ok {
+		if err := article.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Article.description": %w`, err)}
 		}
 	}
 	if _, ok := ac.mutation.Slug(); !ok {
@@ -282,6 +354,14 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 		})
 		_node.Body = value
 	}
+	if value, ok := ac.mutation.Description(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: article.FieldDescription,
+		})
+		_node.Description = value
+	}
 	if value, ok := ac.mutation.Slug(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -307,7 +387,45 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_articles = &nodes[0]
+		_node.UserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ac.mutation.FavoritesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.FavoritesTable,
+			Columns: []string{article.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: favorite.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ac.mutation.ArticleTagsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.ArticleTagsTable,
+			Columns: []string{article.ArticleTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: articletag.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

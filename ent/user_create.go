@@ -11,6 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
+	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
+	"github.com/joeymckenzie/realworld-go-kit/ent/follow"
 	"github.com/joeymckenzie/realworld-go-kit/ent/user"
 )
 
@@ -116,6 +118,51 @@ func (uc *UserCreate) AddArticles(a ...*Article) *UserCreate {
 		ids[i] = a[i].ID
 	}
 	return uc.AddArticleIDs(ids...)
+}
+
+// AddFavoriteIDs adds the "favorites" edge to the Favorite entity by IDs.
+func (uc *UserCreate) AddFavoriteIDs(ids ...int) *UserCreate {
+	uc.mutation.AddFavoriteIDs(ids...)
+	return uc
+}
+
+// AddFavorites adds the "favorites" edges to the Favorite entity.
+func (uc *UserCreate) AddFavorites(f ...*Favorite) *UserCreate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return uc.AddFavoriteIDs(ids...)
+}
+
+// AddFollowerIDs adds the "followers" edge to the Follow entity by IDs.
+func (uc *UserCreate) AddFollowerIDs(ids ...int) *UserCreate {
+	uc.mutation.AddFollowerIDs(ids...)
+	return uc
+}
+
+// AddFollowers adds the "followers" edges to the Follow entity.
+func (uc *UserCreate) AddFollowers(f ...*Follow) *UserCreate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return uc.AddFollowerIDs(ids...)
+}
+
+// AddFolloweeIDs adds the "followees" edge to the Follow entity by IDs.
+func (uc *UserCreate) AddFolloweeIDs(ids ...int) *UserCreate {
+	uc.mutation.AddFolloweeIDs(ids...)
+	return uc
+}
+
+// AddFollowees adds the "followees" edges to the Follow entity.
+func (uc *UserCreate) AddFollowees(f ...*Follow) *UserCreate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return uc.AddFolloweeIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -243,22 +290,6 @@ func (uc *UserCreate) check() error {
 			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "User.password": %w`, err)}
 		}
 	}
-	if _, ok := uc.mutation.Bio(); !ok {
-		return &ValidationError{Name: "bio", err: errors.New(`ent: missing required field "User.bio"`)}
-	}
-	if v, ok := uc.mutation.Bio(); ok {
-		if err := user.BioValidator(v); err != nil {
-			return &ValidationError{Name: "bio", err: fmt.Errorf(`ent: validator failed for field "User.bio": %w`, err)}
-		}
-	}
-	if _, ok := uc.mutation.Image(); !ok {
-		return &ValidationError{Name: "image", err: errors.New(`ent: missing required field "User.image"`)}
-	}
-	if v, ok := uc.mutation.Image(); ok {
-		if err := user.ImageValidator(v); err != nil {
-			return &ValidationError{Name: "image", err: fmt.Errorf(`ent: validator failed for field "User.image": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -353,6 +384,63 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: article.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.FavoritesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.FavoritesTable,
+			Columns: []string{user.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: favorite.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.FollowersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.FollowersTable,
+			Columns: []string{user.FollowersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: follow.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.FolloweesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.FolloweesTable,
+			Columns: []string{user.FolloweesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: follow.FieldID,
 				},
 			},
 		}

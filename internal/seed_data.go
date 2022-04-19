@@ -1,43 +1,191 @@
 package internal
 
 import (
-	"context"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
-	articlesPersistence "github.com/joeymckenzie/realworld-go-kit/internal/articles/persistence"
-	usersPersistence "github.com/joeymckenzie/realworld-go-kit/internal/users/persistence"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
+    "context"
+    "github.com/gosimple/slug"
+    "github.com/joeymckenzie/realworld-go-kit/ent"
+    "github.com/joeymckenzie/realworld-go-kit/pkg/services"
 )
 
-func SeedData(logger log.Logger, usersRepository usersPersistence.UsersRepository, articlesRepository articlesPersistence.ArticlesRepository) {
-	ctx := context.Background()
+func SeedData(ctx context.Context, client *ent.Client) {
+    // Check for existings users, bail out of seeding if users already exist
+    _, err := client.User.
+        Query().
+        First(ctx)
 
-	var shouldSeedData bool
-	{
-		if _, err := usersRepository.FindUserByEmail(ctx, "user1@gmail.com"); utilities.IsNotFound(err) {
-			level.Info(logger).Log("seeder", "no existing data found, continuing data seeding")
-			shouldSeedData = true
-		} else {
-			level.Info(logger).Log("seeder", "existing data found, skipping data seeding")
-			shouldSeedData = false
-		}
-	}
+    if !ent.IsNotFound(err) {
+        return
+    }
 
-	if !shouldSeedData {
-		return
-	}
+    users := seedUsers(ctx, client)
+    articles := seedArticles(ctx, client, users)
+    tags := seedTags(ctx, client)
+    seedFollows(ctx, client, users...)
+    seedFavorites(ctx, client, users, articles)
+    seedArticleTags(ctx, client, articles, tags)
+}
 
-	// Seed some users
-	user1, _ := usersRepository.CreateUser(ctx, "user1", "user1@gmail.com", "user1")
-	user2, _ := usersRepository.CreateUser(ctx, "user2", "user2@gmail.com", "user2")
-	user3, _ := usersRepository.CreateUser(ctx, "user3", "user3@gmail.com", "user3")
+func seedUsers(ctx context.Context, client *ent.Client) []*ent.User {
+    securityService := services.NewSecurityService()
+    testPassword1, _ := securityService.HashPassword("testPassword1")
+    testPassword2, _ := securityService.HashPassword("testPassword2")
+    testPassword3, _ := securityService.HashPassword("testPassword3")
 
-	// Seed a few articles
-	_, _ = articlesRepository.CreateArticle(ctx, user1.Id, "user1 title", "user1-slug", "user1 description", "user1 body")
-	_, _ = articlesRepository.CreateArticle(ctx, user1.Id, "user1 another title", "user1-another-slug", "user1 another description", "user1 another body")
-	_, _ = articlesRepository.CreateArticle(ctx, user2.Id, "user2 title", "user2-slug", "user2 description", "user2 body")
+    users := []*ent.User{
+        client.User.
+            Create().
+            SetUsername("testUser1").
+            SetEmail("testUser1@gmail.com").
+            SetPassword(testPassword1).
+            SetBio("testUser1 bio").
+            SetImage("testUser1 image").
+            SaveX(ctx),
+        client.User.
+            Create().
+            SetUsername("testUser2").
+            SetEmail("testUser2@gmail.com").
+            SetPassword(testPassword2).
+            SetBio("testUser2 bio").
+            SetImage("testUser2 image").
+            SaveX(ctx),
+        client.User.
+            Create().
+            SetUsername("testUser3").
+            SetEmail("testUser3@gmail.com").
+            SetPassword(testPassword3).
+            SetBio("testUser3 bio").
+            SetImage("testUser3 image").
+            SaveX(ctx),
+    }
 
-	// Seed some user follows
-	_, _ = usersRepository.CreateUserFollow(ctx, user2.Id, user1.Id)
-	_, _ = usersRepository.CreateUserFollow(ctx, user2.Id, user3.Id)
+    return users
+}
+
+func seedFollows(ctx context.Context, client *ent.Client, users ...*ent.User) {
+    // testUser2 follows testUser1
+    client.Follow.
+        Create().
+        SetUserFollower(users[1]).
+        SetUserFollowee(users[0]).
+        SaveX(ctx)
+
+    // testUser3 follows testUser1
+    client.Follow.
+        Create().
+        SetUserFollower(users[2]).
+        SetUserFollowee(users[0]).
+        SaveX(ctx)
+
+    // testUser3 follows testUser2
+    client.Follow.
+        Create().
+        SetUserFollower(users[2]).
+        SetUserFollowee(users[1]).
+        SaveX(ctx)
+}
+
+func seedTags(ctx context.Context, client *ent.Client) []*ent.Tag {
+    tags := []*ent.Tag{
+        client.Tag.
+            Create().
+            SetTag("tag1").
+            SaveX(ctx),
+        client.Tag.
+            Create().
+            SetTag("tag2").
+            SaveX(ctx),
+        client.Tag.
+            Create().
+            SetTag("tag3").
+            SaveX(ctx),
+    }
+
+    return tags
+}
+
+func seedArticleTags(ctx context.Context, client *ent.Client, articles []*ent.Article, tags []*ent.Tag) {
+    // Add "tag1" to "testUser1 article"
+    client.ArticleTag.
+        Create().
+        SetTag(tags[0]).
+        SetArticle(articles[0]).
+        SaveX(ctx)
+
+    // Add "tag2" to "testUser1 article"
+    client.ArticleTag.
+        Create().
+        SetTag(tags[1]).
+        SetArticle(articles[0]).
+        SaveX(ctx)
+
+    // Add "tag1" to "testUser1 another article"
+    client.ArticleTag.
+        Create().
+        SetTag(tags[1]).
+        SetArticle(articles[1]).
+        SaveX(ctx)
+
+    // Add "tag3" to "testUser2 article"
+    client.ArticleTag.
+        Create().
+        SetTag(tags[2]).
+        SetArticle(articles[2]).
+        SaveX(ctx)
+}
+
+func seedArticles(ctx context.Context, client *ent.Client, users []*ent.User) []*ent.Article {
+    articles := []*ent.Article{
+        client.Article.
+            Create().
+            SetSlug(slug.Make("testUser1 article")).
+            SetTitle("testUser1 article").
+            SetDescription("testUser1 description").
+            SetBody("testUser1 body").
+            SetAuthor(users[0]).
+            SaveX(ctx),
+        client.Article.
+            Create().
+            SetSlug(slug.Make("testUser1 another article")).
+            SetTitle("testUser1 another article").
+            SetDescription("testUser1 another description").
+            SetBody("testUser1 another body").
+            SetAuthor(users[0]).
+            SaveX(ctx),
+        client.Article.
+            Create().
+            SetSlug(slug.Make("testUser2 article")).
+            SetTitle("testUser2 article").
+            SetDescription("testUser2 description").
+            SetBody("testUser2 body").
+            SetAuthor(users[1]).
+            SaveX(ctx),
+    }
+
+    return articles
+}
+
+func seedFavorites(ctx context.Context, client *ent.Client, users []*ent.User, articles []*ent.Article) {
+    // testUser2 favorites "testUser1 article"
+    client.Favorite.Create().
+        SetArticleFavorites(articles[0]).
+        SetUserFavorites(users[1]).
+        SaveX(ctx)
+
+    // testUser2 favorites "testUser1 another article"
+    client.Favorite.Create().
+        SetArticleFavorites(articles[1]).
+        SetUserFavorites(users[1]).
+        SaveX(ctx)
+
+    // testUser3 favorites "testUser1 article"
+    client.Favorite.Create().
+        SetArticleFavorites(articles[0]).
+        SetUserFavorites(users[2]).
+        SaveX(ctx)
+
+    // testUser3 favorites "testUser2 article"
+    client.Favorite.Create().
+        SetArticleFavorites(articles[1]).
+        SetUserFavorites(users[2]).
+        SaveX(ctx)
 }

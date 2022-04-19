@@ -27,6 +27,12 @@ const (
 	FieldImage = "image"
 	// EdgeArticles holds the string denoting the articles edge name in mutations.
 	EdgeArticles = "articles"
+	// EdgeFavorites holds the string denoting the favorites edge name in mutations.
+	EdgeFavorites = "favorites"
+	// EdgeFollowers holds the string denoting the followers edge name in mutations.
+	EdgeFollowers = "followers"
+	// EdgeFollowees holds the string denoting the followees edge name in mutations.
+	EdgeFollowees = "followees"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// ArticlesTable is the table that holds the articles relation/edge.
@@ -35,7 +41,28 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "article" package.
 	ArticlesInverseTable = "articles"
 	// ArticlesColumn is the table column denoting the articles relation/edge.
-	ArticlesColumn = "user_articles"
+	ArticlesColumn = "user_id"
+	// FavoritesTable is the table that holds the favorites relation/edge.
+	FavoritesTable = "favorites"
+	// FavoritesInverseTable is the table name for the Favorite entity.
+	// It exists in this package in order to avoid circular dependency with the "favorite" package.
+	FavoritesInverseTable = "favorites"
+	// FavoritesColumn is the table column denoting the favorites relation/edge.
+	FavoritesColumn = "user_id"
+	// FollowersTable is the table that holds the followers relation/edge.
+	FollowersTable = "follows"
+	// FollowersInverseTable is the table name for the Follow entity.
+	// It exists in this package in order to avoid circular dependency with the "follow" package.
+	FollowersInverseTable = "follows"
+	// FollowersColumn is the table column denoting the followers relation/edge.
+	FollowersColumn = "follower_id"
+	// FolloweesTable is the table that holds the followees relation/edge.
+	FolloweesTable = "follows"
+	// FolloweesInverseTable is the table name for the Follow entity.
+	// It exists in this package in order to avoid circular dependency with the "follow" package.
+	FolloweesInverseTable = "follows"
+	// FolloweesColumn is the table column denoting the followees relation/edge.
+	FolloweesColumn = "followee_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -77,10 +104,6 @@ var (
 	PasswordValidator func(string) error
 	// DefaultBio holds the default value on creation for the "bio" field.
 	DefaultBio string
-	// BioValidator is a validator for the "bio" field. It is called by the builders before save.
-	BioValidator func(string) error
 	// DefaultImage holds the default value on creation for the "image" field.
 	DefaultImage string
-	// ImageValidator is a validator for the "image" field. It is called by the builders before save.
-	ImageValidator func(string) error
 )

@@ -3,23 +3,22 @@ package main
 import (
     "context"
     "entgo.io/ent/dialect"
+    "entgo.io/ent/dialect/sql"
     "entgo.io/ent/dialect/sql/schema"
     "flag"
     "fmt"
     "github.com/go-kit/log"
     "github.com/go-kit/log/level"
     "github.com/go-playground/validator/v10"
-    "github.com/jmoiron/sqlx"
     "github.com/joeymckenzie/realworld-go-kit/ent"
     "github.com/joeymckenzie/realworld-go-kit/ent/migrate"
+    "github.com/joeymckenzie/realworld-go-kit/internal"
     articlesApi "github.com/joeymckenzie/realworld-go-kit/internal/articles/api"
     articlesCore "github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
     articlesMiddlewares "github.com/joeymckenzie/realworld-go-kit/internal/articles/core/middlewares"
-    articlesPersistence "github.com/joeymckenzie/realworld-go-kit/internal/articles/persistence"
     usersApi "github.com/joeymckenzie/realworld-go-kit/internal/users/api"
     usersCore "github.com/joeymckenzie/realworld-go-kit/internal/users/core"
     usersMiddlewares "github.com/joeymckenzie/realworld-go-kit/internal/users/core/middlewares"
-    usersPersistence "github.com/joeymckenzie/realworld-go-kit/internal/users/persistence"
     "github.com/joeymckenzie/realworld-go-kit/pkg/api"
     "github.com/joeymckenzie/realworld-go-kit/pkg/services"
     "github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
@@ -75,35 +74,44 @@ func main() {
         }
     }
 
-    db, err := sqlx.Open(postgresDiver, connectionString)
+    // Generate the ent client
+    driver, err := sql.Open(dialect.Postgres, connectionString)
+
+    defer func(driver *sql.Driver) {
+        if err := driver.Close(); err != nil {
+            level.Error(logger).Log("main", "failed closing postgres connection", "error", err)
+            os.Exit(1)
+        }
+    }(driver)
+
+    driverWithDebugContext := dialect.DebugWithContext(driver, func(ctx context.Context, i ...interface{}) {
+        level.Debug(logger).Log("query", fmt.Sprintf("%v", i))
+    })
+
+    entClient := ent.NewClient(ent.Driver(driverWithDebugContext))
+
+    // Run the auto migration tool
+    ctx := context.Background()
+    err = entClient.Schema.Create(
+        context.Background(),
+        schema.WithAtlas(true),
+        migrate.WithDropIndex(true),
+        migrate.WithDropColumn(true))
+
+    internal.SeedData(ctx, entClient)
 
     if err != nil {
-        level.Error(logger).Log(
-            "database", "error while connecting to postgres",
-            "error", err,
-        )
+        level.Error(logger).Log("main", "failed running auto migrations", "error", err)
         os.Exit(1)
     }
 
     // Build out services
     requestValidator := validator.New()
 
-    var usersRepository usersPersistence.UsersRepository
-    {
-        usersRepository = usersPersistence.NewUsersRepository(db)
-        usersRepository = usersPersistence.NewUsersRepositoryLoggingMiddleware(logger)(usersRepository)
-    }
-
-    var articlesRepository articlesPersistence.ArticlesRepository
-    {
-        articlesRepository = articlesPersistence.NewArticlesRepository(db)
-        articlesRepository = articlesPersistence.NewArticlesRepositoryLoggingMiddleware(logger)(articlesRepository)
-    }
-
     var usersService usersCore.UsersService
     {
         requestCount, requestLatency := utilities.NewServiceMetrics("users_service")
-        usersService = usersCore.NewUsersService(requestValidator, usersRepository, services.NewTokenService(), services.NewSecurityService())
+        usersService = usersCore.NewUsersService(requestValidator, entClient, services.NewTokenService(), services.NewSecurityService())
         usersService = usersMiddlewares.NewUsersServiceLoggingMiddleware(logger)(usersService)
         usersService = usersMiddlewares.NewUsersServiceMetrics(requestCount, requestLatency)(usersService)
         usersService = usersMiddlewares.NewUsersServiceRequestValidationMiddleware(logger, requestValidator)(usersService)
@@ -112,40 +120,14 @@ func main() {
     var articlesService articlesCore.ArticlesService
     {
         requestCount, requestLatency := utilities.NewServiceMetrics("articles_service")
-        articlesService = articlesCore.NewArticlesServices(requestValidator, articlesRepository, usersRepository)
+        articlesService = articlesCore.NewArticlesServices(requestValidator, entClient)
         articlesService = articlesMiddlewares.NewArticlesServiceLoggingMiddleware(logger)(articlesService)
         articlesService = articlesMiddlewares.NewArticlesServiceMetrics(requestCount, requestLatency)(articlesService)
         articlesService = articlesMiddlewares.NewArticlesServiceRequestValidationMiddleware(logger, requestValidator)(articlesService)
     }
 
     // Seed data in the database for testing
-    // internal.SeedData(logger, usersRepository, articlesRepository)
-
-    client, err := ent.Open(dialect.Postgres, connectionString)
-    if err != nil {
-        level.Error(logger).Log("main", "failed opening postgres connection", "error", err)
-        os.Exit(1)
-    }
-
-    defer func(client *ent.Client) {
-        if err := client.Close(); err != nil {
-            level.Error(logger).Log("main", "failed closing postgres connection", "error", err)
-            os.Exit(1)
-        }
-    }(client)
-
-    // Run the auto migration tool.
-    err = client.Schema.Create(
-        context.Background(),
-        schema.WithAtlas(true),
-        migrate.WithGlobalUniqueID(true),
-        migrate.WithDropIndex(true),
-        migrate.WithDropColumn(true))
-
-    if err != nil {
-        level.Error(logger).Log("main", "failed running auto migrations", "error", err)
-        os.Exit(1)
-    }
+    internal.SeedData(ctx, entClient)
 
     // Spin up the API router
     router := api.NewChiRouter()

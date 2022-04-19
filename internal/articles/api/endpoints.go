@@ -58,7 +58,7 @@ func makeGetArticlesEndpoint(service core.ArticlesService) endpoint.Endpoint {
 		}
 
 		return &domain.GetArticlesResponse{
-			Articles: *articles,
+			Articles: articles,
 		}, nil
 	}
 }
@@ -73,7 +73,7 @@ func makeGetFeedEndpoint(service core.ArticlesService) endpoint.Endpoint {
 		}
 
 		return &domain.GetArticlesResponse{
-			Articles: *articles,
+			Articles: articles,
 		}, nil
 	}
 }

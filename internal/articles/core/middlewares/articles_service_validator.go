@@ -26,7 +26,7 @@ func NewArticlesServiceRequestValidationMiddleware(logger log.Logger, validator 
 	}
 }
 
-func (mw *articlesServiceRequestValidationMiddleware) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]domain.ArticleDto, error) {
+func (mw *articlesServiceRequestValidationMiddleware) GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error) {
 	if request == nil {
 		return nil, utilities.ErrNilInput
 	}
@@ -50,7 +50,7 @@ func (mw *articlesServiceRequestValidationMiddleware) CreateArticle(ctx context.
 	return mw.next.CreateArticle(ctx, request)
 }
 
-func (mw *articlesServiceRequestValidationMiddleware) GetFeed(ctx context.Context, request *domain.GetArticlesServiceRequest) (*[]domain.ArticleDto, error) {
+func (mw *articlesServiceRequestValidationMiddleware) GetFeed(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error) {
 	if request == nil {
 		return nil, utilities.ErrNilInput
 	}

@@ -12,6 +12,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
+	"github.com/joeymckenzie/realworld-go-kit/ent/articletag"
+	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
 	"github.com/joeymckenzie/realworld-go-kit/ent/predicate"
 	"github.com/joeymckenzie/realworld-go-kit/ent/user"
 )
@@ -63,9 +65,43 @@ func (au *ArticleUpdate) SetNillableBody(s *string) *ArticleUpdate {
 	return au
 }
 
+// SetDescription sets the "description" field.
+func (au *ArticleUpdate) SetDescription(s string) *ArticleUpdate {
+	au.mutation.SetDescription(s)
+	return au
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (au *ArticleUpdate) SetNillableDescription(s *string) *ArticleUpdate {
+	if s != nil {
+		au.SetDescription(*s)
+	}
+	return au
+}
+
 // SetSlug sets the "slug" field.
 func (au *ArticleUpdate) SetSlug(s string) *ArticleUpdate {
 	au.mutation.SetSlug(s)
+	return au
+}
+
+// SetUserID sets the "user_id" field.
+func (au *ArticleUpdate) SetUserID(i int) *ArticleUpdate {
+	au.mutation.SetUserID(i)
+	return au
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (au *ArticleUpdate) SetNillableUserID(i *int) *ArticleUpdate {
+	if i != nil {
+		au.SetUserID(*i)
+	}
+	return au
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (au *ArticleUpdate) ClearUserID() *ArticleUpdate {
+	au.mutation.ClearUserID()
 	return au
 }
 
@@ -88,6 +124,36 @@ func (au *ArticleUpdate) SetAuthor(u *User) *ArticleUpdate {
 	return au.SetAuthorID(u.ID)
 }
 
+// AddFavoriteIDs adds the "favorites" edge to the Favorite entity by IDs.
+func (au *ArticleUpdate) AddFavoriteIDs(ids ...int) *ArticleUpdate {
+	au.mutation.AddFavoriteIDs(ids...)
+	return au
+}
+
+// AddFavorites adds the "favorites" edges to the Favorite entity.
+func (au *ArticleUpdate) AddFavorites(f ...*Favorite) *ArticleUpdate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return au.AddFavoriteIDs(ids...)
+}
+
+// AddArticleTagIDs adds the "article_tags" edge to the ArticleTag entity by IDs.
+func (au *ArticleUpdate) AddArticleTagIDs(ids ...int) *ArticleUpdate {
+	au.mutation.AddArticleTagIDs(ids...)
+	return au
+}
+
+// AddArticleTags adds the "article_tags" edges to the ArticleTag entity.
+func (au *ArticleUpdate) AddArticleTags(a ...*ArticleTag) *ArticleUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return au.AddArticleTagIDs(ids...)
+}
+
 // Mutation returns the ArticleMutation object of the builder.
 func (au *ArticleUpdate) Mutation() *ArticleMutation {
 	return au.mutation
@@ -97,6 +163,48 @@ func (au *ArticleUpdate) Mutation() *ArticleMutation {
 func (au *ArticleUpdate) ClearAuthor() *ArticleUpdate {
 	au.mutation.ClearAuthor()
 	return au
+}
+
+// ClearFavorites clears all "favorites" edges to the Favorite entity.
+func (au *ArticleUpdate) ClearFavorites() *ArticleUpdate {
+	au.mutation.ClearFavorites()
+	return au
+}
+
+// RemoveFavoriteIDs removes the "favorites" edge to Favorite entities by IDs.
+func (au *ArticleUpdate) RemoveFavoriteIDs(ids ...int) *ArticleUpdate {
+	au.mutation.RemoveFavoriteIDs(ids...)
+	return au
+}
+
+// RemoveFavorites removes "favorites" edges to Favorite entities.
+func (au *ArticleUpdate) RemoveFavorites(f ...*Favorite) *ArticleUpdate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return au.RemoveFavoriteIDs(ids...)
+}
+
+// ClearArticleTags clears all "article_tags" edges to the ArticleTag entity.
+func (au *ArticleUpdate) ClearArticleTags() *ArticleUpdate {
+	au.mutation.ClearArticleTags()
+	return au
+}
+
+// RemoveArticleTagIDs removes the "article_tags" edge to ArticleTag entities by IDs.
+func (au *ArticleUpdate) RemoveArticleTagIDs(ids ...int) *ArticleUpdate {
+	au.mutation.RemoveArticleTagIDs(ids...)
+	return au
+}
+
+// RemoveArticleTags removes "article_tags" edges to ArticleTag entities.
+func (au *ArticleUpdate) RemoveArticleTags(a ...*ArticleTag) *ArticleUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return au.RemoveArticleTagIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -180,6 +288,11 @@ func (au *ArticleUpdate) check() error {
 			return &ValidationError{Name: "body", err: fmt.Errorf(`ent: validator failed for field "Article.body": %w`, err)}
 		}
 	}
+	if v, ok := au.mutation.Description(); ok {
+		if err := article.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Article.description": %w`, err)}
+		}
+	}
 	if v, ok := au.mutation.Slug(); ok {
 		if err := article.SlugValidator(v); err != nil {
 			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Article.slug": %w`, err)}
@@ -227,6 +340,13 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: article.FieldBody,
 		})
 	}
+	if value, ok := au.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: article.FieldDescription,
+		})
+	}
 	if value, ok := au.mutation.Slug(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -261,6 +381,114 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if au.mutation.FavoritesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.FavoritesTable,
+			Columns: []string{article.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: favorite.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedFavoritesIDs(); len(nodes) > 0 && !au.mutation.FavoritesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.FavoritesTable,
+			Columns: []string{article.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: favorite.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.FavoritesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.FavoritesTable,
+			Columns: []string{article.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: favorite.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if au.mutation.ArticleTagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.ArticleTagsTable,
+			Columns: []string{article.ArticleTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: articletag.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedArticleTagsIDs(); len(nodes) > 0 && !au.mutation.ArticleTagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.ArticleTagsTable,
+			Columns: []string{article.ArticleTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: articletag.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.ArticleTagsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.ArticleTagsTable,
+			Columns: []string{article.ArticleTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: articletag.FieldID,
 				},
 			},
 		}
@@ -322,9 +550,43 @@ func (auo *ArticleUpdateOne) SetNillableBody(s *string) *ArticleUpdateOne {
 	return auo
 }
 
+// SetDescription sets the "description" field.
+func (auo *ArticleUpdateOne) SetDescription(s string) *ArticleUpdateOne {
+	auo.mutation.SetDescription(s)
+	return auo
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (auo *ArticleUpdateOne) SetNillableDescription(s *string) *ArticleUpdateOne {
+	if s != nil {
+		auo.SetDescription(*s)
+	}
+	return auo
+}
+
 // SetSlug sets the "slug" field.
 func (auo *ArticleUpdateOne) SetSlug(s string) *ArticleUpdateOne {
 	auo.mutation.SetSlug(s)
+	return auo
+}
+
+// SetUserID sets the "user_id" field.
+func (auo *ArticleUpdateOne) SetUserID(i int) *ArticleUpdateOne {
+	auo.mutation.SetUserID(i)
+	return auo
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (auo *ArticleUpdateOne) SetNillableUserID(i *int) *ArticleUpdateOne {
+	if i != nil {
+		auo.SetUserID(*i)
+	}
+	return auo
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (auo *ArticleUpdateOne) ClearUserID() *ArticleUpdateOne {
+	auo.mutation.ClearUserID()
 	return auo
 }
 
@@ -347,6 +609,36 @@ func (auo *ArticleUpdateOne) SetAuthor(u *User) *ArticleUpdateOne {
 	return auo.SetAuthorID(u.ID)
 }
 
+// AddFavoriteIDs adds the "favorites" edge to the Favorite entity by IDs.
+func (auo *ArticleUpdateOne) AddFavoriteIDs(ids ...int) *ArticleUpdateOne {
+	auo.mutation.AddFavoriteIDs(ids...)
+	return auo
+}
+
+// AddFavorites adds the "favorites" edges to the Favorite entity.
+func (auo *ArticleUpdateOne) AddFavorites(f ...*Favorite) *ArticleUpdateOne {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return auo.AddFavoriteIDs(ids...)
+}
+
+// AddArticleTagIDs adds the "article_tags" edge to the ArticleTag entity by IDs.
+func (auo *ArticleUpdateOne) AddArticleTagIDs(ids ...int) *ArticleUpdateOne {
+	auo.mutation.AddArticleTagIDs(ids...)
+	return auo
+}
+
+// AddArticleTags adds the "article_tags" edges to the ArticleTag entity.
+func (auo *ArticleUpdateOne) AddArticleTags(a ...*ArticleTag) *ArticleUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return auo.AddArticleTagIDs(ids...)
+}
+
 // Mutation returns the ArticleMutation object of the builder.
 func (auo *ArticleUpdateOne) Mutation() *ArticleMutation {
 	return auo.mutation
@@ -356,6 +648,48 @@ func (auo *ArticleUpdateOne) Mutation() *ArticleMutation {
 func (auo *ArticleUpdateOne) ClearAuthor() *ArticleUpdateOne {
 	auo.mutation.ClearAuthor()
 	return auo
+}
+
+// ClearFavorites clears all "favorites" edges to the Favorite entity.
+func (auo *ArticleUpdateOne) ClearFavorites() *ArticleUpdateOne {
+	auo.mutation.ClearFavorites()
+	return auo
+}
+
+// RemoveFavoriteIDs removes the "favorites" edge to Favorite entities by IDs.
+func (auo *ArticleUpdateOne) RemoveFavoriteIDs(ids ...int) *ArticleUpdateOne {
+	auo.mutation.RemoveFavoriteIDs(ids...)
+	return auo
+}
+
+// RemoveFavorites removes "favorites" edges to Favorite entities.
+func (auo *ArticleUpdateOne) RemoveFavorites(f ...*Favorite) *ArticleUpdateOne {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return auo.RemoveFavoriteIDs(ids...)
+}
+
+// ClearArticleTags clears all "article_tags" edges to the ArticleTag entity.
+func (auo *ArticleUpdateOne) ClearArticleTags() *ArticleUpdateOne {
+	auo.mutation.ClearArticleTags()
+	return auo
+}
+
+// RemoveArticleTagIDs removes the "article_tags" edge to ArticleTag entities by IDs.
+func (auo *ArticleUpdateOne) RemoveArticleTagIDs(ids ...int) *ArticleUpdateOne {
+	auo.mutation.RemoveArticleTagIDs(ids...)
+	return auo
+}
+
+// RemoveArticleTags removes "article_tags" edges to ArticleTag entities.
+func (auo *ArticleUpdateOne) RemoveArticleTags(a ...*ArticleTag) *ArticleUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return auo.RemoveArticleTagIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -446,6 +780,11 @@ func (auo *ArticleUpdateOne) check() error {
 			return &ValidationError{Name: "body", err: fmt.Errorf(`ent: validator failed for field "Article.body": %w`, err)}
 		}
 	}
+	if v, ok := auo.mutation.Description(); ok {
+		if err := article.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Article.description": %w`, err)}
+		}
+	}
 	if v, ok := auo.mutation.Slug(); ok {
 		if err := article.SlugValidator(v); err != nil {
 			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "Article.slug": %w`, err)}
@@ -510,6 +849,13 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 			Column: article.FieldBody,
 		})
 	}
+	if value, ok := auo.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: article.FieldDescription,
+		})
+	}
 	if value, ok := auo.mutation.Slug(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -544,6 +890,114 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if auo.mutation.FavoritesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.FavoritesTable,
+			Columns: []string{article.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: favorite.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedFavoritesIDs(); len(nodes) > 0 && !auo.mutation.FavoritesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.FavoritesTable,
+			Columns: []string{article.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: favorite.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.FavoritesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.FavoritesTable,
+			Columns: []string{article.FavoritesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: favorite.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if auo.mutation.ArticleTagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.ArticleTagsTable,
+			Columns: []string{article.ArticleTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: articletag.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedArticleTagsIDs(); len(nodes) > 0 && !auo.mutation.ArticleTagsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.ArticleTagsTable,
+			Columns: []string{article.ArticleTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: articletag.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.ArticleTagsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.ArticleTagsTable,
+			Columns: []string{article.ArticleTagsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: articletag.FieldID,
 				},
 			},
 		}

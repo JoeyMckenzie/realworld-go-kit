@@ -9,6 +9,10 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
+	"github.com/joeymckenzie/realworld-go-kit/ent/articletag"
+	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
+	"github.com/joeymckenzie/realworld-go-kit/ent/follow"
+	"github.com/joeymckenzie/realworld-go-kit/ent/tag"
 	"github.com/joeymckenzie/realworld-go-kit/ent/user"
 )
 
@@ -30,8 +34,12 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		article.Table: article.ValidColumn,
-		user.Table:    user.ValidColumn,
+		article.Table:    article.ValidColumn,
+		articletag.Table: articletag.ValidColumn,
+		favorite.Table:   favorite.ValidColumn,
+		follow.Table:     follow.ValidColumn,
+		tag.Table:        tag.ValidColumn,
+		user.Table:       user.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

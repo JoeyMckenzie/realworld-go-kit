@@ -6,7 +6,11 @@ import (
 	"time"
 
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
+	"github.com/joeymckenzie/realworld-go-kit/ent/articletag"
+	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
+	"github.com/joeymckenzie/realworld-go-kit/ent/follow"
 	"github.com/joeymckenzie/realworld-go-kit/ent/schema"
+	"github.com/joeymckenzie/realworld-go-kit/ent/tag"
 	"github.com/joeymckenzie/realworld-go-kit/ent/user"
 )
 
@@ -41,10 +45,56 @@ func init() {
 	article.DefaultBody = articleDescBody.Default.(string)
 	// article.BodyValidator is a validator for the "body" field. It is called by the builders before save.
 	article.BodyValidator = articleDescBody.Validators[0].(func(string) error)
+	// articleDescDescription is the schema descriptor for description field.
+	articleDescDescription := articleFields[2].Descriptor()
+	// article.DefaultDescription holds the default value on creation for the description field.
+	article.DefaultDescription = articleDescDescription.Default.(string)
+	// article.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	article.DescriptionValidator = articleDescDescription.Validators[0].(func(string) error)
 	// articleDescSlug is the schema descriptor for slug field.
-	articleDescSlug := articleFields[2].Descriptor()
+	articleDescSlug := articleFields[3].Descriptor()
 	// article.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
 	article.SlugValidator = articleDescSlug.Validators[0].(func(string) error)
+	articletagMixin := schema.ArticleTag{}.Mixin()
+	articletagMixinFields0 := articletagMixin[0].Fields()
+	_ = articletagMixinFields0
+	articletagFields := schema.ArticleTag{}.Fields()
+	_ = articletagFields
+	// articletagDescCreateTime is the schema descriptor for create_time field.
+	articletagDescCreateTime := articletagMixinFields0[0].Descriptor()
+	// articletag.DefaultCreateTime holds the default value on creation for the create_time field.
+	articletag.DefaultCreateTime = articletagDescCreateTime.Default.(func() time.Time)
+	favoriteMixin := schema.Favorite{}.Mixin()
+	favoriteMixinFields0 := favoriteMixin[0].Fields()
+	_ = favoriteMixinFields0
+	favoriteFields := schema.Favorite{}.Fields()
+	_ = favoriteFields
+	// favoriteDescCreateTime is the schema descriptor for create_time field.
+	favoriteDescCreateTime := favoriteMixinFields0[0].Descriptor()
+	// favorite.DefaultCreateTime holds the default value on creation for the create_time field.
+	favorite.DefaultCreateTime = favoriteDescCreateTime.Default.(func() time.Time)
+	followMixin := schema.Follow{}.Mixin()
+	followMixinFields0 := followMixin[0].Fields()
+	_ = followMixinFields0
+	followFields := schema.Follow{}.Fields()
+	_ = followFields
+	// followDescCreateTime is the schema descriptor for create_time field.
+	followDescCreateTime := followMixinFields0[0].Descriptor()
+	// follow.DefaultCreateTime holds the default value on creation for the create_time field.
+	follow.DefaultCreateTime = followDescCreateTime.Default.(func() time.Time)
+	tagMixin := schema.Tag{}.Mixin()
+	tagMixinFields0 := tagMixin[0].Fields()
+	_ = tagMixinFields0
+	tagFields := schema.Tag{}.Fields()
+	_ = tagFields
+	// tagDescCreateTime is the schema descriptor for create_time field.
+	tagDescCreateTime := tagMixinFields0[0].Descriptor()
+	// tag.DefaultCreateTime holds the default value on creation for the create_time field.
+	tag.DefaultCreateTime = tagDescCreateTime.Default.(func() time.Time)
+	// tagDescTag is the schema descriptor for tag field.
+	tagDescTag := tagFields[0].Descriptor()
+	// tag.TagValidator is a validator for the "tag" field. It is called by the builders before save.
+	tag.TagValidator = tagDescTag.Validators[0].(func(string) error)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0
@@ -78,12 +128,8 @@ func init() {
 	userDescBio := userFields[3].Descriptor()
 	// user.DefaultBio holds the default value on creation for the bio field.
 	user.DefaultBio = userDescBio.Default.(string)
-	// user.BioValidator is a validator for the "bio" field. It is called by the builders before save.
-	user.BioValidator = userDescBio.Validators[0].(func(string) error)
 	// userDescImage is the schema descriptor for image field.
 	userDescImage := userFields[4].Descriptor()
 	// user.DefaultImage holds the default value on creation for the image field.
 	user.DefaultImage = userDescImage.Default.(string)
-	// user.ImageValidator is a validator for the "image" field. It is called by the builders before save.
-	user.ImageValidator = userDescImage.Validators[0].(func(string) error)
 }

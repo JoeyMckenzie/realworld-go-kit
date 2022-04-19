@@ -1,44 +1,47 @@
 package specs
 
 import (
-	"context"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
-	articlesPersistence "github.com/joeymckenzie/realworld-go-kit/internal/articles/persistence"
-	usersPersistence "github.com/joeymckenzie/realworld-go-kit/internal/users/persistence"
+    "context"
+    "entgo.io/ent/dialect"
+    "github.com/joeymckenzie/realworld-go-kit/ent/enttest"
+    "github.com/joeymckenzie/realworld-go-kit/internal"
+    "github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
+    "github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
+    articlesPersistence "github.com/joeymckenzie/realworld-go-kit/internal/articles/persistence"
+    "testing"
 )
 
 var (
-	StubCreateArticleRequest = domain.UpsertArticleServiceRequest{
-		UserId:      1,
-		Title:       "stub title",
-		Description: "stub description",
-		Body:        "stub body",
-		TagList:     &[]string{"stub tag"},
-	}
-	StubCreateArticleRequestWithoutTagList = domain.UpsertArticleServiceRequest{
-		UserId:      1,
-		Title:       "stub title",
-		Description: "stub description",
-		Body:        "stub body",
-	}
+    StubCreateArticleRequest = domain.UpsertArticleServiceRequest{
+        UserId:      1,
+        Title:       "stub title",
+        Description: "stub description",
+        Body:        "stub body",
+        TagList:     &[]string{"stub tag"},
+    }
+    StubCreateArticleRequestWithoutTagList = domain.UpsertArticleServiceRequest{
+        UserId:      1,
+        Title:       "stub title",
+        Description: "stub description",
+        Body:        "stub body",
+    }
 )
 
 type articlesServiceTestFixture struct {
-	mockArticlesRepository *articlesPersistence.MockArticlesRepository
-	mockUsersRepository    *usersPersistence.MockUsersRepository
-	service                core.ArticlesService
-	ctx                    context.Context
+    mockArticlesRepository *articlesPersistence.MockArticlesRepository
+    service                core.ArticlesService
+    ctx                    context.Context
 }
 
-func newArticlesServiceTestFixture() *articlesServiceTestFixture {
-	mockArticlesRepository := new(articlesPersistence.MockArticlesRepository)
-	mockUsersRepository := new(usersPersistence.MockUsersRepository)
+func newArticlesServiceTestFixture(t *testing.T) *articlesServiceTestFixture {
+    mockArticlesRepository := new(articlesPersistence.MockArticlesRepository)
+    ctx := context.Background()
+    testClient := enttest.Open(t, dialect.SQLite, "file:realworld_go_kit?mode=memory&cache=shared&_fk=1")
+    internal.SeedData(ctx, testClient)
 
-	return &articlesServiceTestFixture{
-		mockArticlesRepository: mockArticlesRepository,
-		mockUsersRepository:    mockUsersRepository,
-		service:                core.NewArticlesServices(nil, mockArticlesRepository, mockUsersRepository),
-		ctx:                    context.Background(),
-	}
+    return &articlesServiceTestFixture{
+        mockArticlesRepository: mockArticlesRepository,
+        service:                core.NewArticlesServices(nil, testClient),
+        ctx:                    context.Background(),
+    }
 }

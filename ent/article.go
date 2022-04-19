@@ -25,21 +25,28 @@ type Article struct {
 	Title string `json:"title,omitempty"`
 	// Body holds the value of the "body" field.
 	Body string `json:"body,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
 	// Slug holds the value of the "slug" field.
 	Slug string `json:"slug,omitempty"`
+	// UserID holds the value of the "user_id" field.
+	UserID int `json:"user_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ArticleQuery when eager-loading is set.
-	Edges         ArticleEdges `json:"edges"`
-	user_articles *int
+	Edges ArticleEdges `json:"edges"`
 }
 
 // ArticleEdges holds the relations/edges for other nodes in the graph.
 type ArticleEdges struct {
 	// Author holds the value of the author edge.
 	Author *User `json:"author,omitempty"`
+	// Favorites holds the value of the favorites edge.
+	Favorites []*Favorite `json:"favorites,omitempty"`
+	// ArticleTags holds the value of the article_tags edge.
+	ArticleTags []*ArticleTag `json:"article_tags,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [3]bool
 }
 
 // AuthorOrErr returns the Author value or an error if the edge
@@ -56,19 +63,35 @@ func (e ArticleEdges) AuthorOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "author"}
 }
 
+// FavoritesOrErr returns the Favorites value or an error if the edge
+// was not loaded in eager-loading.
+func (e ArticleEdges) FavoritesOrErr() ([]*Favorite, error) {
+	if e.loadedTypes[1] {
+		return e.Favorites, nil
+	}
+	return nil, &NotLoadedError{edge: "favorites"}
+}
+
+// ArticleTagsOrErr returns the ArticleTags value or an error if the edge
+// was not loaded in eager-loading.
+func (e ArticleEdges) ArticleTagsOrErr() ([]*ArticleTag, error) {
+	if e.loadedTypes[2] {
+		return e.ArticleTags, nil
+	}
+	return nil, &NotLoadedError{edge: "article_tags"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Article) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case article.FieldID:
+		case article.FieldID, article.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case article.FieldTitle, article.FieldBody, article.FieldSlug:
+		case article.FieldTitle, article.FieldBody, article.FieldDescription, article.FieldSlug:
 			values[i] = new(sql.NullString)
 		case article.FieldCreateTime, article.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
-		case article.ForeignKeys[0]: // user_articles
-			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Article", columns[i])
 		}
@@ -114,18 +137,23 @@ func (a *Article) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				a.Body = value.String
 			}
+		case article.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				a.Description = value.String
+			}
 		case article.FieldSlug:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field slug", values[i])
 			} else if value.Valid {
 				a.Slug = value.String
 			}
-		case article.ForeignKeys[0]:
+		case article.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_articles", value)
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				a.user_articles = new(int)
-				*a.user_articles = int(value.Int64)
+				a.UserID = int(value.Int64)
 			}
 		}
 	}
@@ -135,6 +163,16 @@ func (a *Article) assignValues(columns []string, values []interface{}) error {
 // QueryAuthor queries the "author" edge of the Article entity.
 func (a *Article) QueryAuthor() *UserQuery {
 	return (&ArticleClient{config: a.config}).QueryAuthor(a)
+}
+
+// QueryFavorites queries the "favorites" edge of the Article entity.
+func (a *Article) QueryFavorites() *FavoriteQuery {
+	return (&ArticleClient{config: a.config}).QueryFavorites(a)
+}
+
+// QueryArticleTags queries the "article_tags" edge of the Article entity.
+func (a *Article) QueryArticleTags() *ArticleTagQuery {
+	return (&ArticleClient{config: a.config}).QueryArticleTags(a)
 }
 
 // Update returns a builder for updating this Article.
@@ -168,8 +206,12 @@ func (a *Article) String() string {
 	builder.WriteString(a.Title)
 	builder.WriteString(", body=")
 	builder.WriteString(a.Body)
+	builder.WriteString(", description=")
+	builder.WriteString(a.Description)
 	builder.WriteString(", slug=")
 	builder.WriteString(a.Slug)
+	builder.WriteString(", user_id=")
+	builder.WriteString(fmt.Sprintf("%v", a.UserID))
 	builder.WriteByte(')')
 	return builder.String()
 }

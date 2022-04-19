@@ -28,6 +28,6 @@ type (
 	}
 
 	GetArticlesResponse struct {
-		Articles []ArticleDto `json:"articles"`
+		Articles []*ArticleDto `json:"articles"`
 	}
 )

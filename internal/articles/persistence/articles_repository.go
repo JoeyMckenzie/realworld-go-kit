@@ -75,6 +75,7 @@ select a.id,
        a.body,
 	   a.user_id,
        (select count(*) from article_favorites where article_id = a.id) as "favorites"
+       (select 1 from article_favorites where article_id = a.id) as "favorited"
 from articles a`)
 	}
 

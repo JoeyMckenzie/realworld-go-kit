@@ -25,10 +25,10 @@ func (User) Fields() []ent.Field {
             NotEmpty().
             Default(""),
         field.String("bio").
-            NotEmpty().
+            Optional().
             Default(""),
         field.String("image").
-            NotEmpty().
+            Optional().
             Default(""),
     }
 }
@@ -37,6 +37,9 @@ func (User) Fields() []ent.Field {
 func (User) Edges() []ent.Edge {
     return []ent.Edge{
         edge.To("articles", Article.Type),
+        edge.To("favorites", Favorite.Type),
+        edge.To("followers", Follow.Type),
+        edge.To("followees", Follow.Type),
     }
 }
 

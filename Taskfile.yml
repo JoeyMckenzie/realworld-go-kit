@@ -99,8 +99,14 @@ tasks:
     cmds:
       - go generate ./ent
 
+  ent:regenerate:
+    summary: Cleans and generates the ent entity code
+    cmds:
+      - task ent:clean
+      - go generate ./ent
+
   ent:clean:
-    summary: Generates the ent entity code
+    summary: Cleans the ent codegen while maintaining existing models
     cmds:
       - mkdir ./tmp
       - cp -r ./ent/schema ./tmp
@@ -110,7 +116,6 @@ tasks:
       - cp -r ./tmp/schema ./ent
       - cp ./tmp/generate.go ./ent
       - rm -rf ./tmp
-
 
   install:deps:
     cmds:
@@ -129,6 +134,7 @@ tasks:
       - go get github.com/golang-jwt/jwt
       - go get golang.org/x/crypto
       - go get github.com/gosimple/slug
+      - go get github.com/mattn/go-sqlite3
 
   run:postman-tests:
     cmds:

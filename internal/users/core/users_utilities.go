@@ -1,7 +1,7 @@
 package core
 
 import (
-	"database/sql"
+	"github.com/joeymckenzie/realworld-go-kit/ent"
 )
 
 func updateIfRequired(existingField string, requestField *string) string {
@@ -13,9 +13,5 @@ func updateIfRequired(existingField string, requestField *string) string {
 }
 
 func isValidDatabaseErr(err error) bool {
-	return err != nil && !isNotFound(err)
-}
-
-func isNotFound(err error) bool {
-	return err == sql.ErrNoRows
+	return err != nil && !ent.IsNotFound(err)
 }
