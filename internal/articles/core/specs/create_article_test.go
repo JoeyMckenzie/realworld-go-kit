@@ -25,6 +25,15 @@ var (
     }
 )
 
+func TestArticlesService(t *testing.T) {
+    t.Parallel()
+    t.Run("testFuck", testFuck)
+}
+
+func testFuck(t *testing.T) {
+
+}
+
 func Test_CreateArticle_GivenValidRequestWithoutExistingTags_ReturnsSuccessfulResponseAndInsertsNewTags(t *testing.T) {
     // Arrange
     fixture := newArticlesServiceTestFixture(t)
