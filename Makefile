@@ -36,6 +36,10 @@ lint: ## Lint all go code
 format: ## Format all code
 	go fmt ./...
 
+.PHONY: tidy
+format: ## Tidy go imports
+	go mod tidy
+
 .PHONY: test
 test: ## Run all tests in the project
 	go test ./...
