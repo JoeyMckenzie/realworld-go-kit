@@ -4,4 +4,4 @@
 make test
 make lint
 make tidy
-make format
+npx lint-staged
