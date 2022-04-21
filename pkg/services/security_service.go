@@ -7,7 +7,7 @@ import (
 type (
 	SecurityService interface {
 		HashPassword(rawPassword string) (string, error)
-		PasswordIsValid(existingPassword, rawPassword string) bool
+		IsValidPassword(existingPassword, rawPassword string) bool
 	}
 
 	securityService struct{}
@@ -27,7 +27,7 @@ func (s *securityService) HashPassword(rawPassword string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (s *securityService) PasswordIsValid(existingPassword, rawPassword string) bool {
+func (s *securityService) IsValidPassword(existingPassword, rawPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(existingPassword), []byte(rawPassword))
 	return err == nil
 }

@@ -46,10 +46,9 @@ func NewUsersService(validator *validator.Validate, client *ent.Client, tokenSer
 func (us *usersService) GetUser(ctx context.Context, userId int) (*domain.UserDto, error) {
 	// Retrieve the mapped user, returning any service utilities that occur
 	existingUser, err := us.client.User.Get(ctx, userId)
-	if err != nil {
-		return nil, api.NewApiErrorWithContext(http.StatusInternalServerError, "user", err)
-	} else if ent.IsNotFound(err) {
-		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", err)
+
+	if ent.IsNotFound(err) {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
 	}
 
 	// Generate a new JWT for the user
@@ -66,11 +65,14 @@ func (us *usersService) RegisterUser(ctx context.Context, request *domain.Regist
 	existingUsers, err := us.client.User.
 		Query().
 		Where(
-			user.Email(request.Email),
-			user.Username(request.Username)).
+			user.Or(
+				user.Username(request.Username),
+				user.Email(request.Email),
+			),
+		).
 		All(ctx)
 
-	if err != nil && !ent.IsNotFound(err) {
+	if err != nil {
 		return nil, err
 	} else if len(existingUsers) > 0 {
 		return nil, api.NewApiErrorWithContext(http.StatusConflict, "user", utilities.ErrUsernameOrEmailTaken)
@@ -112,21 +114,19 @@ func (us *usersService) LoginUser(ctx context.Context, request *domain.LoginUser
 		Where(user.Email(request.Email)).
 		First(ctx)
 
-	if err != nil && !ent.IsNotFound(err) {
-		return nil, err
-	} else if ent.IsNotFound(err) {
-		return nil, api.NewApiErrorWithContext(http.StatusConflict, "user", utilities.ErrUserNotFound)
+	if ent.IsNotFound(err) {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
 	}
 
 	// Compare password hashes for identity
-	if passwordIsValid := us.securityService.PasswordIsValid(existingUser.Password, request.Password); !passwordIsValid {
+	if passwordIsValid := us.securityService.IsValidPassword(existingUser.Password, request.Password); !passwordIsValid {
 		return nil, api.NewApiErrorWithContext(http.StatusUnauthorized, "user", utilities.ErrInvalidLoginAttempt)
 	}
 
 	// Generate a JWT for the user
 	token, err := us.tokenService.GenerateUserToken(existingUser.ID, existingUser.Email)
 	if err != nil {
-		return nil, api.NewApiErrorWithContext(http.StatusInternalServerError, "user", err)
+		return nil, api.NewInternalServerErrorWithContext("user", err)
 	}
 
 	return domain.NewUserDto(existingUser.Email, existingUser.Username, existingUser.Bio, existingUser.Image, token), nil

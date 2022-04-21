@@ -12,6 +12,13 @@ func NewMockTokenService() TokenService {
 	return &MockTokenService{}
 }
 
+func (mts *MockTokenService) ResetMocks() {
+	mts.Mock = mock.Mock{
+		ExpectedCalls: nil,
+		Calls:         nil,
+	}
+}
+
 func (m *MockTokenService) GetOptionalUserIdFromAuthorizationHeader(authorizationHeader string) (int, error) {
 	//TODO implement me
 	panic("implement me")

@@ -1,103 +1,64 @@
 package specs
 
 import (
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
-	articlesPersistence "github.com/joeymckenzie/realworld-go-kit/internal/articles/persistence"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"testing"
+    "github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
+    "github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
+    "github.com/stretchr/testify/assert"
+    "testing"
 )
 
-var (
-	createArticleRequestStub = &domain.UpsertArticleServiceRequest{
-		UserId:      1,
-		Title:       "stub title",
-		Description: "stub description",
-		Body:        "stub body",
-		TagList:     &[]string{"stub tag"},
-	}
+func Test_WhenDownstreamServicesAreSuccessful_ReturnsMappedCreatedArticle(t *testing.T) {
+    // Arrange
+    request := domain.UpsertArticleServiceRequest{
+        UserId:      1,
+        Title:       "stub title",
+        Description: "stub description",
+        Body:        "stub body",
+        TagList:     &[]string{"stub tag"},
+    }
 
-	createArticleRequestStubWithoutTagList = &domain.UpsertArticleServiceRequest{
-		UserId:      1,
-		Title:       "stub title",
-		Description: "stub description",
-		Body:        "stub body",
-	}
-)
+    // Act
+    response, err := fixture.service.CreateArticle(fixture.ctx, &request)
 
-func TestArticlesService(t *testing.T) {
-	t.Parallel()
-	t.Run("testFuck", testFuck)
+    // Assert
+    assert.NotNil(t, response)
+    assert.Nil(t, err)
 }
 
-func testFuck(t *testing.T) {
+func Test_WhenUserDoesNotExist_ReturnsBadRequest(t *testing.T) {
+    // Arrange
+    request := domain.UpsertArticleServiceRequest{
+        UserId:      11,
+        Title:       "stub article",
+        Description: "stub description",
+        Body:        "stub body",
+        TagList:     &[]string{"stub tag"},
+    }
 
+    // Act
+    response, err := fixture.service.CreateArticle(fixture.ctx, &request)
+
+    // Assert
+    assert.Nil(t, response)
+    assert.NotNil(t, err)
+    assert.ErrorContains(t, err, utilities.ErrUserNotFound.Error())
 }
 
-func Test_CreateArticle_GivenValidRequestWithoutExistingTags_ReturnsSuccessfulResponseAndInsertsNewTags(t *testing.T) {
-	// Arrange
-	fixture := newArticlesServiceTestFixture(t)
+func Test_WhenArticleTitleExists_ReturnsBadRequest(t *testing.T) {
+    // Arrange
+    request := domain.UpsertArticleServiceRequest{
+        UserId:      1,
+        Title:       "testUser1 article",
+        Description: "stub description",
+        Body:        "stub body",
+        TagList:     &[]string{"stub tag"},
+    }
 
-	fixture.mockArticlesRepository.
-		On("FindArticleBySlug", fixture.ctx, mock.AnythingOfType("string")).
-		Return(nil, nil)
+    // Act
+    response, err := fixture.service.CreateArticle(fixture.ctx, &request)
 
-	fixture.mockArticlesRepository.
-		On("GetTags", fixture.ctx, mock.AnythingOfType("[]string")).
-		Return(nil, nil)
-
-	fixture.mockArticlesRepository.
-		On("CreateTag", fixture.ctx, mock.AnythingOfType("string")).
-		Return(articlesPersistence.StubTag, nil)
-
-	fixture.mockArticlesRepository.
-		On("CreateArticle", fixture.ctx, mock.AnythingOfType("int"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).
-		Return(articlesPersistence.StubArticle, nil)
-
-	fixture.mockArticlesRepository.
-		On("CreateArticleTag", fixture.ctx, mock.AnythingOfType("int"), mock.AnythingOfType("int")).
-		Return(articlesPersistence.StubArticleTag, nil)
-
-	// Act
-	response, err := fixture.service.CreateArticle(fixture.ctx, createArticleRequestStub)
-
-	// Assert
-	assert.NotNil(t, response)
-	assert.Nil(t, err)
-	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "FindArticleBySlug", 1)
-	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "GetTags", 1)
-	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "CreateTag", 1)
-	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "CreateArticleTag", 1)
-}
-
-func Test_CreateArticle_GivenValidRequestWithoutTags_ReturnsSuccessfulResponseWithoutCreatingTag(t *testing.T) {
-	// Arrange
-	fixture := newArticlesServiceTestFixture(t)
-
-	fixture.mockArticlesRepository.
-		On("FindArticleBySlug", fixture.ctx, mock.AnythingOfType("string")).
-		Return(nil, nil)
-
-	fixture.mockArticlesRepository.
-		On("GetTags", fixture.ctx, mock.AnythingOfType("[]string")).
-		Return(nil, nil)
-
-	fixture.mockArticlesRepository.
-		On("CreateArticle", fixture.ctx, mock.AnythingOfType("int"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).
-		Return(articlesPersistence.StubArticle, nil)
-
-	fixture.mockArticlesRepository.
-		On("CreateArticleTag", fixture.ctx, mock.AnythingOfType("int"), mock.AnythingOfType("int")).
-		Return(articlesPersistence.StubArticleTag, nil)
-
-	// Act
-	response, err := fixture.service.CreateArticle(fixture.ctx, createArticleRequestStubWithoutTagList)
-
-	// Assert
-	assert.NotNil(t, response)
-	assert.Nil(t, err)
-	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "FindArticleBySlug", 1)
-	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "GetTags", 0)
-	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "CreateTag", 0)
-	fixture.mockArticlesRepository.AssertNumberOfCalls(t, "CreateArticleTag", 0)
+    // Assert
+    assert.Nil(t, response)
+    assert.NotNil(t, err)
+    assert.ErrorContains(t, err, utilities.ErrArticleTitleExists.Error())
 }

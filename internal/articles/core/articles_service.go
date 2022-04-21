@@ -115,7 +115,21 @@ func (as *articlesService) GetFeed(ctx context.Context, request *domain.GetArtic
 }
 
 func (as *articlesService) GetArticle(ctx context.Context, request *domain.GetArticleServiceRequest) (*domain.ArticleDto, error) {
-	return nil, nil
+	queriedArticle, err := as.client.Article.
+		Query().
+		WithFavorites().
+		WithAuthor().
+		WithArticleTags(func(query *ent.ArticleTagQuery) {
+			query.WithTag()
+		}).
+		Where(article.Slug(request.Slug)).
+		First(ctx)
+
+	if ent.IsNotFound(err) {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
+	}
+
+	return makeArticleMapping(queriedArticle, false, request.UserId), nil
 }
 
 func (as *articlesService) CreateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error) {
@@ -147,48 +161,17 @@ func (as *articlesService) CreateArticle(ctx context.Context, request *domain.Up
 		return nil, api.NewInternalServerErrorWithContext("tags", err)
 	}
 
-	var articleTagsToBulkInsert []*ent.ArticleTagCreate
+	articleTagsToBulkInsert, err := as.makeArticleTagsMapping(ctx, transaction, tagsToCreate)
 
-	if len(tagsToCreate) > 0 {
-		// Get the existing tags for checking against those on the request
-		existingTags, err := as.client.Tag.
-			Query().
-			Where(tag.TagIn(tagsToCreate...)).
-			All(ctx)
-
-		if err != nil {
-			return nil, api.NewInternalServerErrorWithContext("tags", err)
-		}
-
-		// Roll through the tags on the request to see if we should create any new tags
-		for _, tagToCreate := range tagsToCreate {
-			articleTag := as.client.ArticleTag.Create()
-
-			// If the tagToCreate already exists, skip creating it and add it to the list of reference IDs for the article
-			if existingTag := firstOrDefaultTag(tagToCreate, existingTags); existingTag != nil {
-				articleTag.SetTagID(existingTag.ID)
-			} else {
-				// We've detected a new tag to create at this point, append to the bulk insert list
-				createdTag, err := transaction.Tag.
-					Create().
-					SetTag(tagToCreate).
-					Save(ctx)
-
-				if err != nil {
-					_ = transaction.Rollback()
-					return nil, api.NewInternalServerErrorWithContext("tags", err)
-				}
-
-				articleTag.SetTagID(createdTag.ID)
-			}
-
-			articleTagsToBulkInsert = append(articleTagsToBulkInsert, articleTag)
-		}
+	// Error mapping is handled while mapping article tags, propagate it up
+	if err != nil {
+		return nil, err
 	}
 
 	articleToCreate := transaction.Article.Create().
 		SetAuthorID(request.UserId).
 		SetTitle(request.Title).
+		SetBody(request.Body).
 		SetSlug(articleSlug).
 		SetDescription(request.Description)
 
@@ -209,6 +192,12 @@ func (as *articlesService) CreateArticle(ctx context.Context, request *domain.Up
 	createdArticle, err := articleToCreate.Save(ctx)
 
 	if err != nil {
+		_ = transaction.Rollback()
+		return nil, api.NewInternalServerErrorWithContext("articles", err)
+	}
+
+	// Finally, commit the transaction
+	if err = transaction.Commit(); err != nil {
 		_ = transaction.Rollback()
 		return nil, api.NewInternalServerErrorWithContext("articles", err)
 	}

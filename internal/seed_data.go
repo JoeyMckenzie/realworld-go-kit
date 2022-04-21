@@ -134,34 +134,35 @@ func seedArticleTags(ctx context.Context, client *ent.Client, articles []*ent.Ar
 }
 
 func seedArticles(ctx context.Context, client *ent.Client, users []*ent.User) []*ent.Article {
-	articles := []*ent.Article{
+	articlesToCreate := []*ent.ArticleCreate{
 		client.Article.
 			Create().
 			SetSlug(slug.Make("testUser1 article")).
 			SetTitle("testUser1 article").
 			SetDescription("testUser1 description").
 			SetBody("testUser1 body").
-			SetAuthor(users[0]).
-			SaveX(ctx),
+			SetAuthor(users[0]),
 		client.Article.
 			Create().
 			SetSlug(slug.Make("testUser1 another article")).
 			SetTitle("testUser1 another article").
 			SetDescription("testUser1 another description").
 			SetBody("testUser1 another body").
-			SetAuthor(users[0]).
-			SaveX(ctx),
+			SetAuthor(users[0]),
 		client.Article.
 			Create().
 			SetSlug(slug.Make("testUser2 article")).
 			SetTitle("testUser2 article").
 			SetDescription("testUser2 description").
 			SetBody("testUser2 body").
-			SetAuthor(users[1]).
-			SaveX(ctx),
+			SetAuthor(users[1]),
 	}
 
-	return articles
+	createdArticles := client.Article.
+		CreateBulk(articlesToCreate...).
+		SaveX(ctx)
+
+	return createdArticles
 }
 
 func seedFavorites(ctx context.Context, client *ent.Client, users []*ent.User, articles []*ent.Article) {

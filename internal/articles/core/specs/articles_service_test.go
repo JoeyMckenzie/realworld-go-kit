@@ -1,47 +1,39 @@
 package specs
 
 import (
-	"context"
-	"entgo.io/ent/dialect"
-	"github.com/joeymckenzie/realworld-go-kit/ent/enttest"
-	"github.com/joeymckenzie/realworld-go-kit/internal"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
-	articlesPersistence "github.com/joeymckenzie/realworld-go-kit/internal/articles/persistence"
-	"testing"
+    "context"
+    "entgo.io/ent/dialect"
+    "github.com/joeymckenzie/realworld-go-kit/ent"
+    "github.com/joeymckenzie/realworld-go-kit/internal"
+    "github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
+    _ "github.com/mattn/go-sqlite3"
+    "os"
+    "testing"
 )
 
-var (
-	StubCreateArticleRequest = domain.UpsertArticleServiceRequest{
-		UserId:      1,
-		Title:       "stub title",
-		Description: "stub description",
-		Body:        "stub body",
-		TagList:     &[]string{"stub tag"},
-	}
-	StubCreateArticleRequestWithoutTagList = domain.UpsertArticleServiceRequest{
-		UserId:      1,
-		Title:       "stub title",
-		Description: "stub description",
-		Body:        "stub body",
-	}
-)
+var fixture *articlesServiceTestFixture
 
 type articlesServiceTestFixture struct {
-	mockArticlesRepository *articlesPersistence.MockArticlesRepository
-	service                core.ArticlesService
-	ctx                    context.Context
+    ctx     context.Context
+    service core.ArticlesService
 }
 
-func newArticlesServiceTestFixture(t *testing.T) *articlesServiceTestFixture {
-	mockArticlesRepository := new(articlesPersistence.MockArticlesRepository)
-	ctx := context.Background()
-	testClient := enttest.Open(t, dialect.SQLite, "file:realworld_go_kit?mode=memory&cache=shared&_fk=1")
-	internal.SeedData(ctx, testClient)
+func newArticlesServiceTestFixture(ctx context.Context, client *ent.Client) *articlesServiceTestFixture {
+    return &articlesServiceTestFixture{
+        ctx:     ctx,
+        service: core.NewArticlesServices(nil, client),
+    }
+}
 
-	return &articlesServiceTestFixture{
-		mockArticlesRepository: mockArticlesRepository,
-		service:                core.NewArticlesServices(nil, testClient),
-		ctx:                    context.Background(),
-	}
+func TestMain(m *testing.M) {
+    ctx := context.Background()
+
+    client, _ := ent.Open(dialect.SQLite, "file:realworld_go_kit?mode=memory&cache=shared&_fk=1")
+    defer client.Close()
+    client.Schema.Create(ctx)
+
+    internal.SeedData(ctx, client)
+    fixture = newArticlesServiceTestFixture(ctx, client)
+
+    os.Exit(m.Run())
 }
