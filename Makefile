@@ -38,10 +38,10 @@ format: ## Format all code
 
 .PHONY: pre-commit
 pre-commit: ## Runs pre-commit tasks on all affected go code
-	make test
-	make lint
-	make tidy
-	npx lint-staged
+	@make test
+	@make lint
+	@make tidy
+	@npx lint-staged
 
 .PHONY: tidy
 tidy: ## Tidy go imports
