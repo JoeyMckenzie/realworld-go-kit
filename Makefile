@@ -37,7 +37,7 @@ format: ## Format all code
 	go fmt ./...
 
 .PHONY: tidy
-format: ## Tidy go imports
+tidy: ## Tidy go imports
 	go mod tidy
 
 .PHONY: test
