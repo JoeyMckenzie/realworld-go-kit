@@ -56,6 +56,10 @@ start-db: ## Start the database container
 start-metrics: ## Start the Prometheus metrics container
 	@docker-compose -f ./docker-compose.metrics.yml up --build
 
+.PHONY: start-conduit
+start-conduit: ## Start the Prometheus metrics container
+	@docker-compose -f ./docker-compose.postgres.yml up -f ./docker-compose.api.yml up -f ./docker-compose.metrics.yml up --build
+
 .PHONY: install-deps
 install-deps: ## Installs all application package dependencies
 	go get github.com/go-chi/chi/v5
