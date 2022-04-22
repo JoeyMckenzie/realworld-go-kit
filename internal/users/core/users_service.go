@@ -192,14 +192,13 @@ func (us *usersService) GetUserProfile(ctx context.Context, username string, cur
 	isFollowing := false
 
 	if currentUserId > 0 {
-		_, err := us.client.User.
-			QueryFollowers(existingUser).
-			Where(follow.FolloweeID(currentUserId)).
+		_, err := us.client.Follow.
+			Query().
+			Where(
+				follow.FollowerID(currentUserId),
+				follow.FolloweeID(existingUser.ID),
+			).
 			First(ctx)
-
-		if isValidDatabaseErr(err) {
-			return nil, api.NewInternalServerErrorWithContext("user", err)
-		}
 
 		if !ent.IsNotFound(err) {
 			isFollowing = true
