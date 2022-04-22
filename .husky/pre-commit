@@ -3,5 +3,5 @@
 
 make test
 make lint
-# make tidy
+make tidy
 # npx lint-staged
