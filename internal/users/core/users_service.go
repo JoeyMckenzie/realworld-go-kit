@@ -214,6 +214,7 @@ func (us *usersService) GetUserProfile(ctx context.Context, username string, cur
 }
 
 func (us *usersService) AddUserFollow(ctx context.Context, followerUserId int, followeeUsername string) (*domain.ProfileDto, error) {
+	// Verify both the user follower and followees exist
 	userToFollow, err := us.client.User.
 		Query().
 		Where(user.Username(followeeUsername)).
@@ -227,12 +228,6 @@ func (us *usersService) AddUserFollow(ctx context.Context, followerUserId int, f
 	if userToFollow.ID == followerUserId {
 		return nil, api.NewApiErrorWithContext(http.StatusBadRequest, "follows", utilities.ErrCannotFollowSelf)
 	}
-
-	_, err = us.client.Follow.
-		Create().
-		SetFollowerID(followerUserId).
-		SetFolloweeID(userToFollow.ID).
-		Save(ctx)
 
 	if _, err = us.client.Follow.
 		Create().
@@ -260,6 +255,9 @@ func (us *usersService) RemoveUserFollow(ctx context.Context, followerUserId int
 		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
 	}
 
+	// Only propagate errors if something other than not found occurs,
+	// as we don't _really_ care if someone tries to unfollow someone
+	// that they're not following in the first place
 	if _, err = us.client.Follow.
 		Delete().
 		Where(
@@ -268,8 +266,8 @@ func (us *usersService) RemoveUserFollow(ctx context.Context, followerUserId int
 				follow.FolloweeID(userToUnfollow.ID),
 			),
 		).
-		Exec(ctx); err != nil {
-		return nil, api.NewInternalServerErrorWithContext("follow", err)
+		Exec(ctx); err != nil && !ent.IsNotFound(err) {
+		return nil, api.NewInternalServerErrorWithContext("unfollow", err)
 	}
 
 	return &domain.ProfileDto{
