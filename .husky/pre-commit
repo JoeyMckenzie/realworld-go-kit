@@ -2,6 +2,6 @@
 . "$(dirname "$0")/_/husky.sh"
 
 make test
-# make lint
+make lint
 # make tidy
 # npx lint-staged
