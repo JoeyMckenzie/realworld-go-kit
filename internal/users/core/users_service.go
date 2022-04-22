@@ -135,7 +135,8 @@ func (us *usersService) LoginUser(ctx context.Context, request *domain.LoginUser
 func (us *usersService) UpdateUser(ctx context.Context, request *domain.UpdateUserServiceRequest) (*domain.UserDto, error) {
 	// Verify the existing user, return unauthorized for obfuscation
 	existingUser, err := us.client.User.Get(ctx, request.UserId)
-	if err != nil || existingUser.ID != request.UserId {
+
+	if ent.IsNotFound(err) {
 		return nil, utilities.ErrUnauthorized
 	}
 
@@ -184,9 +185,7 @@ func (us *usersService) GetUserProfile(ctx context.Context, username string, cur
 		Where(user.Username(username)).
 		First(ctx)
 
-	if isValidDatabaseErr(err) {
-		return nil, api.NewInternalServerErrorWithContext("user", err)
-	} else if ent.IsNotFound(err) {
+	if ent.IsNotFound(err) {
 		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
 	}
 
@@ -221,9 +220,7 @@ func (us *usersService) AddUserFollow(ctx context.Context, followerUserId int, f
 		Where(user.Username(followeeUsername)).
 		First(ctx)
 
-	if isValidDatabaseErr(err) {
-		return nil, api.NewInternalServerErrorWithContext("user", err)
-	} else if ent.IsNotFound(err) {
+	if ent.IsNotFound(err) {
 		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
 	}
 
@@ -260,17 +257,18 @@ func (us *usersService) RemoveUserFollow(ctx context.Context, followerUserId int
 		Where(user.Username(followeeUsername)).
 		First(ctx)
 
-	if isValidDatabaseErr(err) {
-		return nil, err
-	} else if ent.IsNotFound(err) {
+	if ent.IsNotFound(err) {
 		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
 	}
 
 	if _, err = us.client.Follow.
 		Delete().
 		Where(
-			follow.FollowerID(followerUserId),
-			follow.FolloweeID(userToUnfollow.ID)).
+			follow.And(
+				follow.FollowerID(followerUserId),
+				follow.FolloweeID(userToUnfollow.ID),
+			),
+		).
 		Exec(ctx); err != nil {
 		return nil, api.NewInternalServerErrorWithContext("follow", err)
 	}
