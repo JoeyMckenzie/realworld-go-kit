@@ -11,6 +11,7 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/pkg/services"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"net/http"
+	"time"
 )
 
 type (
@@ -158,12 +159,13 @@ func (us *usersService) UpdateUser(ctx context.Context, request *domain.UpdateUs
 
 	// Retrieve the mapped user, returning any service utilities that occur
 	updatedUser, err := us.client.User.
-		UpdateOneID(existingUser.ID).
+		UpdateOne(existingUser).
 		SetUsername(updatedUsername).
 		SetEmail(updatedEmail).
 		SetPassword(updatedPassword).
 		SetBio(updatedBio).
 		SetImage(updatedImage).
+		SetUpdateTime(time.Now()).
 		Save(ctx)
 
 	if err != nil {
