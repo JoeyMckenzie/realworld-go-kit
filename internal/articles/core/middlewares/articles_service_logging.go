@@ -95,3 +95,20 @@ func (mw *articlesServiceLoggingMiddleware) GetFeed(ctx context.Context, request
 
 	return mw.next.GetFeed(ctx, request)
 }
+
+func (mw *articlesServiceLoggingMiddleware) UpdateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (article *domain.ArticleDto, err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "UpdateArticle",
+			"request_time", time.Since(begin),
+			"error", err,
+		)
+	}(time.Now())
+
+	level.Info(mw.logger).Log(
+		"method", "UpdateArticle",
+		"request", request.ToSafeLoggingStruct(),
+	)
+
+	return mw.next.UpdateArticle(ctx, request)
+}

@@ -57,3 +57,11 @@ func (mw *articlesServiceRequestValidationMiddleware) GetFeed(ctx context.Contex
 
 	return mw.next.GetFeed(ctx, request)
 }
+
+func (mw *articlesServiceRequestValidationMiddleware) UpdateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error) {
+	if err := mw.validator.Struct(request); err != nil {
+		return nil, api.NewValidationError(err)
+	}
+
+	return mw.next.UpdateArticle(ctx, request)
+}

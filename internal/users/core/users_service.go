@@ -141,10 +141,10 @@ func (us *usersService) UpdateUser(ctx context.Context, request *domain.UpdateUs
 		return nil, utilities.ErrUnauthorized
 	}
 
-	updatedUsername := updateIfRequired(existingUser.Username, request.Username)
-	updatedEmail := updateIfRequired(existingUser.Email, request.Email)
-	updatedBio := updateIfRequired(existingUser.Bio, request.Bio)
-	updatedImage := updateIfRequired(existingUser.Image, request.Image)
+	updatedUsername := utilities.UpdateIfRequired(existingUser.Username, request.Username)
+	updatedEmail := utilities.UpdateIfRequired(existingUser.Email, request.Email)
+	updatedBio := utilities.UpdateIfRequired(existingUser.Bio, request.Bio)
+	updatedImage := utilities.UpdateIfRequired(existingUser.Image, request.Image)
 	updatedPassword := existingUser.Password
 
 	if request.Password != nil {

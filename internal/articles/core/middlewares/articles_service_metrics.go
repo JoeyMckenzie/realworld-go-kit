@@ -64,3 +64,13 @@ func (mw *articlesServiceMetricsMiddleware) GetFeed(ctx context.Context, request
 
 	return mw.service.GetFeed(ctx, request)
 }
+
+func (mw *articlesServiceMetricsMiddleware) UpdateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (article *domain.ArticleDto, err error) {
+	defer func(begin time.Time) {
+		labelValues := []string{"method", "UpdateArticle", "error", fmt.Sprint(err != nil)}
+		mw.requestCount.With(labelValues...).Add(1)
+		mw.requestLatency.With(labelValues...).Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return mw.service.UpdateArticle(ctx, request)
+}

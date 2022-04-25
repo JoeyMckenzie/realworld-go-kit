@@ -23,4 +23,5 @@ var (
 	ErrInvalidTokenHeader        = errors.New("authorization token is malformed")
 	ErrCannotFollowSelf          = errors.New("cannot follow or unfollow self")
 	ErrNilInput                  = errors.New("cannot pass nil value")
+	ErrForbiddenArticleUpdate    = errors.New("forbidden to update this article")
 )

@@ -14,6 +14,7 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"net/http"
+	"time"
 )
 
 var defaultArticlesResponse = make([]*domain.ArticleDto, 0)
@@ -24,6 +25,7 @@ type (
 		GetArticle(ctx context.Context, request *domain.GetArticleServiceRequest) (*domain.ArticleDto, error)
 		GetFeed(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error)
 		CreateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error)
+		UpdateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error)
 	}
 
 	articlesService struct {
@@ -216,6 +218,76 @@ func (as *articlesService) CreateArticle(ctx context.Context, request *domain.Up
 			Username:  existingUser.Username,
 			Bio:       existingUser.Bio,
 			Image:     existingUser.Image,
+			Following: false,
+		},
+	}, nil
+}
+
+func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error) {
+	existingArticle, err := as.client.Article.
+		Query().
+		Where(
+			article.ID(request.ArticleId),
+			article.UserID(request.UserId),
+		).
+		WithFavorites().
+		WithAuthor().
+		WithArticleTags(func(query *ent.ArticleTagQuery) {
+			query.WithTag()
+		}).
+		First(ctx)
+
+	if ent.IsNotFound(err) {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
+	}
+
+	updatedTitle := utilities.UpdateIfRequired(existingArticle.Title, &request.Title)
+	updatedDescription := utilities.UpdateIfRequired(existingArticle.Description, &request.Description)
+	updatedBody := utilities.UpdateIfRequired(existingArticle.Title, &request.Body)
+	updatedSlug := slug.Make(updatedTitle)
+
+	// Verify the updated slug title is available
+	existingSlug, _ := as.client.Article.
+		Query().
+		Where(article.Slug(updatedSlug)).
+		First(ctx)
+
+	if existingSlug != nil {
+		return nil, api.NewApiErrorWithContext(http.StatusConflict, "article", utilities.ErrArticleTitleExists)
+	}
+
+	updatedArticle, err := as.client.Article.
+		UpdateOne(existingArticle).
+		SetTitle(updatedTitle).
+		SetSlug(updatedSlug).
+		SetDescription(updatedDescription).
+		SetBody(updatedBody).
+		SetUpdateTime(time.Now()).
+		Save(ctx)
+
+	var tagList []string
+	{
+		for _, existingTag := range existingArticle.Edges.ArticleTags {
+			if existingTag.Edges.Tag != nil {
+				tagList = append(tagList, existingTag.Edges.Tag.Tag)
+			}
+		}
+	}
+
+	return &domain.ArticleDto{
+		Slug:           updatedArticle.Slug,
+		Title:          updatedArticle.Title,
+		Description:    updatedArticle.Description,
+		Body:           updatedArticle.Body,
+		TagList:        tagList,
+		CreatedAt:      updatedArticle.CreateTime,
+		UpdatedAt:      updatedArticle.UpdateTime,
+		Favorited:      false,
+		FavoritesCount: len(existingArticle.Edges.Favorites),
+		Author: domain.AuthorDto{
+			Username:  existingArticle.Edges.Author.Username,
+			Bio:       existingArticle.Edges.Author.Bio,
+			Image:     existingArticle.Edges.Author.Image,
 			Following: false,
 		},
 	}, nil

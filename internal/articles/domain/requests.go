@@ -15,6 +15,7 @@ type (
 	}
 
 	UpsertArticleServiceRequest struct {
+		ArticleId   int
 		UserId      int    `validate:"required"`
 		Title       string `validate:"required"`
 		Description string `validate:"required"`
