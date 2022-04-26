@@ -13,6 +13,7 @@ type ArticleEndpoints struct {
 	MakeCreateArticleEndpoint endpoint.Endpoint
 	MakeGetArticlesEndpoint   endpoint.Endpoint
 	MakeGetFeedEndpoint       endpoint.Endpoint
+	MakeUpdateArticleEndpoint endpoint.Endpoint
 }
 
 func NewArticleEndpoints(service core.ArticlesService) *ArticleEndpoints {
@@ -20,14 +21,15 @@ func NewArticleEndpoints(service core.ArticlesService) *ArticleEndpoints {
 		MakeCreateArticleEndpoint: makeCreateArticleEndpoint(service),
 		MakeGetArticlesEndpoint:   makeGetArticlesEndpoint(service),
 		MakeGetFeedEndpoint:       makeGetFeedEndpoint(service),
+		MakeUpdateArticleEndpoint: makeUpdateArticleEndpoint(service),
 	}
 }
 
 func makeCreateArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
-			apiRequest := request.(domain.UpsertArticleApiRequest)
-			response, err := service.CreateArticle(ctx, &domain.UpsertArticleServiceRequest{
+			apiRequest := request.(domain.CreateArticleApiRequest)
+			response, err := service.CreateArticle(ctx, &domain.CreateArticleServiceRequest{
 				UserId:      tokenMeta.UserId,
 				Title:       apiRequest.Article.Title,
 				Description: apiRequest.Article.Description,
@@ -75,5 +77,29 @@ func makeGetFeedEndpoint(service core.ArticlesService) endpoint.Endpoint {
 		return &domain.GetArticlesResponse{
 			Articles: articles,
 		}, nil
+	}
+}
+
+func makeUpdateArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+			apiRequest := request.(domain.UpdateArticleApiRequest)
+			response, err := service.UpdateArticle(ctx, &domain.UpdateArticleServiceRequest{
+				UserId:      tokenMeta.UserId,
+				Title:       apiRequest.Article.Title,
+				Description: apiRequest.Article.Description,
+				Body:        apiRequest.Article.Body,
+			})
+
+			if err != nil {
+				return nil, err
+			}
+
+			return &domain.UpsertArticleResponse{
+				Article: response,
+			}, nil
+		}
+
+		return nil, utilities.ErrUnauthorized
 	}
 }

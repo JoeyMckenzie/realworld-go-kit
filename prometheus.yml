@@ -3,7 +3,11 @@ global:
   evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
 
 scrape_configs:
-  - job_name: realworld_go_kit
+  - job_name: realworld_go_kit_docker
     static_configs:
       - targets:
           - api:8080
+  - job_name: realworld_go_kit
+    static_configs:
+      - targets:
+          - localhost:8080

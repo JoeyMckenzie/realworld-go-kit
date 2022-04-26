@@ -42,7 +42,7 @@ func (mw *articlesServiceRequestValidationMiddleware) GetArticle(ctx context.Con
 	return mw.next.GetArticle(ctx, request)
 }
 
-func (mw *articlesServiceRequestValidationMiddleware) CreateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error) {
+func (mw *articlesServiceRequestValidationMiddleware) CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (*domain.ArticleDto, error) {
 	if err := mw.validator.Struct(request); err != nil {
 		return nil, api.NewValidationError(err)
 	}
@@ -58,7 +58,7 @@ func (mw *articlesServiceRequestValidationMiddleware) GetFeed(ctx context.Contex
 	return mw.next.GetFeed(ctx, request)
 }
 
-func (mw *articlesServiceRequestValidationMiddleware) UpdateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error) {
+func (mw *articlesServiceRequestValidationMiddleware) UpdateArticle(ctx context.Context, request *domain.UpdateArticleServiceRequest) (*domain.ArticleDto, error) {
 	if err := mw.validator.Struct(request); err != nil {
 		return nil, api.NewValidationError(err)
 	}

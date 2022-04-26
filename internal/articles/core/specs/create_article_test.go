@@ -9,7 +9,7 @@ import (
 
 func Test_WhenDownstreamServicesAreSuccessful_ReturnsMappedCreatedArticle(t *testing.T) {
 	// Arrange
-	request := domain.UpsertArticleServiceRequest{
+	request := domain.CreateArticleServiceRequest{
 		UserId:      1,
 		Title:       "stub title",
 		Description: "stub description",
@@ -27,7 +27,7 @@ func Test_WhenDownstreamServicesAreSuccessful_ReturnsMappedCreatedArticle(t *tes
 
 func Test_WhenUserDoesNotExist_ReturnsBadRequest(t *testing.T) {
 	// Arrange
-	request := domain.UpsertArticleServiceRequest{
+	request := domain.CreateArticleServiceRequest{
 		UserId:      11,
 		Title:       "stub article",
 		Description: "stub description",
@@ -46,7 +46,7 @@ func Test_WhenUserDoesNotExist_ReturnsBadRequest(t *testing.T) {
 
 func Test_WhenArticleTitleExists_ReturnsBadRequest(t *testing.T) {
 	// Arrange
-	request := domain.UpsertArticleServiceRequest{
+	request := domain.CreateArticleServiceRequest{
 		UserId:      1,
 		Title:       "testUser1 article",
 		Description: "stub description",

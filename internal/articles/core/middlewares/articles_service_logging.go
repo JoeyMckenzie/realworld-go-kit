@@ -61,7 +61,7 @@ func (mw *articlesServiceLoggingMiddleware) GetArticle(ctx context.Context, requ
 	return mw.next.GetArticle(ctx, request)
 }
 
-func (mw *articlesServiceLoggingMiddleware) CreateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (article *domain.ArticleDto, err error) {
+func (mw *articlesServiceLoggingMiddleware) CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (article *domain.ArticleDto, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "CreateArticle",
@@ -96,7 +96,7 @@ func (mw *articlesServiceLoggingMiddleware) GetFeed(ctx context.Context, request
 	return mw.next.GetFeed(ctx, request)
 }
 
-func (mw *articlesServiceLoggingMiddleware) UpdateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (article *domain.ArticleDto, err error) {
+func (mw *articlesServiceLoggingMiddleware) UpdateArticle(ctx context.Context, request *domain.UpdateArticleServiceRequest) (article *domain.ArticleDto, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "UpdateArticle",

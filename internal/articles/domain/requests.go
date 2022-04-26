@@ -3,24 +3,43 @@ package domain
 import "fmt"
 
 type (
-	UpsertArticleApiRequest struct {
-		Article UpsertArticleDto `json:"article"`
+	CreateArticleApiRequest struct {
+		Article CreateArticleDto `json:"article"`
 	}
 
-	UpsertArticleDto struct {
+	UpdateArticleApiRequest struct {
+		Article UpdateArticleDto `json:"article"`
+	}
+
+	CreateArticleDto struct {
 		Title       string    `json:"title"`
 		Description string    `json:"description"`
 		Body        string    `json:"body"`
 		TagList     *[]string `json:"tagList,omitempty"`
 	}
 
-	UpsertArticleServiceRequest struct {
-		ArticleId   int
+	UpdateArticleDto struct {
+		Slug        string
+		Title       *string `json:"title,omitempty"`
+		Description *string `json:"description,omitempty"`
+		Body        *string `json:"body,omitempty"`
+	}
+
+	CreateArticleServiceRequest struct {
+		ArticleSlug string
 		UserId      int    `validate:"required"`
 		Title       string `validate:"required"`
 		Description string `validate:"required"`
 		Body        string `validate:"required"`
 		TagList     *[]string
+	}
+
+	UpdateArticleServiceRequest struct {
+		ArticleSlug string `validate:"required"`
+		UserId      int    `validate:"required"`
+		Title       *string
+		Description *string
+		Body        *string
 	}
 
 	GetArticlesServiceRequest struct {
@@ -38,6 +57,11 @@ type (
 	}
 )
 
+func (request *UpdateArticleServiceRequest) ToSafeLoggingStruct() string {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (request *GetArticleServiceRequest) ToSafeLoggingStruct() string {
 	if request == nil {
 		return "<nil>"
@@ -54,7 +78,7 @@ func (request *GetArticlesServiceRequest) ToSafeLoggingStruct() string {
 	return fmt.Sprintf("tag: %s; author: %s; favoried: %s; limit: %d; offset: %d", request.Tag, request.Author, request.Favorited, request.Limit, request.Offset)
 }
 
-func (request *UpsertArticleServiceRequest) ToSafeLoggingStruct() string {
+func (request *CreateArticleServiceRequest) ToSafeLoggingStruct() string {
 	if request == nil {
 		return "<nil>"
 	}

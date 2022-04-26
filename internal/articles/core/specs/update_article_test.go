@@ -1,21 +1,27 @@
 package specs
 
 import (
+	"github.com/gosimple/slug"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
+var (
+	updatedTitle       = "updated stub title"
+	updatedDescription = "updated stub description"
+	updatedBody        = "updated stub body"
+)
+
 func Test_WhenDownstreamServicesAreSuccessful_ReturnsMappedUpdatedArticle(t *testing.T) {
 	// Arrange
-	request := domain.UpsertArticleServiceRequest{
+	request := domain.UpdateArticleServiceRequest{
 		UserId:      1,
-		ArticleId:   2,
-		Title:       "updated stub title",
-		Description: "updated stub description",
-		Body:        "updated stub body",
-		TagList:     &[]string{"updated stub tag"},
+		ArticleSlug: slug.Make("testUser1 article"),
+		Title:       &updatedTitle,
+		Description: &updatedDescription,
+		Body:        &updatedBody,
 	}
 
 	// Act
@@ -28,13 +34,12 @@ func Test_WhenDownstreamServicesAreSuccessful_ReturnsMappedUpdatedArticle(t *tes
 
 func Test_WhenNoArticleIsFound_ReturnsError(t *testing.T) {
 	// Arrange
-	request := domain.UpsertArticleServiceRequest{
-		UserId:      2,
-		ArticleId:   22,
-		Title:       "updated stub title",
-		Description: "updated stub description",
-		Body:        "updated stub body",
-		TagList:     &[]string{"updated stub tag"},
+	request := domain.UpdateArticleServiceRequest{
+		UserId:      3,
+		ArticleSlug: slug.Make("testUser2 article"),
+		Title:       &updatedTitle,
+		Description: &updatedDescription,
+		Body:        &updatedBody,
 	}
 
 	// Act
@@ -48,13 +53,12 @@ func Test_WhenNoArticleIsFound_ReturnsError(t *testing.T) {
 
 func Test_WhenUserIdDoesNotMatch_ReturnsError(t *testing.T) {
 	// Arrange
-	request := domain.UpsertArticleServiceRequest{
-		UserId:      3,
-		ArticleId:   1,
-		Title:       "updated stub title",
-		Description: "updated stub description",
-		Body:        "updated stub body",
-		TagList:     &[]string{"updated stub tag"},
+	request := domain.UpdateArticleServiceRequest{
+		UserId:      2,
+		ArticleSlug: slug.Make("testUser1 article"),
+		Title:       &updatedTitle,
+		Description: &updatedDescription,
+		Body:        &updatedBody,
 	}
 
 	// Act
@@ -68,13 +72,12 @@ func Test_WhenUserIdDoesNotMatch_ReturnsError(t *testing.T) {
 
 func Test_WhenArticleSlugExists_ReturnsError(t *testing.T) {
 	// Arrange
-	request := domain.UpsertArticleServiceRequest{
+	request := domain.UpdateArticleServiceRequest{
 		UserId:      2,
-		ArticleId:   3,
-		Title:       "testUser1 article",
-		Description: "updated stub description",
-		Body:        "updated stub body",
-		TagList:     &[]string{"updated stub tag"},
+		ArticleSlug: slug.Make("testUser1 article"),
+		Title:       &updatedTitle,
+		Description: &updatedDescription,
+		Body:        &updatedBody,
 	}
 
 	// Act
@@ -83,5 +86,5 @@ func Test_WhenArticleSlugExists_ReturnsError(t *testing.T) {
 	// Assert
 	assert.Nil(t, response)
 	assert.NotNil(t, err)
-	assert.ErrorContains(t, err, utilities.ErrArticleTitleExists.Error())
+	assert.ErrorContains(t, err, utilities.ErrArticlesNotFound.Error())
 }

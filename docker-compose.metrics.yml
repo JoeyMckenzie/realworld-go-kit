@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   prometheus:
-    container_name: realworld_metrics
+    container_name: realworld_go_kit_metrics
     image: prom/prometheus:latest
     ports:
       - "9090:9090"

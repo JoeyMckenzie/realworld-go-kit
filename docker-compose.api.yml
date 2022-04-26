@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  api:
-    image: api
+  conduit_api:
+    image: conduit_api
     build:
       context: .
       dockerfile: cmd/api/Dockerfile

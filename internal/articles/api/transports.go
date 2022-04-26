@@ -26,7 +26,7 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
 
 	createArticleHandler := httpTransport.NewServer(
 		endpoints.MakeCreateArticleEndpoint,
-		decodeUpsertArticleRequest,
+		decodeCreateArticleRequest,
 		api.EncodeSuccessfulResponse,
 		options...,
 	)
@@ -45,11 +45,19 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
 		options...,
 	)
 
+	updateArticleHandler := httpTransport.NewServer(
+		endpoints.MakeGetFeedEndpoint,
+		decodeUpdateArticleRequest,
+		api.EncodeSuccessfulResponse,
+		options...,
+	)
+
 	router.Route("/articles", func(r chi.Router) {
 		r.Get("/", getArticlesHandler.ServeHTTP)
 		r.Group(func(r chi.Router) {
 			r.Use(api.AuthorizedRequestMiddleware)
 			r.Post("/", createArticleHandler.ServeHTTP)
+			r.Put("/{slug}", updateArticleHandler.ServeHTTP)
 			r.Get("/feed", getFeedHandler.ServeHTTP)
 		})
 	})
@@ -57,12 +65,24 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
 	return router
 }
 
-func decodeUpsertArticleRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var request domain.UpsertArticleApiRequest
+func decodeCreateArticleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var request domain.CreateArticleApiRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, utilities.ErrInvalidRequestBody
 	}
+
+	return request, nil
+}
+
+func decodeUpdateArticleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var request domain.UpdateArticleApiRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, utilities.ErrInvalidRequestBody
+	}
+
+	request.Article.Slug = chi.URLParam(r, "slug")
 
 	return request, nil
 }

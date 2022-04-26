@@ -45,7 +45,7 @@ func (mw *articlesServiceMetricsMiddleware) GetArticle(ctx context.Context, requ
 	return mw.service.GetArticle(ctx, request)
 }
 
-func (mw *articlesServiceMetricsMiddleware) CreateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (article *domain.ArticleDto, err error) {
+func (mw *articlesServiceMetricsMiddleware) CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (article *domain.ArticleDto, err error) {
 	defer func(begin time.Time) {
 		labelValues := []string{"method", "CreateArticle", "error", fmt.Sprint(err != nil)}
 		mw.requestCount.With(labelValues...).Add(1)
@@ -65,7 +65,7 @@ func (mw *articlesServiceMetricsMiddleware) GetFeed(ctx context.Context, request
 	return mw.service.GetFeed(ctx, request)
 }
 
-func (mw *articlesServiceMetricsMiddleware) UpdateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (article *domain.ArticleDto, err error) {
+func (mw *articlesServiceMetricsMiddleware) UpdateArticle(ctx context.Context, request *domain.UpdateArticleServiceRequest) (article *domain.ArticleDto, err error) {
 	defer func(begin time.Time) {
 		labelValues := []string{"method", "UpdateArticle", "error", fmt.Sprint(err != nil)}
 		mw.requestCount.With(labelValues...).Add(1)

@@ -24,8 +24,8 @@ type (
 		GetArticles(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error)
 		GetArticle(ctx context.Context, request *domain.GetArticleServiceRequest) (*domain.ArticleDto, error)
 		GetFeed(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error)
-		CreateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error)
-		UpdateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error)
+		CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (*domain.ArticleDto, error)
+		UpdateArticle(ctx context.Context, request *domain.UpdateArticleServiceRequest) (*domain.ArticleDto, error)
 	}
 
 	articlesService struct {
@@ -134,7 +134,7 @@ func (as *articlesService) GetArticle(ctx context.Context, request *domain.GetAr
 	return makeArticleMapping(queriedArticle, false, request.UserId), nil
 }
 
-func (as *articlesService) CreateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error) {
+func (as *articlesService) CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (*domain.ArticleDto, error) {
 	// Verify the user exists, ensure no article is created without a valid existing user
 	existingUser, err := as.client.User.Get(ctx, request.UserId)
 
@@ -223,11 +223,11 @@ func (as *articlesService) CreateArticle(ctx context.Context, request *domain.Up
 	}, nil
 }
 
-func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.UpsertArticleServiceRequest) (*domain.ArticleDto, error) {
+func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.UpdateArticleServiceRequest) (*domain.ArticleDto, error) {
 	existingArticle, err := as.client.Article.
 		Query().
 		Where(
-			article.ID(request.ArticleId),
+			article.Slug(request.ArticleSlug),
 			article.UserID(request.UserId),
 		).
 		WithFavorites().
@@ -241,9 +241,9 @@ func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.Up
 		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
 	}
 
-	updatedTitle := utilities.UpdateIfRequired(existingArticle.Title, &request.Title)
-	updatedDescription := utilities.UpdateIfRequired(existingArticle.Description, &request.Description)
-	updatedBody := utilities.UpdateIfRequired(existingArticle.Title, &request.Body)
+	updatedTitle := utilities.UpdateIfRequired(existingArticle.Title, request.Title)
+	updatedDescription := utilities.UpdateIfRequired(existingArticle.Description, request.Description)
+	updatedBody := utilities.UpdateIfRequired(existingArticle.Title, request.Body)
 	updatedSlug := slug.Make(updatedTitle)
 
 	// Verify the updated slug title is available
