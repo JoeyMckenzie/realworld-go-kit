@@ -31,6 +31,16 @@ func EncodeSuccessfulResponse(_ context.Context, w http.ResponseWriter, response
 	return json.NewEncoder(w).Encode(response)
 }
 
+func EncodeSuccessfulResponseWithNoContent(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	if _, ok := response.(error); ok {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+
+	return nil
+}
+
 func EncodeError(_ context.Context, err error, w http.ResponseWriter) {
 	if err == nil {
 		// Note: we have bigger problems if this happens...

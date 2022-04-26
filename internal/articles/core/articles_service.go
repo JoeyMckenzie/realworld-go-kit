@@ -26,6 +26,7 @@ type (
 		GetFeed(ctx context.Context, request *domain.GetArticlesServiceRequest) ([]*domain.ArticleDto, error)
 		CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (*domain.ArticleDto, error)
 		UpdateArticle(ctx context.Context, request *domain.UpdateArticleServiceRequest) (*domain.ArticleDto, error)
+		DeleteArticle(ctx context.Context, request *domain.DeleteArticleServiceRequest) error
 	}
 
 	articlesService struct {
@@ -237,6 +238,9 @@ func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.Up
 		}).
 		First(ctx)
 
+	// If the article is not found, i.e. user-article ID mismatch, do not let malicious users know
+	// a resource they do not own, that requires authentication to modify, exists. Obfuscate the
+	// response by simply returning a not found rather than forbidden for better security experience.
 	if ent.IsNotFound(err) {
 		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
 	}
@@ -293,4 +297,31 @@ func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.Up
 			Following: false,
 		},
 	}, nil
+}
+
+func (as *articlesService) DeleteArticle(ctx context.Context, request *domain.DeleteArticleServiceRequest) error {
+	existingArticle, err := as.client.Article.
+		Query().
+		Where(
+			article.Slug(request.ArticleSlug),
+			article.UserID(request.UserId),
+		).
+		First(ctx)
+
+	// If the article is not found, i.e. user-article ID mismatch, do not let malicious users know
+	// a resource they do not own, that requires authentication to modify, exists. Obfuscate the
+	// response by simply returning a not found rather than forbidden for better security experience.
+	if ent.IsNotFound(err) {
+		return api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
+	}
+
+	err = as.client.Article.
+		DeleteOne(existingArticle).
+		Exec(ctx)
+
+	if err != nil {
+		return api.NewInternalServerErrorWithContext("article", err)
+	}
+
+	return nil
 }

@@ -15,6 +15,7 @@ type ArticleEndpoints struct {
 	MakeGetArticleEndpoint    endpoint.Endpoint
 	MakeGetFeedEndpoint       endpoint.Endpoint
 	MakeUpdateArticleEndpoint endpoint.Endpoint
+	MakeDeleteArticleEndpoint endpoint.Endpoint
 }
 
 func NewArticleEndpoints(service core.ArticlesService) *ArticleEndpoints {
@@ -24,6 +25,7 @@ func NewArticleEndpoints(service core.ArticlesService) *ArticleEndpoints {
 		MakeGetArticleEndpoint:    makeGetArticleEndpoint(service),
 		MakeGetFeedEndpoint:       makeGetFeedEndpoint(service),
 		MakeUpdateArticleEndpoint: makeUpdateArticleEndpoint(service),
+		MakeDeleteArticleEndpoint: makeDeleteArticleEndpoint(service),
 	}
 }
 
@@ -116,6 +118,23 @@ func makeUpdateArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
 			return &domain.UpsertArticleResponse{
 				Article: response,
 			}, nil
+		}
+
+		return nil, utilities.ErrUnauthorized
+	}
+}
+
+func makeDeleteArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+			apiRequest := request.(domain.DeleteArticleServiceRequest)
+			err := service.DeleteArticle(ctx, &apiRequest)
+
+			if err != nil {
+				return nil, err
+			}
+
+			return nil, nil
 		}
 
 		return nil, utilities.ErrUnauthorized

@@ -74,3 +74,13 @@ func (mw *articlesServiceMetricsMiddleware) UpdateArticle(ctx context.Context, r
 
 	return mw.service.UpdateArticle(ctx, request)
 }
+
+func (mw *articlesServiceMetricsMiddleware) DeleteArticle(ctx context.Context, request *domain.DeleteArticleServiceRequest) (err error) {
+	defer func(begin time.Time) {
+		labelValues := []string{"method", "DeleteArticle", "error", fmt.Sprint(err != nil)}
+		mw.requestCount.With(labelValues...).Add(1)
+		mw.requestLatency.With(labelValues...).Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return mw.service.DeleteArticle(ctx, request)
+}

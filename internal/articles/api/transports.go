@@ -59,12 +59,20 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
 		options...,
 	)
 
+	deleteArticleHandler := httpTransport.NewServer(
+		endpoints.MakeDeleteArticleEndpoint,
+		decodeDeleteArticleRequest,
+		api.EncodeSuccessfulResponseWithNoContent,
+		options...,
+	)
+
 	router.Route("/articles", func(r chi.Router) {
 		r.Get("/", getArticlesHandler.ServeHTTP)
 		r.Get("/{slug}", getArticleHandler.ServeHTTP)
 		r.Group(func(r chi.Router) {
 			r.Use(api.AuthorizedRequestMiddleware)
 			r.Post("/", createArticleHandler.ServeHTTP)
+			r.Delete("/{slug}", deleteArticleHandler.ServeHTTP)
 			r.Put("/{slug}", updateArticleHandler.ServeHTTP)
 			r.Get("/feed", getFeedHandler.ServeHTTP)
 		})
@@ -153,6 +161,19 @@ func decodeGetFeedRequest(_ context.Context, r *http.Request) (interface{}, erro
 		Limit:  limit,
 		Offset: offset,
 	}
+	return request, nil
+}
+
+func decodeDeleteArticleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	userId, _ := services.
+		NewTokenService().
+		GetOptionalUserIdFromAuthorizationHeader(r.Header.Get("Authorization"))
+
+	request := domain.DeleteArticleServiceRequest{
+		UserId:      userId,
+		ArticleSlug: chi.URLParam(r, "slug"),
+	}
+
 	return request, nil
 }
 

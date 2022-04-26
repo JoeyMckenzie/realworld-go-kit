@@ -42,6 +42,11 @@ type (
 		Body        *string
 	}
 
+	DeleteArticleServiceRequest struct {
+		ArticleSlug string `validate:"required"`
+		UserId      int    `validate:"required"`
+	}
+
 	GetArticlesServiceRequest struct {
 		UserId    int
 		Tag       string
@@ -56,6 +61,14 @@ type (
 		Slug   string
 	}
 )
+
+func (r *DeleteArticleServiceRequest) ToSafeLoggingStruct() string {
+	if r == nil {
+		return "<nil>"
+	}
+
+	return fmt.Sprintf("userId: %d; slug: %s", r.UserId, r.ArticleSlug)
+}
 
 func (r *UpdateArticleServiceRequest) ToSafeLoggingStruct() string {
 	if r == nil {

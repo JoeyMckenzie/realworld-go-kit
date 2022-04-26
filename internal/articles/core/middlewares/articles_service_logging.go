@@ -112,3 +112,20 @@ func (mw *articlesServiceLoggingMiddleware) UpdateArticle(ctx context.Context, r
 
 	return mw.next.UpdateArticle(ctx, request)
 }
+
+func (mw *articlesServiceLoggingMiddleware) DeleteArticle(ctx context.Context, request *domain.DeleteArticleServiceRequest) (err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "DeleteArticle",
+			"request_time", time.Since(begin),
+			"error", err,
+		)
+	}(time.Now())
+
+	level.Info(mw.logger).Log(
+		"method", "DeleteArticle",
+		"request", request.ToSafeLoggingStruct(),
+	)
+
+	return mw.next.DeleteArticle(ctx, request)
+}

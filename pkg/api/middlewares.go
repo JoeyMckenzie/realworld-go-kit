@@ -17,7 +17,7 @@ func JsonContentTypeMiddleware(next http.Handler) http.Handler {
 func CorsMiddleware(next http.Handler) http.Handler {
 	corsConfig := cors.Options{
 		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodOptions, http.MethodGet},
+		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodOptions, http.MethodDelete},
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 		MaxAge:         3600,
 	}

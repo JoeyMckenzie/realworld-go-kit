@@ -65,3 +65,11 @@ func (mw *articlesServiceRequestValidationMiddleware) UpdateArticle(ctx context.
 
 	return mw.next.UpdateArticle(ctx, request)
 }
+
+func (mw *articlesServiceRequestValidationMiddleware) DeleteArticle(ctx context.Context, request *domain.DeleteArticleServiceRequest) error {
+	if err := mw.validator.Struct(request); err != nil {
+		return api.NewValidationError(err)
+	}
+
+	return mw.next.DeleteArticle(ctx, request)
+}
