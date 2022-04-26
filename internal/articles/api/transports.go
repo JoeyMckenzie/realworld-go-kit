@@ -38,6 +38,13 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
 		options...,
 	)
 
+	getArticleHandler := httpTransport.NewServer(
+		endpoints.MakeGetArticleEndpoint,
+		decodeGetArticleRequest,
+		api.EncodeSuccessfulResponse,
+		options...,
+	)
+
 	getFeedHandler := httpTransport.NewServer(
 		endpoints.MakeGetFeedEndpoint,
 		decodeGetFeedRequest,
@@ -46,7 +53,7 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
 	)
 
 	updateArticleHandler := httpTransport.NewServer(
-		endpoints.MakeGetFeedEndpoint,
+		endpoints.MakeUpdateArticleEndpoint,
 		decodeUpdateArticleRequest,
 		api.EncodeSuccessfulResponse,
 		options...,
@@ -54,6 +61,7 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
 
 	router.Route("/articles", func(r chi.Router) {
 		r.Get("/", getArticlesHandler.ServeHTTP)
+		r.Get("/{slug}", getArticleHandler.ServeHTTP)
 		r.Group(func(r chi.Router) {
 			r.Use(api.AuthorizedRequestMiddleware)
 			r.Post("/", createArticleHandler.ServeHTTP)
@@ -83,6 +91,19 @@ func decodeUpdateArticleRequest(_ context.Context, r *http.Request) (interface{}
 	}
 
 	request.Article.Slug = chi.URLParam(r, "slug")
+
+	return request, nil
+}
+
+func decodeGetArticleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	userId, _ := services.
+		NewTokenService().
+		GetOptionalUserIdFromAuthorizationHeader(r.Header.Get("Authorization"))
+
+	request := domain.GetArticleServiceRequest{
+		UserId: userId,
+		Slug:   chi.URLParam(r, "slug"),
+	}
 
 	return request, nil
 }

@@ -246,14 +246,16 @@ func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.Up
 	updatedBody := utilities.UpdateIfRequired(existingArticle.Title, request.Body)
 	updatedSlug := slug.Make(updatedTitle)
 
-	// Verify the updated slug title is available
-	existingSlug, _ := as.client.Article.
-		Query().
-		Where(article.Slug(updatedSlug)).
-		First(ctx)
+	if updatedTitle != existingArticle.Title {
+		// Verify the updated slug title is available
+		existingSlug, _ := as.client.Article.
+			Query().
+			Where(article.Slug(updatedSlug)).
+			First(ctx)
 
-	if existingSlug != nil {
-		return nil, api.NewApiErrorWithContext(http.StatusConflict, "article", utilities.ErrArticleTitleExists)
+		if existingSlug != nil {
+			return nil, api.NewApiErrorWithContext(http.StatusConflict, "article", utilities.ErrArticleTitleExists)
+		}
 	}
 
 	updatedArticle, err := as.client.Article.

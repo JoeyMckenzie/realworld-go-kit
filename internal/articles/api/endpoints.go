@@ -12,6 +12,7 @@ import (
 type ArticleEndpoints struct {
 	MakeCreateArticleEndpoint endpoint.Endpoint
 	MakeGetArticlesEndpoint   endpoint.Endpoint
+	MakeGetArticleEndpoint    endpoint.Endpoint
 	MakeGetFeedEndpoint       endpoint.Endpoint
 	MakeUpdateArticleEndpoint endpoint.Endpoint
 }
@@ -20,6 +21,7 @@ func NewArticleEndpoints(service core.ArticlesService) *ArticleEndpoints {
 	return &ArticleEndpoints{
 		MakeCreateArticleEndpoint: makeCreateArticleEndpoint(service),
 		MakeGetArticlesEndpoint:   makeGetArticlesEndpoint(service),
+		MakeGetArticleEndpoint:    makeGetArticleEndpoint(service),
 		MakeGetFeedEndpoint:       makeGetFeedEndpoint(service),
 		MakeUpdateArticleEndpoint: makeUpdateArticleEndpoint(service),
 	}
@@ -47,6 +49,21 @@ func makeCreateArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
 		}
 
 		return nil, utilities.ErrUnauthorized
+	}
+}
+
+func makeGetArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		apiRequest := request.(domain.GetArticleServiceRequest)
+		article, err := service.GetArticle(ctx, &apiRequest)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &domain.GetArticleResponse{
+			Article: article,
+		}, nil
 	}
 }
 
@@ -86,6 +103,7 @@ func makeUpdateArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
 			apiRequest := request.(domain.UpdateArticleApiRequest)
 			response, err := service.UpdateArticle(ctx, &domain.UpdateArticleServiceRequest{
 				UserId:      tokenMeta.UserId,
+				ArticleSlug: apiRequest.Article.Slug,
 				Title:       apiRequest.Article.Title,
 				Description: apiRequest.Article.Description,
 				Body:        apiRequest.Article.Body,

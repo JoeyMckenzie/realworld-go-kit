@@ -57,31 +57,34 @@ type (
 	}
 )
 
-func (request *UpdateArticleServiceRequest) ToSafeLoggingStruct() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (request *GetArticleServiceRequest) ToSafeLoggingStruct() string {
-	if request == nil {
+func (r *UpdateArticleServiceRequest) ToSafeLoggingStruct() string {
+	if r == nil {
 		return "<nil>"
 	}
 
-	return fmt.Sprintf("userId: %d; slug: %s", request.UserId, request.Slug)
+	return fmt.Sprintf("userId: %d; slug: %s; title: %v; description: %v; body: %v", r.UserId, r.ArticleSlug, r.Title, r.Description, r.Body)
 }
 
-func (request *GetArticlesServiceRequest) ToSafeLoggingStruct() string {
-	if request == nil {
+func (r *GetArticleServiceRequest) ToSafeLoggingStruct() string {
+	if r == nil {
 		return "<nil>"
 	}
 
-	return fmt.Sprintf("tag: %s; author: %s; favoried: %s; limit: %d; offset: %d", request.Tag, request.Author, request.Favorited, request.Limit, request.Offset)
+	return fmt.Sprintf("userId: %d; slug: %s", r.UserId, r.Slug)
 }
 
-func (request *CreateArticleServiceRequest) ToSafeLoggingStruct() string {
-	if request == nil {
+func (r *GetArticlesServiceRequest) ToSafeLoggingStruct() string {
+	if r == nil {
 		return "<nil>"
 	}
 
-	return fmt.Sprintf("userId: %d; title: %s; description: %s", request.UserId, request.Title, request.Description)
+	return fmt.Sprintf("tag: %s; author: %s; favorited: %s; limit: %d; offset: %d", r.Tag, r.Author, r.Favorited, r.Limit, r.Offset)
+}
+
+func (r *CreateArticleServiceRequest) ToSafeLoggingStruct() string {
+	if r == nil {
+		return "<nil>"
+	}
+
+	return fmt.Sprintf("userId: %d; title: %s; description: %s", r.UserId, r.Title, r.Description)
 }
