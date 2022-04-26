@@ -34,4 +34,8 @@ type (
 	GetArticleResponse struct {
 		Article *ArticleDto `json:"article"`
 	}
+
+	GetTagsResponse struct {
+		Tags []string `json:"tags"`
+	}
 )

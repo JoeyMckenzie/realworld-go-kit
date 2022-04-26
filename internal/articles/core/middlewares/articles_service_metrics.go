@@ -84,3 +84,33 @@ func (mw *articlesServiceMetricsMiddleware) DeleteArticle(ctx context.Context, r
 
 	return mw.service.DeleteArticle(ctx, request)
 }
+
+func (mw *articlesServiceMetricsMiddleware) FavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (article *domain.ArticleDto, err error) {
+	defer func(begin time.Time) {
+		labelValues := []string{"method", "FavoriteArticle", "error", fmt.Sprint(err != nil)}
+		mw.requestCount.With(labelValues...).Add(1)
+		mw.requestLatency.With(labelValues...).Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return mw.service.FavoriteArticle(ctx, request)
+}
+
+func (mw *articlesServiceMetricsMiddleware) UnfavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (article *domain.ArticleDto, err error) {
+	defer func(begin time.Time) {
+		labelValues := []string{"method", "UnfavoriteArticle", "error", fmt.Sprint(err != nil)}
+		mw.requestCount.With(labelValues...).Add(1)
+		mw.requestLatency.With(labelValues...).Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return mw.service.UnfavoriteArticle(ctx, request)
+}
+
+func (mw *articlesServiceMetricsMiddleware) GetTags(ctx context.Context) (tags []string, err error) {
+	defer func(begin time.Time) {
+		labelValues := []string{"method", "GetTags", "error", fmt.Sprint(err != nil)}
+		mw.requestCount.With(labelValues...).Add(1)
+		mw.requestLatency.With(labelValues...).Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return mw.service.GetTags(ctx)
+}

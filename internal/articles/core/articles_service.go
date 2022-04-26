@@ -27,6 +27,9 @@ type (
 		CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (*domain.ArticleDto, error)
 		UpdateArticle(ctx context.Context, request *domain.UpdateArticleServiceRequest) (*domain.ArticleDto, error)
 		DeleteArticle(ctx context.Context, request *domain.DeleteArticleServiceRequest) error
+		FavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*domain.ArticleDto, error)
+		UnfavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*domain.ArticleDto, error)
+		GetTags(ctx context.Context) ([]string, error)
 	}
 
 	articlesService struct {
@@ -118,7 +121,7 @@ func (as *articlesService) GetFeed(ctx context.Context, request *domain.GetArtic
 }
 
 func (as *articlesService) GetArticle(ctx context.Context, request *domain.GetArticleServiceRequest) (*domain.ArticleDto, error) {
-	queriedArticle, err := as.client.Article.
+	existingArticle, err := as.client.Article.
 		Query().
 		WithFavorites().
 		WithAuthor().
@@ -132,7 +135,7 @@ func (as *articlesService) GetArticle(ctx context.Context, request *domain.GetAr
 		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
 	}
 
-	return makeArticleMapping(queriedArticle, false, request.UserId), nil
+	return makeArticleMapping(existingArticle, false, request.UserId), nil
 }
 
 func (as *articlesService) CreateArticle(ctx context.Context, request *domain.CreateArticleServiceRequest) (*domain.ArticleDto, error) {
@@ -324,4 +327,85 @@ func (as *articlesService) DeleteArticle(ctx context.Context, request *domain.De
 	}
 
 	return nil
+}
+
+func (as *articlesService) FavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*domain.ArticleDto, error) {
+	// Verify the user and articles exists before adding the favorite
+	existingArticle, err := as.client.Article.
+		Query().
+		WithFavorites().
+		WithAuthor().
+		WithArticleTags(func(query *ent.ArticleTagQuery) {
+			query.WithTag()
+		}).
+		Where(article.Slug(request.Slug)).
+		First(ctx)
+
+	if ent.IsNotFound(err) {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
+	}
+
+	_, err = as.client.User.Get(ctx, request.UserId)
+
+	if ent.IsNotFound(err) {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
+	}
+
+	_, err = as.client.Favorite.
+		Create().
+		SetArticleID(existingArticle.ID).
+		SetUserID(request.UserId).
+		Save(ctx)
+
+	if err != nil {
+		return nil, api.NewInternalServerErrorWithContext("article", err)
+	}
+
+	return makeArticleMapping(existingArticle, true, request.UserId), nil
+}
+
+func (as *articlesService) UnfavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*domain.ArticleDto, error) {
+	// Verify the user and articles exists before adding the favorite
+	existingArticle, err := as.client.Article.
+		Query().
+		WithFavorites().
+		WithAuthor().
+		WithArticleTags(func(query *ent.ArticleTagQuery) {
+			query.WithTag()
+		}).
+		Where(article.Slug(request.Slug)).
+		First(ctx)
+
+	if ent.IsNotFound(err) {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
+	}
+
+	_, err = as.client.User.Get(ctx, request.UserId)
+
+	if ent.IsNotFound(err) {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
+	}
+
+	_, err = as.client.Favorite.
+		Delete().
+		Where(
+			favorite.ArticleID(existingArticle.ID),
+			favorite.UserID(request.UserId),
+		).
+		Exec(ctx)
+
+	return makeArticleMapping(existingArticle, false, request.UserId), nil
+}
+
+func (as *articlesService) GetTags(ctx context.Context) ([]string, error) {
+	tags, err := as.client.Tag.
+		Query().
+		Select(tag.FieldTag).
+		Strings(ctx)
+
+	if err != nil {
+		return nil, api.NewInternalServerErrorWithContext("tags", err)
+	}
+
+	return tags, nil
 }

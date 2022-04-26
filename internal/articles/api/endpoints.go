@@ -10,22 +10,28 @@ import (
 )
 
 type ArticleEndpoints struct {
-	MakeCreateArticleEndpoint endpoint.Endpoint
-	MakeGetArticlesEndpoint   endpoint.Endpoint
-	MakeGetArticleEndpoint    endpoint.Endpoint
-	MakeGetFeedEndpoint       endpoint.Endpoint
-	MakeUpdateArticleEndpoint endpoint.Endpoint
-	MakeDeleteArticleEndpoint endpoint.Endpoint
+	MakeCreateArticleEndpoint     endpoint.Endpoint
+	MakeGetArticlesEndpoint       endpoint.Endpoint
+	MakeGetArticleEndpoint        endpoint.Endpoint
+	MakeGetFeedEndpoint           endpoint.Endpoint
+	MakeUpdateArticleEndpoint     endpoint.Endpoint
+	MakeDeleteArticleEndpoint     endpoint.Endpoint
+	MakeFavoriteArticleEndpoint   endpoint.Endpoint
+	MakeUnfavoriteArticleEndpoint endpoint.Endpoint
+	MakeGetTagsEndpoint           endpoint.Endpoint
 }
 
 func NewArticleEndpoints(service core.ArticlesService) *ArticleEndpoints {
 	return &ArticleEndpoints{
-		MakeCreateArticleEndpoint: makeCreateArticleEndpoint(service),
-		MakeGetArticlesEndpoint:   makeGetArticlesEndpoint(service),
-		MakeGetArticleEndpoint:    makeGetArticleEndpoint(service),
-		MakeGetFeedEndpoint:       makeGetFeedEndpoint(service),
-		MakeUpdateArticleEndpoint: makeUpdateArticleEndpoint(service),
-		MakeDeleteArticleEndpoint: makeDeleteArticleEndpoint(service),
+		MakeCreateArticleEndpoint:     makeCreateArticleEndpoint(service),
+		MakeGetArticlesEndpoint:       makeGetArticlesEndpoint(service),
+		MakeGetArticleEndpoint:        makeGetArticleEndpoint(service),
+		MakeGetFeedEndpoint:           makeGetFeedEndpoint(service),
+		MakeUpdateArticleEndpoint:     makeUpdateArticleEndpoint(service),
+		MakeDeleteArticleEndpoint:     makeDeleteArticleEndpoint(service),
+		MakeFavoriteArticleEndpoint:   makeFavoriteArticleEndpoint(service),
+		MakeUnfavoriteArticleEndpoint: makeUnfavoriteArticleEndpoint(service),
+		MakeGetTagsEndpoint:           makeGetTagsEndpoint(service),
 	}
 }
 
@@ -138,5 +144,57 @@ func makeDeleteArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
 		}
 
 		return nil, utilities.ErrUnauthorized
+	}
+}
+
+func makeFavoriteArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+			serviceRequest := request.(domain.ArticleFavoriteServiceRequest)
+			article, err := service.FavoriteArticle(ctx, &serviceRequest)
+
+			if err != nil {
+				return nil, err
+			}
+
+			return &domain.GetArticleResponse{
+				Article: article,
+			}, nil
+		}
+
+		return nil, utilities.ErrUnauthorized
+	}
+}
+
+func makeUnfavoriteArticleEndpoint(service core.ArticlesService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+			serviceRequest := request.(domain.ArticleFavoriteServiceRequest)
+			article, err := service.UnfavoriteArticle(ctx, &serviceRequest)
+
+			if err != nil {
+				return nil, err
+			}
+
+			return &domain.GetArticleResponse{
+				Article: article,
+			}, nil
+		}
+
+		return nil, utilities.ErrUnauthorized
+	}
+}
+
+func makeGetTagsEndpoint(service core.ArticlesService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		tags, err := service.GetTags(ctx)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &domain.GetTagsResponse{
+			Tags: tags,
+		}, nil
 	}
 }

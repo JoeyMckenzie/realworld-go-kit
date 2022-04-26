@@ -73,3 +73,23 @@ func (mw *articlesServiceRequestValidationMiddleware) DeleteArticle(ctx context.
 
 	return mw.next.DeleteArticle(ctx, request)
 }
+
+func (mw *articlesServiceRequestValidationMiddleware) FavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*domain.ArticleDto, error) {
+	if err := mw.validator.Struct(request); err != nil {
+		return nil, api.NewValidationError(err)
+	}
+
+	return mw.next.FavoriteArticle(ctx, request)
+}
+
+func (mw *articlesServiceRequestValidationMiddleware) UnfavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*domain.ArticleDto, error) {
+	if err := mw.validator.Struct(request); err != nil {
+		return nil, api.NewValidationError(err)
+	}
+
+	return mw.next.UnfavoriteArticle(ctx, request)
+}
+
+func (mw *articlesServiceRequestValidationMiddleware) GetTags(ctx context.Context) ([]string, error) {
+	return mw.next.GetTags(ctx)
+}

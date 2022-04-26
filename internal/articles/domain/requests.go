@@ -58,9 +58,22 @@ type (
 
 	GetArticleServiceRequest struct {
 		UserId int
-		Slug   string
+		Slug   string `validate:"required"`
+	}
+
+	ArticleFavoriteServiceRequest struct {
+		UserId int    `validate:"required"`
+		Slug   string `validate:"required"`
 	}
 )
+
+func (r *ArticleFavoriteServiceRequest) ToSafeLoggingStruct() string {
+	if r == nil {
+		return "<nil>"
+	}
+
+	return fmt.Sprintf("userId: %d; slug: %s", r.UserId, r.Slug)
+}
 
 func (r *DeleteArticleServiceRequest) ToSafeLoggingStruct() string {
 	if r == nil {

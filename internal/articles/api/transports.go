@@ -66,14 +66,45 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
 		options...,
 	)
 
+	favoriteArticleHandler := httpTransport.NewServer(
+		endpoints.MakeFavoriteArticleEndpoint,
+		decodeFavoriteArticleRequest,
+		api.EncodeSuccessfulResponse,
+		options...,
+	)
+
+	unfavoriteArticleHandler := httpTransport.NewServer(
+		endpoints.MakeUnfavoriteArticleEndpoint,
+		decodeFavoriteArticleRequest,
+		api.EncodeSuccessfulResponse,
+		options...,
+	)
+
+	getTagsHandler := httpTransport.NewServer(
+		endpoints.MakeGetTagsEndpoint,
+		api.DecodeDefaultRequest,
+		api.EncodeSuccessfulResponse,
+		options...,
+	)
+
+	router.Get("/tags", getTagsHandler.ServeHTTP)
 	router.Route("/articles", func(r chi.Router) {
 		r.Get("/", getArticlesHandler.ServeHTTP)
-		r.Get("/{slug}", getArticleHandler.ServeHTTP)
+
+		r.Route("/{slug}", func(r chi.Router) {
+			r.Get("/", getArticleHandler.ServeHTTP)
+			r.Group(func(r chi.Router) {
+				r.Use(api.AuthorizedRequestMiddleware)
+				r.Put("/", updateArticleHandler.ServeHTTP)
+				r.Delete("/", deleteArticleHandler.ServeHTTP)
+				r.Post("/favorite", favoriteArticleHandler.ServeHTTP)
+				r.Delete("/favorite", unfavoriteArticleHandler.ServeHTTP)
+			})
+		})
+
 		r.Group(func(r chi.Router) {
 			r.Use(api.AuthorizedRequestMiddleware)
 			r.Post("/", createArticleHandler.ServeHTTP)
-			r.Delete("/{slug}", deleteArticleHandler.ServeHTTP)
-			r.Put("/{slug}", updateArticleHandler.ServeHTTP)
 			r.Get("/feed", getFeedHandler.ServeHTTP)
 		})
 	})
@@ -172,6 +203,23 @@ func decodeDeleteArticleRequest(_ context.Context, r *http.Request) (interface{}
 	request := domain.DeleteArticleServiceRequest{
 		UserId:      userId,
 		ArticleSlug: chi.URLParam(r, "slug"),
+	}
+
+	return request, nil
+}
+
+func decodeFavoriteArticleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	userId, err := services.
+		NewTokenService().
+		GetRequiredUserIdFromAuthorizationHeader(r.Header.Get("Authorization"))
+
+	if err != nil {
+		return nil, utilities.ErrUnauthorized
+	}
+
+	request := domain.ArticleFavoriteServiceRequest{
+		UserId: userId,
+		Slug:   chi.URLParam(r, "slug"),
 	}
 
 	return request, nil

@@ -129,3 +129,50 @@ func (mw *articlesServiceLoggingMiddleware) DeleteArticle(ctx context.Context, r
 
 	return mw.next.DeleteArticle(ctx, request)
 }
+
+func (mw *articlesServiceLoggingMiddleware) FavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (article *domain.ArticleDto, err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "FavoriteArticle",
+			"request_time", time.Since(begin),
+			"error", err,
+		)
+	}(time.Now())
+
+	level.Info(mw.logger).Log(
+		"method", "FavoriteArticle",
+		"request", request.ToSafeLoggingStruct(),
+	)
+
+	return mw.next.FavoriteArticle(ctx, request)
+}
+
+func (mw *articlesServiceLoggingMiddleware) UnfavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (article *domain.ArticleDto, err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "UnfavoriteArticle",
+			"request_time", time.Since(begin),
+			"error", err,
+		)
+	}(time.Now())
+
+	level.Info(mw.logger).Log(
+		"method", "UnfavoriteArticle",
+		"request", request.ToSafeLoggingStruct(),
+	)
+
+	return mw.next.FavoriteArticle(ctx, request)
+}
+
+func (mw *articlesServiceLoggingMiddleware) GetTags(ctx context.Context) (tags []string, err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "GetTags",
+			"request_time", time.Since(begin),
+			"tags", len(tags),
+			"error", err,
+		)
+	}(time.Now())
+
+	return mw.next.GetTags(ctx)
+}
