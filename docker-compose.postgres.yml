@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  postgres:
-    container_name: realworld_go_kit
+  realworld_go_kit_postgres:
+    container_name: realworld_go_kit_postgres
     image: postgres:latest
     restart: always
     env_file:

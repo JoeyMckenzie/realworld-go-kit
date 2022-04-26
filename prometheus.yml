@@ -6,7 +6,7 @@ scrape_configs:
   - job_name: realworld_go_kit_docker
     static_configs:
       - targets:
-          - api:8080
+          - realworld_go_kit_conduit:8080
   - job_name: realworld_go_kit
     static_configs:
       - targets:

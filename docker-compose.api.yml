@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  conduit_api:
-    image: conduit_api
+  realworld_go_kit_conduit:
+    image: realworld_go_kit_conduit
     build:
       context: .
-      dockerfile: cmd/api/Dockerfile
+      dockerfile: ./cmd/api/Dockerfile
     volumes:
       - /tmp/app:/var/log/app
     ports:
@@ -13,5 +13,5 @@ services:
     env_file:
       - .env
     depends_on:
-      postgres:
+      realworld_go_kit_postgres:
         condition: service_healthy
