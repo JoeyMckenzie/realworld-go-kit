@@ -15,7 +15,7 @@ type articlesServiceMetricsMiddleware struct {
 	service        core.ArticlesService
 }
 
-func NewArticlesServiceMetrics(requestCount metrics.Counter, requestLatency metrics.Histogram) core.ArticlesServiceMiddleware {
+func NewArticlesServiceMetricsMiddleware(requestCount metrics.Counter, requestLatency metrics.Histogram) core.ArticlesServiceMiddleware {
 	return func(next core.ArticlesService) core.ArticlesService {
 		return &articlesServiceMetricsMiddleware{
 			requestCount:   requestCount,

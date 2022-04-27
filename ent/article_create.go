@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
 	"github.com/joeymckenzie/realworld-go-kit/ent/articletag"
+	"github.com/joeymckenzie/realworld-go-kit/ent/comment"
 	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
 	"github.com/joeymckenzie/realworld-go-kit/ent/user"
 )
@@ -160,6 +161,21 @@ func (ac *ArticleCreate) AddArticleTags(a ...*ArticleTag) *ArticleCreate {
 		ids[i] = a[i].ID
 	}
 	return ac.AddArticleTagIDs(ids...)
+}
+
+// AddArticleCommentIDs adds the "article_comments" edge to the Comment entity by IDs.
+func (ac *ArticleCreate) AddArticleCommentIDs(ids ...int) *ArticleCreate {
+	ac.mutation.AddArticleCommentIDs(ids...)
+	return ac
+}
+
+// AddArticleComments adds the "article_comments" edges to the Comment entity.
+func (ac *ArticleCreate) AddArticleComments(c ...*Comment) *ArticleCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return ac.AddArticleCommentIDs(ids...)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
@@ -420,6 +436,25 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: articletag.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ac.mutation.ArticleCommentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   article.ArticleCommentsTable,
+			Columns: []string{article.ArticleCommentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: comment.FieldID,
 				},
 			},
 		}

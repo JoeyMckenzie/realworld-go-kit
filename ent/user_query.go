@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
+	"github.com/joeymckenzie/realworld-go-kit/ent/comment"
 	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
 	"github.com/joeymckenzie/realworld-go-kit/ent/follow"
 	"github.com/joeymckenzie/realworld-go-kit/ent/predicate"
@@ -30,6 +31,7 @@ type UserQuery struct {
 	predicates []predicate.User
 	// eager-loading edges.
 	withArticles  *ArticleQuery
+	withComments  *CommentQuery
 	withFavorites *FavoriteQuery
 	withFollowers *FollowQuery
 	withFollowees *FollowQuery
@@ -84,6 +86,28 @@ func (uq *UserQuery) QueryArticles() *ArticleQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(article.Table, article.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.ArticlesTable, user.ArticlesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryComments chains the current query on the "comments" edge.
+func (uq *UserQuery) QueryComments() *CommentQuery {
+	query := &CommentQuery{config: uq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(comment.Table, comment.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.CommentsTable, user.CommentsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -339,6 +363,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		order:         append([]OrderFunc{}, uq.order...),
 		predicates:    append([]predicate.User{}, uq.predicates...),
 		withArticles:  uq.withArticles.Clone(),
+		withComments:  uq.withComments.Clone(),
 		withFavorites: uq.withFavorites.Clone(),
 		withFollowers: uq.withFollowers.Clone(),
 		withFollowees: uq.withFollowees.Clone(),
@@ -357,6 +382,17 @@ func (uq *UserQuery) WithArticles(opts ...func(*ArticleQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withArticles = query
+	return uq
+}
+
+// WithComments tells the query-builder to eager-load the nodes that are connected to
+// the "comments" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithComments(opts ...func(*CommentQuery)) *UserQuery {
+	query := &CommentQuery{config: uq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withComments = query
 	return uq
 }
 
@@ -458,8 +494,9 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [5]bool{
 			uq.withArticles != nil,
+			uq.withComments != nil,
 			uq.withFavorites != nil,
 			uq.withFollowers != nil,
 			uq.withFollowees != nil,
@@ -507,6 +544,31 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 				return nil, fmt.Errorf(`unexpected foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 			}
 			node.Edges.Articles = append(node.Edges.Articles, n)
+		}
+	}
+
+	if query := uq.withComments; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*User)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Comments = []*Comment{}
+		}
+		query.Where(predicate.Comment(func(s *sql.Selector) {
+			s.Where(sql.InValues(user.CommentsColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.UserID
+			node, ok := nodeids[fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+			}
+			node.Edges.Comments = append(node.Edges.Comments, n)
 		}
 	}
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
 	"github.com/joeymckenzie/realworld-go-kit/ent/articletag"
+	"github.com/joeymckenzie/realworld-go-kit/ent/comment"
 	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
 	"github.com/joeymckenzie/realworld-go-kit/ent/follow"
 	"github.com/joeymckenzie/realworld-go-kit/ent/schema"
@@ -64,6 +65,27 @@ func init() {
 	articletagDescCreateTime := articletagMixinFields0[0].Descriptor()
 	// articletag.DefaultCreateTime holds the default value on creation for the create_time field.
 	articletag.DefaultCreateTime = articletagDescCreateTime.Default.(func() time.Time)
+	commentMixin := schema.Comment{}.Mixin()
+	commentMixinFields0 := commentMixin[0].Fields()
+	_ = commentMixinFields0
+	commentFields := schema.Comment{}.Fields()
+	_ = commentFields
+	// commentDescCreateTime is the schema descriptor for create_time field.
+	commentDescCreateTime := commentMixinFields0[0].Descriptor()
+	// comment.DefaultCreateTime holds the default value on creation for the create_time field.
+	comment.DefaultCreateTime = commentDescCreateTime.Default.(func() time.Time)
+	// commentDescUpdateTime is the schema descriptor for update_time field.
+	commentDescUpdateTime := commentMixinFields0[1].Descriptor()
+	// comment.DefaultUpdateTime holds the default value on creation for the update_time field.
+	comment.DefaultUpdateTime = commentDescUpdateTime.Default.(func() time.Time)
+	// comment.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	comment.UpdateDefaultUpdateTime = commentDescUpdateTime.UpdateDefault.(func() time.Time)
+	// commentDescBody is the schema descriptor for body field.
+	commentDescBody := commentFields[0].Descriptor()
+	// comment.DefaultBody holds the default value on creation for the body field.
+	comment.DefaultBody = commentDescBody.Default.(string)
+	// comment.BodyValidator is a validator for the "body" field. It is called by the builders before save.
+	comment.BodyValidator = commentDescBody.Validators[0].(func(string) error)
 	favoriteMixin := schema.Favorite{}.Mixin()
 	favoriteMixinFields0 := favoriteMixin[0].Fields()
 	_ = favoriteMixinFields0

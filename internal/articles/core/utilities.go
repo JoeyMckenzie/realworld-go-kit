@@ -6,6 +6,7 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
 	"github.com/joeymckenzie/realworld-go-kit/ent/tag"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
+	sharedDomain "github.com/joeymckenzie/realworld-go-kit/internal/shared/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"net/http"
@@ -105,7 +106,7 @@ func makeArticleMapping(queriedArticle *ent.Article, defaultHasFavorited bool, u
 		UpdatedAt:      queriedArticle.UpdateTime,
 		Favorited:      userHasFavorited,
 		FavoritesCount: len(queriedArticle.Edges.Favorites),
-		Author: domain.AuthorDto{
+		Author: sharedDomain.AuthorDto{
 			Username:  queriedArticle.Edges.Author.Username,
 			Bio:       queriedArticle.Edges.Author.Bio,
 			Image:     queriedArticle.Edges.Author.Image,
@@ -191,9 +192,7 @@ func (as *articlesService) getExistingArticleForFavoriting(ctx context.Context, 
 		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
 	}
 
-	_, err = as.client.User.Get(ctx, request.UserId)
-
-	if ent.IsNotFound(err) {
+	if _, err = as.client.User.Get(ctx, request.UserId); ent.IsNotFound(err) {
 		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
 	}
 

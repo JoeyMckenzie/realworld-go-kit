@@ -5,8 +5,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	httpTransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
+	"github.com/joeymckenzie/realworld-go-kit/internal/comments/core"
+	"github.com/joeymckenzie/realworld-go-kit/internal/comments/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/services"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
@@ -19,21 +19,21 @@ func MakeCommentsTransport(router *chi.Mux, logger log.Logger, service core.Comm
 
 	addCommentHandler := httpTransport.NewServer(
 		endpoints.MakeAddCommentEndpoint,
-		decodeFavoriteArticleRequest,
+		decodeAddCommentRequest,
 		api.EncodeSuccessfulResponse,
 		api.HandlerOptions(logger)...,
 	)
 
 	deleteCommentHandler := httpTransport.NewServer(
 		endpoints.MakeDeleteCommentEndpoint,
-		decodeFavoriteArticleRequest,
+		decodeDeleteCommentRequest,
 		api.EncodeSuccessfulResponse,
 		api.HandlerOptions(logger)...,
 	)
 
 	getCommentsHandler := httpTransport.NewServer(
 		endpoints.MakeGetCommentsEndpoint,
-		decodeFavoriteArticleRequest,
+		decodeGetCommentsRequest,
 		api.EncodeSuccessfulResponse,
 		api.HandlerOptions(logger)...,
 	)

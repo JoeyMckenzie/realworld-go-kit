@@ -12,6 +12,9 @@ type Article func(*sql.Selector)
 // ArticleTag is the predicate function for articletag builders.
 type ArticleTag func(*sql.Selector)
 
+// Comment is the predicate function for comment builders.
+type Comment func(*sql.Selector)
+
 // Favorite is the predicate function for favorite builders.
 type Favorite func(*sql.Selector)
 

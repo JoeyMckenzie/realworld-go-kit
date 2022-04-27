@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
+	"github.com/joeymckenzie/realworld-go-kit/internal/comments/core"
+	"github.com/joeymckenzie/realworld-go-kit/internal/comments/domain"
 	"time"
 )
 

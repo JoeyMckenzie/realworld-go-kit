@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
+	"github.com/joeymckenzie/realworld-go-kit/internal/tags/core"
 	"time"
 )
 

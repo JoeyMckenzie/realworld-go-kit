@@ -12,6 +12,7 @@ var (
 	ErrInvalidLoginAttempt       = errors.New("email or password is invalid")
 	ErrUserNotFound              = errors.New("user was not found")
 	ErrArticlesNotFound          = errors.New("no articles were found")
+	ErrCommentNotFound           = errors.New("no comments were found")
 	ErrUsernameOrEmailTaken      = errors.New("username or email already exists")
 	ErrArticleTitleExists        = errors.New("article with that title already exists")
 	ErrInvalidSigningMethod      = errors.New("invalid token signing method")

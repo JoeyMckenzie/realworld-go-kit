@@ -44,9 +44,11 @@ type ArticleEdges struct {
 	Favorites []*Favorite `json:"favorites,omitempty"`
 	// ArticleTags holds the value of the article_tags edge.
 	ArticleTags []*ArticleTag `json:"article_tags,omitempty"`
+	// ArticleComments holds the value of the article_comments edge.
+	ArticleComments []*Comment `json:"article_comments,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // AuthorOrErr returns the Author value or an error if the edge
@@ -79,6 +81,15 @@ func (e ArticleEdges) ArticleTagsOrErr() ([]*ArticleTag, error) {
 		return e.ArticleTags, nil
 	}
 	return nil, &NotLoadedError{edge: "article_tags"}
+}
+
+// ArticleCommentsOrErr returns the ArticleComments value or an error if the edge
+// was not loaded in eager-loading.
+func (e ArticleEdges) ArticleCommentsOrErr() ([]*Comment, error) {
+	if e.loadedTypes[3] {
+		return e.ArticleComments, nil
+	}
+	return nil, &NotLoadedError{edge: "article_comments"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -173,6 +184,11 @@ func (a *Article) QueryFavorites() *FavoriteQuery {
 // QueryArticleTags queries the "article_tags" edge of the Article entity.
 func (a *Article) QueryArticleTags() *ArticleTagQuery {
 	return (&ArticleClient{config: a.config}).QueryArticleTags(a)
+}
+
+// QueryArticleComments queries the "article_comments" edge of the Article entity.
+func (a *Article) QueryArticleComments() *CommentQuery {
+	return (&ArticleClient{config: a.config}).QueryArticleComments(a)
 }
 
 // Update returns a builder for updating this Article.

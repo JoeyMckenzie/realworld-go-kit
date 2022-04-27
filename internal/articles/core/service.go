@@ -11,6 +11,7 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/ent/tag"
 	"github.com/joeymckenzie/realworld-go-kit/ent/user"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
+	sharedDomain "github.com/joeymckenzie/realworld-go-kit/internal/shared/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"net/http"
@@ -217,7 +218,7 @@ func (as *articlesService) CreateArticle(ctx context.Context, request *domain.Cr
 		UpdatedAt:      createdArticle.UpdateTime,
 		Favorited:      false,
 		FavoritesCount: 0,
-		Author: domain.AuthorDto{
+		Author: sharedDomain.AuthorDto{
 			Username:  existingUser.Username,
 			Bio:       existingUser.Bio,
 			Image:     existingUser.Image,
@@ -292,7 +293,7 @@ func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.Up
 		UpdatedAt:      updatedArticle.UpdateTime,
 		Favorited:      false,
 		FavoritesCount: len(existingArticle.Edges.Favorites),
-		Author: domain.AuthorDto{
+		Author: sharedDomain.AuthorDto{
 			Username:  existingArticle.Edges.Author.Username,
 			Bio:       existingArticle.Edges.Author.Bio,
 			Image:     existingArticle.Edges.Author.Image,

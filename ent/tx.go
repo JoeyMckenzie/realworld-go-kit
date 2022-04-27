@@ -16,6 +16,8 @@ type Tx struct {
 	Article *ArticleClient
 	// ArticleTag is the client for interacting with the ArticleTag builders.
 	ArticleTag *ArticleTagClient
+	// Comment is the client for interacting with the Comment builders.
+	Comment *CommentClient
 	// Favorite is the client for interacting with the Favorite builders.
 	Favorite *FavoriteClient
 	// Follow is the client for interacting with the Follow builders.
@@ -161,6 +163,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Article = NewArticleClient(tx.config)
 	tx.ArticleTag = NewArticleTagClient(tx.config)
+	tx.Comment = NewCommentClient(tx.config)
 	tx.Favorite = NewFavoriteClient(tx.config)
 	tx.Follow = NewFollowClient(tx.config)
 	tx.Tag = NewTagClient(tx.config)

@@ -54,7 +54,7 @@ start-api: ## Start the API container
 
 .PHONY: start-db
 start-db: ## Start the database container
-	@docker-compose -f ./docker-compose.postgres.yml up --build
+	@docker-compose -f ./docker-compose.postgres.yml up --build --remove-o
 
 .PHONY: start-metrics
 start-metrics: ## Start the Prometheus metrics container
@@ -68,7 +68,6 @@ start-conduit: ## Start the Prometheus metrics container
 install-deps: ## Installs all application package dependencies
 	go get github.com/go-chi/chi/v5
 	go get github.com/go-chi/cors
-	go get github.com/jmoiron/sqlx
 	go get github.com/joho/godotenv
 	go get github.com/lib/pq
 	go get github.com/go-kit/log
@@ -76,7 +75,6 @@ install-deps: ## Installs all application package dependencies
 	go get github.com/go-kit/kit/transport/http
 	go get github.com/go-kit/kit/metrics/prometheus
 	go get github.com/prometheus/client_golang/prometheus
-	go get github.com/hashicorp/hcl/v2/hclsimple
 	go get github.com/go-playground/validator/v10
 	go get github.com/golang-jwt/jwt
 	go get golang.org/x/crypto

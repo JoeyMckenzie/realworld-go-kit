@@ -31,6 +31,8 @@ const (
 	EdgeFavorites = "favorites"
 	// EdgeArticleTags holds the string denoting the article_tags edge name in mutations.
 	EdgeArticleTags = "article_tags"
+	// EdgeArticleComments holds the string denoting the article_comments edge name in mutations.
+	EdgeArticleComments = "article_comments"
 	// Table holds the table name of the article in the database.
 	Table = "articles"
 	// AuthorTable is the table that holds the author relation/edge.
@@ -54,6 +56,13 @@ const (
 	ArticleTagsInverseTable = "article_tags"
 	// ArticleTagsColumn is the table column denoting the article_tags relation/edge.
 	ArticleTagsColumn = "article_id"
+	// ArticleCommentsTable is the table that holds the article_comments relation/edge.
+	ArticleCommentsTable = "comments"
+	// ArticleCommentsInverseTable is the table name for the Comment entity.
+	// It exists in this package in order to avoid circular dependency with the "comment" package.
+	ArticleCommentsInverseTable = "comments"
+	// ArticleCommentsColumn is the table column denoting the article_comments relation/edge.
+	ArticleCommentsColumn = "article_id"
 )
 
 // Columns holds all SQL columns for article fields.

@@ -27,6 +27,8 @@ const (
 	FieldImage = "image"
 	// EdgeArticles holds the string denoting the articles edge name in mutations.
 	EdgeArticles = "articles"
+	// EdgeComments holds the string denoting the comments edge name in mutations.
+	EdgeComments = "comments"
 	// EdgeFavorites holds the string denoting the favorites edge name in mutations.
 	EdgeFavorites = "favorites"
 	// EdgeFollowers holds the string denoting the followers edge name in mutations.
@@ -42,6 +44,13 @@ const (
 	ArticlesInverseTable = "articles"
 	// ArticlesColumn is the table column denoting the articles relation/edge.
 	ArticlesColumn = "user_id"
+	// CommentsTable is the table that holds the comments relation/edge.
+	CommentsTable = "comments"
+	// CommentsInverseTable is the table name for the Comment entity.
+	// It exists in this package in order to avoid circular dependency with the "comment" package.
+	CommentsInverseTable = "comments"
+	// CommentsColumn is the table column denoting the comments relation/edge.
+	CommentsColumn = "user_id"
 	// FavoritesTable is the table that holds the favorites relation/edge.
 	FavoritesTable = "favorites"
 	// FavoritesInverseTable is the table name for the Favorite entity.

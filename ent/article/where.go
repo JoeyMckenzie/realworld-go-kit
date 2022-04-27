@@ -884,6 +884,34 @@ func HasArticleTagsWith(preds ...predicate.ArticleTag) predicate.Article {
 	})
 }
 
+// HasArticleComments applies the HasEdge predicate on the "article_comments" edge.
+func HasArticleComments() predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ArticleCommentsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ArticleCommentsTable, ArticleCommentsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasArticleCommentsWith applies the HasEdge predicate on the "article_comments" edge with a given conditions (other predicates).
+func HasArticleCommentsWith(preds ...predicate.Comment) predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ArticleCommentsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ArticleCommentsTable, ArticleCommentsColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Article) predicate.Article {
 	return predicate.Article(func(s *sql.Selector) {

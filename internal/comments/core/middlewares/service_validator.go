@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/go-kit/log"
 	"github.com/go-playground/validator/v10"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
+	"github.com/joeymckenzie/realworld-go-kit/internal/comments/core"
+	"github.com/joeymckenzie/realworld-go-kit/internal/comments/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 )

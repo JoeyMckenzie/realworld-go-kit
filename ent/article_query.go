@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
 	"github.com/joeymckenzie/realworld-go-kit/ent/articletag"
+	"github.com/joeymckenzie/realworld-go-kit/ent/comment"
 	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
 	"github.com/joeymckenzie/realworld-go-kit/ent/predicate"
 	"github.com/joeymckenzie/realworld-go-kit/ent/user"
@@ -29,9 +30,10 @@ type ArticleQuery struct {
 	fields     []string
 	predicates []predicate.Article
 	// eager-loading edges.
-	withAuthor      *UserQuery
-	withFavorites   *FavoriteQuery
-	withArticleTags *ArticleTagQuery
+	withAuthor          *UserQuery
+	withFavorites       *FavoriteQuery
+	withArticleTags     *ArticleTagQuery
+	withArticleComments *CommentQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -127,6 +129,28 @@ func (aq *ArticleQuery) QueryArticleTags() *ArticleTagQuery {
 			sqlgraph.From(article.Table, article.FieldID, selector),
 			sqlgraph.To(articletag.Table, articletag.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, article.ArticleTagsTable, article.ArticleTagsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryArticleComments chains the current query on the "article_comments" edge.
+func (aq *ArticleQuery) QueryArticleComments() *CommentQuery {
+	query := &CommentQuery{config: aq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := aq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := aq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(article.Table, article.FieldID, selector),
+			sqlgraph.To(comment.Table, comment.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, article.ArticleCommentsTable, article.ArticleCommentsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
 		return fromU, nil
@@ -310,14 +334,15 @@ func (aq *ArticleQuery) Clone() *ArticleQuery {
 		return nil
 	}
 	return &ArticleQuery{
-		config:          aq.config,
-		limit:           aq.limit,
-		offset:          aq.offset,
-		order:           append([]OrderFunc{}, aq.order...),
-		predicates:      append([]predicate.Article{}, aq.predicates...),
-		withAuthor:      aq.withAuthor.Clone(),
-		withFavorites:   aq.withFavorites.Clone(),
-		withArticleTags: aq.withArticleTags.Clone(),
+		config:              aq.config,
+		limit:               aq.limit,
+		offset:              aq.offset,
+		order:               append([]OrderFunc{}, aq.order...),
+		predicates:          append([]predicate.Article{}, aq.predicates...),
+		withAuthor:          aq.withAuthor.Clone(),
+		withFavorites:       aq.withFavorites.Clone(),
+		withArticleTags:     aq.withArticleTags.Clone(),
+		withArticleComments: aq.withArticleComments.Clone(),
 		// clone intermediate query.
 		sql:    aq.sql.Clone(),
 		path:   aq.path,
@@ -355,6 +380,17 @@ func (aq *ArticleQuery) WithArticleTags(opts ...func(*ArticleTagQuery)) *Article
 		opt(query)
 	}
 	aq.withArticleTags = query
+	return aq
+}
+
+// WithArticleComments tells the query-builder to eager-load the nodes that are connected to
+// the "article_comments" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *ArticleQuery) WithArticleComments(opts ...func(*CommentQuery)) *ArticleQuery {
+	query := &CommentQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	aq.withArticleComments = query
 	return aq
 }
 
@@ -423,10 +459,11 @@ func (aq *ArticleQuery) sqlAll(ctx context.Context) ([]*Article, error) {
 	var (
 		nodes       = []*Article{}
 		_spec       = aq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			aq.withAuthor != nil,
 			aq.withFavorites != nil,
 			aq.withArticleTags != nil,
+			aq.withArticleComments != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
@@ -522,6 +559,31 @@ func (aq *ArticleQuery) sqlAll(ctx context.Context) ([]*Article, error) {
 				return nil, fmt.Errorf(`unexpected foreign-key "article_id" returned %v for node %v`, fk, n.ID)
 			}
 			node.Edges.ArticleTags = append(node.Edges.ArticleTags, n)
+		}
+	}
+
+	if query := aq.withArticleComments; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*Article)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.ArticleComments = []*Comment{}
+		}
+		query.Where(predicate.Comment(func(s *sql.Selector) {
+			s.Where(sql.InValues(article.ArticleCommentsColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.ArticleID
+			node, ok := nodeids[fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "article_id" returned %v for node %v`, fk, n.ID)
+			}
+			node.Edges.ArticleComments = append(node.Edges.ArticleComments, n)
 		}
 	}
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-kit/kit/metrics"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
+	"github.com/joeymckenzie/realworld-go-kit/internal/tags/core"
 	"time"
 )
 
@@ -14,7 +14,7 @@ type tagsServiceMetricsMiddleware struct {
 	service        core.TagsService
 }
 
-func NewTagsServiceMetrics(requestCount metrics.Counter, requestLatency metrics.Histogram) core.TagsServiceMiddleware {
+func NewTagsServiceMetricsMiddleware(requestCount metrics.Counter, requestLatency metrics.Histogram) core.TagsServiceMiddleware {
 	return func(next core.TagsService) core.TagsService {
 		return &tagsServiceMetricsMiddleware{
 			requestCount:   requestCount,

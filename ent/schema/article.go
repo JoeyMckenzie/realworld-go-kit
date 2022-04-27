@@ -41,6 +41,7 @@ func (Article) Edges() []ent.Edge {
 			Field("user_id"),
 		edge.To("favorites", Favorite.Type),
 		edge.To("article_tags", ArticleTag.Type),
+		edge.To("article_comments", Comment.Type),
 	}
 }
 

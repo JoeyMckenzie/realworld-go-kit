@@ -14,7 +14,7 @@ import (
 	"os"
 )
 
-func InitializeEnt(logger log.Logger, environment string) *ent.Client {
+func InitializeEnt(logger log.Logger, environment string) (*ent.Client, *sql.Driver) {
 	// Build out our connection to the database
 	var connectionString string
 	{
@@ -28,13 +28,6 @@ func InitializeEnt(logger log.Logger, environment string) *ent.Client {
 
 	// Generate the ent client
 	driver, err := sql.Open(dialect.Postgres, connectionString)
-
-	defer func(driver *sql.Driver) {
-		if err := driver.Close(); err != nil {
-			level.Error(logger).Log("main", "failed closing postgres connection", "error", err)
-			os.Exit(1)
-		}
-	}(driver)
 
 	driverWithDebugContext := dialect.DebugWithContext(driver, func(ctx context.Context, i ...interface{}) {
 		level.Debug(logger).Log("query", fmt.Sprintf("%v", i))
@@ -57,5 +50,5 @@ func InitializeEnt(logger log.Logger, environment string) *ent.Client {
 		os.Exit(1)
 	}
 
-	return entClient
+	return entClient, driver
 }

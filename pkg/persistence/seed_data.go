@@ -24,6 +24,7 @@ func SeedData(ctx context.Context, client *ent.Client) {
 	seedFollows(ctx, client, users...)
 	seedFavorites(ctx, client, users, articles)
 	seedArticleTags(ctx, client, articles, tags)
+	seedComments(ctx, client, users, articles)
 }
 
 func seedUsers(ctx context.Context, client *ent.Client) []*ent.User {
@@ -190,4 +191,33 @@ func seedFavorites(ctx context.Context, client *ent.Client, users []*ent.User, a
 		SetArticleFavorites(articles[1]).
 		SetUserFavorites(users[2]).
 		SaveX(ctx)
+}
+
+func seedComments(ctx context.Context, client *ent.Client, users []*ent.User, articles []*ent.Article) []*ent.Comment {
+	commentsToCreate := []*ent.CommentCreate{
+		// testUser2 adds comment to testuser1-article
+		client.Comment.
+			Create().
+			SetBody("testUser2 comment").
+			SetUserID(users[1].ID).
+			SetArticleID(articles[0].ID),
+		// testUser3 adds comment to testuser1-article
+		client.Comment.
+			Create().
+			SetBody("testUser3 comment").
+			SetUserID(users[2].ID).
+			SetArticleID(articles[0].ID),
+		// testUser1 adds comment to testuser2-article
+		client.Comment.
+			Create().
+			SetBody("testUser1 comment").
+			SetUserID(users[0].ID).
+			SetArticleID(articles[2].ID),
+	}
+
+	createdComments := client.Comment.
+		CreateBulk(commentsToCreate...).
+		SaveX(ctx)
+
+	return createdComments
 }

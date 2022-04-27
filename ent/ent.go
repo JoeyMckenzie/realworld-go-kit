@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/joeymckenzie/realworld-go-kit/ent/article"
 	"github.com/joeymckenzie/realworld-go-kit/ent/articletag"
+	"github.com/joeymckenzie/realworld-go-kit/ent/comment"
 	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
 	"github.com/joeymckenzie/realworld-go-kit/ent/follow"
 	"github.com/joeymckenzie/realworld-go-kit/ent/tag"
@@ -36,6 +37,7 @@ func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
 		article.Table:    article.ValidColumn,
 		articletag.Table: articletag.ValidColumn,
+		comment.Table:    comment.ValidColumn,
 		favorite.Table:   favorite.ValidColumn,
 		follow.Table:     follow.ValidColumn,
 		tag.Table:        tag.ValidColumn,

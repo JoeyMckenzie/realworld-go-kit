@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-kit/kit/metrics"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
+	"github.com/joeymckenzie/realworld-go-kit/internal/comments/core"
+	"github.com/joeymckenzie/realworld-go-kit/internal/comments/domain"
 	"time"
 )
 
@@ -15,7 +15,7 @@ type commentsServiceMetricsMiddleware struct {
 	service        core.CommentsService
 }
 
-func NewCommentsMetricsMiddleware(requestCount metrics.Counter, requestLatency metrics.Histogram) core.CommentsServiceMiddleware {
+func NewCommentsServiceMetricsMiddleware(requestCount metrics.Counter, requestLatency metrics.Histogram) core.CommentsServiceMiddleware {
 	return func(next core.CommentsService) core.CommentsService {
 		return &commentsServiceMetricsMiddleware{
 			requestCount:   requestCount,

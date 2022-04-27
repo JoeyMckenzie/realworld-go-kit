@@ -4,8 +4,8 @@ import (
 	"context"
 	"entgo.io/ent/dialect"
 	"github.com/joeymckenzie/realworld-go-kit/ent"
-	"github.com/joeymckenzie/realworld-go-kit/internal"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
+	"github.com/joeymckenzie/realworld-go-kit/pkg/persistence"
 	_ "github.com/mattn/go-sqlite3"
 	"os"
 	"testing"
@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 	client.Schema.Create(ctx)
 
 	// Seed test data and create the test fixture
-	internal.SeedData(ctx, client)
+	persistence.SeedData(ctx, client)
 	fixture = newArticlesServiceTestFixture(ctx, client)
 
 	// Finally, run our tests

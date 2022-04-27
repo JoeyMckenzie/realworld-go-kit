@@ -15,7 +15,7 @@ type usersServiceMetricsMiddleware struct {
 	service        core.UsersService
 }
 
-func NewUsersServiceMetrics(requestCount metrics.Counter, requestLatency metrics.Histogram) core.UsersServiceMiddleware {
+func NewUsersServiceMetricsMiddleware(requestCount metrics.Counter, requestLatency metrics.Histogram) core.UsersServiceMiddleware {
 	return func(next core.UsersService) core.UsersService {
 		return &usersServiceMetricsMiddleware{
 			requestCount:   requestCount,

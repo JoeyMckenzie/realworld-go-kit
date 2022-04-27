@@ -4,7 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	httpTransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
+	"github.com/joeymckenzie/realworld-go-kit/internal/tags/core"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 )
 

@@ -3,8 +3,8 @@ package api
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
-	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
+	"github.com/joeymckenzie/realworld-go-kit/internal/tags/core"
+	"github.com/joeymckenzie/realworld-go-kit/internal/tags/domain"
 )
 
 type tagEndpoints struct {
