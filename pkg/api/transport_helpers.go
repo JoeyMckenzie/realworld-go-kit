@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-kit/kit/transport"
+	httpTransport "github.com/go-kit/kit/transport/http"
+	"github.com/go-kit/log"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"net/http"
 	"time"
@@ -39,6 +42,13 @@ func EncodeSuccessfulResponseWithNoContent(_ context.Context, w http.ResponseWri
 	w.WriteHeader(http.StatusNoContent)
 
 	return nil
+}
+
+func HandlerOptions(logger log.Logger) []httpTransport.ServerOption {
+	return []httpTransport.ServerOption{
+		httpTransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
+		httpTransport.ServerErrorEncoder(EncodeError),
+	}
 }
 
 func EncodeError(_ context.Context, err error, w http.ResponseWriter) {

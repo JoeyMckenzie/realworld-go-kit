@@ -9,7 +9,7 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 )
 
-type ArticleEndpoints struct {
+type articleEndpoints struct {
 	MakeCreateArticleEndpoint     endpoint.Endpoint
 	MakeGetArticlesEndpoint       endpoint.Endpoint
 	MakeGetArticleEndpoint        endpoint.Endpoint
@@ -18,11 +18,10 @@ type ArticleEndpoints struct {
 	MakeDeleteArticleEndpoint     endpoint.Endpoint
 	MakeFavoriteArticleEndpoint   endpoint.Endpoint
 	MakeUnfavoriteArticleEndpoint endpoint.Endpoint
-	MakeGetTagsEndpoint           endpoint.Endpoint
 }
 
-func NewArticleEndpoints(service core.ArticlesService) *ArticleEndpoints {
-	return &ArticleEndpoints{
+func NewArticleEndpoints(service core.ArticlesService) *articleEndpoints {
+	return &articleEndpoints{
 		MakeCreateArticleEndpoint:     makeCreateArticleEndpoint(service),
 		MakeGetArticlesEndpoint:       makeGetArticlesEndpoint(service),
 		MakeGetArticleEndpoint:        makeGetArticleEndpoint(service),
@@ -31,7 +30,6 @@ func NewArticleEndpoints(service core.ArticlesService) *ArticleEndpoints {
 		MakeDeleteArticleEndpoint:     makeDeleteArticleEndpoint(service),
 		MakeFavoriteArticleEndpoint:   makeFavoriteArticleEndpoint(service),
 		MakeUnfavoriteArticleEndpoint: makeUnfavoriteArticleEndpoint(service),
-		MakeGetTagsEndpoint:           makeGetTagsEndpoint(service),
 	}
 }
 
@@ -85,7 +83,8 @@ func makeGetArticlesEndpoint(service core.ArticlesService) endpoint.Endpoint {
 		}
 
 		return &domain.GetArticlesResponse{
-			Articles: articles,
+			Articles:      articles,
+			ArticlesCount: len(articles),
 		}, nil
 	}
 }
@@ -100,7 +99,8 @@ func makeGetFeedEndpoint(service core.ArticlesService) endpoint.Endpoint {
 		}
 
 		return &domain.GetArticlesResponse{
-			Articles: articles,
+			Articles:      articles,
+			ArticlesCount: len(articles),
 		}, nil
 	}
 }
@@ -182,19 +182,5 @@ func makeUnfavoriteArticleEndpoint(service core.ArticlesService) endpoint.Endpoi
 		}
 
 		return nil, utilities.ErrUnauthorized
-	}
-}
-
-func makeGetTagsEndpoint(service core.ArticlesService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		tags, err := service.GetTags(ctx)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &domain.GetTagsResponse{
-			Tags: tags,
-		}, nil
 	}
 }

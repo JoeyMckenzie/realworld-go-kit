@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-kit/kit/transport"
 	httpTransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/core"
@@ -17,77 +16,64 @@ import (
 )
 
 func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.ArticlesService) *chi.Mux {
-	options := []httpTransport.ServerOption{
-		httpTransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
-		httpTransport.ServerErrorEncoder(api.EncodeError),
-	}
-
 	endpoints := NewArticleEndpoints(service)
 
 	createArticleHandler := httpTransport.NewServer(
 		endpoints.MakeCreateArticleEndpoint,
 		decodeCreateArticleRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	getArticlesHandler := httpTransport.NewServer(
 		endpoints.MakeGetArticlesEndpoint,
 		decodeGetArticlesRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	getArticleHandler := httpTransport.NewServer(
 		endpoints.MakeGetArticleEndpoint,
 		decodeGetArticleRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	getFeedHandler := httpTransport.NewServer(
 		endpoints.MakeGetFeedEndpoint,
 		decodeGetFeedRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	updateArticleHandler := httpTransport.NewServer(
 		endpoints.MakeUpdateArticleEndpoint,
 		decodeUpdateArticleRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	deleteArticleHandler := httpTransport.NewServer(
 		endpoints.MakeDeleteArticleEndpoint,
 		decodeDeleteArticleRequest,
 		api.EncodeSuccessfulResponseWithNoContent,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	favoriteArticleHandler := httpTransport.NewServer(
 		endpoints.MakeFavoriteArticleEndpoint,
 		decodeFavoriteArticleRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	unfavoriteArticleHandler := httpTransport.NewServer(
 		endpoints.MakeUnfavoriteArticleEndpoint,
 		decodeFavoriteArticleRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
-	getTagsHandler := httpTransport.NewServer(
-		endpoints.MakeGetTagsEndpoint,
-		api.DecodeDefaultRequest,
-		api.EncodeSuccessfulResponse,
-		options...,
-	)
-
-	router.Get("/tags", getTagsHandler.ServeHTTP)
 	router.Route("/articles", func(r chi.Router) {
 		r.Get("/", getArticlesHandler.ServeHTTP)
 

@@ -163,16 +163,3 @@ func (mw *articlesServiceLoggingMiddleware) UnfavoriteArticle(ctx context.Contex
 
 	return mw.next.FavoriteArticle(ctx, request)
 }
-
-func (mw *articlesServiceLoggingMiddleware) GetTags(ctx context.Context) (tags []string, err error) {
-	defer func(begin time.Time) {
-		level.Info(mw.logger).Log(
-			"method", "GetTags",
-			"request_time", time.Since(begin),
-			"tags", len(tags),
-			"error", err,
-		)
-	}(time.Now())
-
-	return mw.next.GetTags(ctx)
-}

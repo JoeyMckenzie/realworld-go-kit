@@ -1,29 +1,37 @@
 package config
 
 import (
-	"fmt"
-	"github.com/hashicorp/hcl/v2/hclsimple"
+	"flag"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
+	"github.com/joho/godotenv"
 	"os"
 )
 
-func InitializeConfiguration(environment string) (*Configuration, error) {
-	var config Configuration
-
-	currentDir, err := os.Getwd()
-
-	if err != nil {
-		return nil, err
+func InitializeConfiguration(logger log.Logger) (string, int) {
+	// Load in environment variables
+	if err := godotenv.Load(); err != nil {
+		level.Error(logger).Log(
+			"environment", "error while bootstrapping environment",
+			"error", err,
+		)
+		os.Exit(1)
 	}
 
-	filePath := fmt.Sprintf("%s%cconfig%c%s.hcl",
-		currentDir,
-		os.PathSeparator,
-		os.PathSeparator,
-		environment)
+	// Load in configuration
+	environment := flag.String("env", "development", "Environment to run the application under")
+	port := flag.Int("port", 8080, "Environment to run the application under")
+	flag.Parse()
 
-	if err = hclsimple.DecodeFile(filePath, nil, &config); err != nil {
-		return nil, err
+	if environment == nil || *environment == "" {
+		level.Error(logger).Log("environment", "no environment provided at startup")
+		os.Exit(1)
 	}
 
-	return &config, nil
+	if port == nil {
+		level.Error(logger).Log("port", "no port provided at startup")
+		os.Exit(1)
+	}
+
+	return *environment, *port
 }

@@ -29,7 +29,6 @@ type (
 		DeleteArticle(ctx context.Context, request *domain.DeleteArticleServiceRequest) error
 		FavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*domain.ArticleDto, error)
 		UnfavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*domain.ArticleDto, error)
-		GetTags(ctx context.Context) ([]string, error)
 	}
 
 	articlesService struct {
@@ -330,25 +329,11 @@ func (as *articlesService) DeleteArticle(ctx context.Context, request *domain.De
 }
 
 func (as *articlesService) FavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*domain.ArticleDto, error) {
-	// Verify the user and articles exists before adding the favorite
-	existingArticle, err := as.client.Article.
-		Query().
-		WithFavorites().
-		WithAuthor().
-		WithArticleTags(func(query *ent.ArticleTagQuery) {
-			query.WithTag()
-		}).
-		Where(article.Slug(request.Slug)).
-		First(ctx)
+	existingArticle, err := as.getExistingArticleForFavoriting(ctx, request)
 
-	if ent.IsNotFound(err) {
-		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
-	}
-
-	_, err = as.client.User.Get(ctx, request.UserId)
-
-	if ent.IsNotFound(err) {
-		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
+	// Error is converted in our utility method, so pass it back up the stack
+	if err != nil {
+		return nil, err
 	}
 
 	_, err = as.client.Favorite.
@@ -365,25 +350,11 @@ func (as *articlesService) FavoriteArticle(ctx context.Context, request *domain.
 }
 
 func (as *articlesService) UnfavoriteArticle(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*domain.ArticleDto, error) {
-	// Verify the user and articles exists before adding the favorite
-	existingArticle, err := as.client.Article.
-		Query().
-		WithFavorites().
-		WithAuthor().
-		WithArticleTags(func(query *ent.ArticleTagQuery) {
-			query.WithTag()
-		}).
-		Where(article.Slug(request.Slug)).
-		First(ctx)
+	existingArticle, err := as.getExistingArticleForFavoriting(ctx, request)
 
-	if ent.IsNotFound(err) {
-		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
-	}
-
-	_, err = as.client.User.Get(ctx, request.UserId)
-
-	if ent.IsNotFound(err) {
-		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
+	// Error is converted in our utility method, so pass it back up the stack
+	if err != nil {
+		return nil, err
 	}
 
 	_, err = as.client.Favorite.
@@ -395,17 +366,4 @@ func (as *articlesService) UnfavoriteArticle(ctx context.Context, request *domai
 		Exec(ctx)
 
 	return makeArticleMapping(existingArticle, false, request.UserId), nil
-}
-
-func (as *articlesService) GetTags(ctx context.Context) ([]string, error) {
-	tags, err := as.client.Tag.
-		Query().
-		Select(tag.FieldTag).
-		Strings(ctx)
-
-	if err != nil {
-		return nil, api.NewInternalServerErrorWithContext("tags", err)
-	}
-
-	return tags, nil
 }

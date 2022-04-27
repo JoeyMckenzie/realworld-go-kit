@@ -28,7 +28,8 @@ type (
 	}
 
 	GetArticlesResponse struct {
-		Articles []*ArticleDto `json:"articles"`
+		Articles      []*ArticleDto `json:"articles"`
+		ArticlesCount int           `json:"articlesCount"`
 	}
 
 	GetArticleResponse struct {
@@ -37,5 +38,21 @@ type (
 
 	GetTagsResponse struct {
 		Tags []string `json:"tags"`
+	}
+
+	CommentDto struct {
+		Id        int       `json:"id"`
+		CreatedAt time.Time `json:"createdAt"`
+		UpdatedAt time.Time `json:"updatedAt"`
+		Body      string    `json:"body"`
+		Author    AuthorDto `json:"author"`
+	}
+
+	CommentResponse struct {
+		Comment *CommentDto `json:"comment"`
+	}
+
+	CommentsResponse struct {
+		Comments []*CommentDto `json:"comments"`
 	}
 )

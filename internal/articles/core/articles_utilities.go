@@ -3,9 +3,12 @@ package core
 import (
 	"context"
 	"github.com/joeymckenzie/realworld-go-kit/ent"
+	"github.com/joeymckenzie/realworld-go-kit/ent/article"
 	"github.com/joeymckenzie/realworld-go-kit/ent/tag"
 	"github.com/joeymckenzie/realworld-go-kit/internal/articles/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
+	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
+	"net/http"
 )
 
 func removeDuplicates(tags *[]string) []string {
@@ -170,4 +173,29 @@ func (as *articlesService) makeArticleTagsMapping(ctx context.Context, transacti
 	}
 
 	return articleTagsToBulkInsert, nil
+}
+
+func (as *articlesService) getExistingArticleForFavoriting(ctx context.Context, request *domain.ArticleFavoriteServiceRequest) (*ent.Article, error) {
+	// Verify the user and articles exists before adding the favorite
+	existingArticle, err := as.client.Article.
+		Query().
+		WithFavorites().
+		WithAuthor().
+		WithArticleTags(func(query *ent.ArticleTagQuery) {
+			query.WithTag()
+		}).
+		Where(article.Slug(request.Slug)).
+		First(ctx)
+
+	if ent.IsNotFound(err) {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
+	}
+
+	_, err = as.client.User.Get(ctx, request.UserId)
+
+	if ent.IsNotFound(err) {
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "user", utilities.ErrUserNotFound)
+	}
+
+	return existingArticle, nil
 }

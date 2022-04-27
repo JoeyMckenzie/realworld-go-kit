@@ -89,7 +89,3 @@ func (mw *articlesServiceRequestValidationMiddleware) UnfavoriteArticle(ctx cont
 
 	return mw.next.UnfavoriteArticle(ctx, request)
 }
-
-func (mw *articlesServiceRequestValidationMiddleware) GetTags(ctx context.Context) ([]string, error) {
-	return mw.next.GetTags(ctx)
-}

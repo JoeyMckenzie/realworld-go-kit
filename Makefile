@@ -16,7 +16,7 @@ help: ## help information about make commands
 version: ## Displays the version of the API server
 	@echo $(VERSION)
 
-.PHONY: start-api
+.PHONY: start
 start: ## Run the API server
 	go run ./cmd/api -env development -port 8080
 
