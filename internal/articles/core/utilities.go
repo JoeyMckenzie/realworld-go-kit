@@ -10,6 +10,8 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"net/http"
+	"sort"
+	"time"
 )
 
 func removeDuplicates(tags *[]string) []string {
@@ -70,6 +72,8 @@ func makeArticleMapping(queriedArticle *ent.Article, defaultHasFavorited bool, u
 				tags = append(tags, articleTag.Edges.Tag.Tag)
 			}
 		}
+
+		sort.Strings(tags)
 	}
 
 	// Set default return values for following and favorited
@@ -102,8 +106,8 @@ func makeArticleMapping(queriedArticle *ent.Article, defaultHasFavorited bool, u
 		Description:    queriedArticle.Description,
 		Body:           queriedArticle.Body,
 		TagList:        tags,
-		CreatedAt:      queriedArticle.CreateTime,
-		UpdatedAt:      queriedArticle.UpdateTime,
+		CreatedAt:      queriedArticle.CreateTime.Format(time.RFC3339),
+		UpdatedAt:      queriedArticle.UpdateTime.Format(time.RFC3339),
 		Favorited:      userHasFavorited,
 		FavoritesCount: len(queriedArticle.Edges.Favorites),
 		Author: sharedDomain.AuthorDto{

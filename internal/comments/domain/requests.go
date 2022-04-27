@@ -3,6 +3,13 @@ package domain
 import "fmt"
 
 type (
+	AddCommentApiRequest struct {
+		Slug    string
+		Comment struct {
+			Body string `json:"body"`
+		} `json:"comment"`
+	}
+
 	AddArticleCommentServiceRequest struct {
 		Body   string `validate:"required"`
 		UserId int    `validate:"required"`

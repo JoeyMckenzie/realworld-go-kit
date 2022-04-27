@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func InitializeConfiguration(logger log.Logger) (string, int) {
+func InitializeConfiguration(logger log.Logger) (string, int, bool) {
 	// Load in environment variables
 	if err := godotenv.Load(); err != nil {
 		level.Error(logger).Log(
@@ -21,6 +21,7 @@ func InitializeConfiguration(logger log.Logger) (string, int) {
 	// Load in configuration
 	environment := flag.String("env", "development", "Environment to run the application under")
 	port := flag.Int("port", 8080, "Environment to run the application under")
+	applySeed := flag.Bool("seed", false, "Seed the database on startup")
 	flag.Parse()
 
 	if environment == nil || *environment == "" {
@@ -33,5 +34,10 @@ func InitializeConfiguration(logger log.Logger) (string, int) {
 		os.Exit(1)
 	}
 
-	return *environment, *port
+	if applySeed == nil {
+		seed := false
+		applySeed = &seed
+	}
+
+	return *environment, *port, *applySeed
 }

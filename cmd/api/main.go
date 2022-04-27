@@ -17,8 +17,8 @@ func main() {
 
 	defer level.Info(logger).Log("main", "application shutting down...")
 
-	environment, port := config.InitializeConfiguration(logger)
-	entClient, driver := persistence.InitializeEnt(logger, environment)
+	environment, port, applySeed := config.InitializeConfiguration(logger)
+	entClient, driver := persistence.InitializeEnt(logger, environment, applySeed)
 
 	defer func(driver *sql.Driver) {
 		if err := driver.Close(); err != nil {

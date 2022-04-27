@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	httpTransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
@@ -51,31 +52,18 @@ func MakeCommentsTransport(router *chi.Mux, logger log.Logger, service core.Comm
 }
 
 func decodeAddCommentRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	userId, err := services.
-		NewTokenService().
-		GetRequiredUserIdFromAuthorizationHeader(r.Header.Get("Authorization"))
+	var request domain.AddCommentApiRequest
 
-	if err != nil {
-		return nil, utilities.ErrUnauthorized
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, utilities.ErrInvalidRequestBody
 	}
 
-	request := domain.AddArticleCommentServiceRequest{
-		UserId: userId,
-		Slug:   chi.URLParam(r, "slug"),
-	}
+	request.Slug = chi.URLParam(r, "slug")
 
 	return request, nil
 }
 
 func decodeDeleteCommentRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	userId, err := services.
-		NewTokenService().
-		GetRequiredUserIdFromAuthorizationHeader(r.Header.Get("Authorization"))
-
-	if err != nil {
-		return nil, utilities.ErrUnauthorized
-	}
-
 	commentId, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 32)
 
 	if err != nil {
@@ -83,7 +71,6 @@ func decodeDeleteCommentRequest(_ context.Context, r *http.Request) (interface{}
 	}
 
 	request := domain.DeleteArticleCommentServiceRequest{
-		UserId:    userId,
 		Slug:      chi.URLParam(r, "slug"),
 		CommentId: int(commentId),
 	}

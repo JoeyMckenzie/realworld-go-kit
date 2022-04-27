@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
@@ -39,9 +40,18 @@ func (Article) Edges() []ent.Edge {
 			Ref("articles").
 			Unique().
 			Field("user_id"),
-		edge.To("favorites", Favorite.Type),
-		edge.To("article_tags", ArticleTag.Type),
-		edge.To("article_comments", Comment.Type),
+		edge.To("favorites", Favorite.Type).
+			Annotations(entsql.Annotation{
+				OnDelete: entsql.Cascade,
+			}),
+		edge.To("article_tags", ArticleTag.Type).
+			Annotations(entsql.Annotation{
+				OnDelete: entsql.Cascade,
+			}),
+		edge.To("article_comments", Comment.Type).
+			Annotations(entsql.Annotation{
+				OnDelete: entsql.Cascade,
+			}),
 	}
 }
 

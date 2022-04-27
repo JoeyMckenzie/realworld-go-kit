@@ -214,8 +214,8 @@ func (as *articlesService) CreateArticle(ctx context.Context, request *domain.Cr
 		Description:    createdArticle.Description,
 		Body:           createdArticle.Body,
 		TagList:        tagsToCreate,
-		CreatedAt:      createdArticle.CreateTime,
-		UpdatedAt:      createdArticle.UpdateTime,
+		CreatedAt:      createdArticle.CreateTime.Format(time.RFC3339),
+		UpdatedAt:      createdArticle.UpdateTime.Format(time.RFC3339),
 		Favorited:      false,
 		FavoritesCount: 0,
 		Author: sharedDomain.AuthorDto{
@@ -289,8 +289,8 @@ func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.Up
 		Description:    updatedArticle.Description,
 		Body:           updatedArticle.Body,
 		TagList:        tagList,
-		CreatedAt:      updatedArticle.CreateTime,
-		UpdatedAt:      updatedArticle.UpdateTime,
+		CreatedAt:      updatedArticle.CreateTime.Format(time.RFC3339),
+		UpdatedAt:      updatedArticle.UpdateTime.Format(time.RFC3339),
 		Favorited:      false,
 		FavoritesCount: len(existingArticle.Edges.Favorites),
 		Author: sharedDomain.AuthorDto{
@@ -347,6 +347,14 @@ func (as *articlesService) FavoriteArticle(ctx context.Context, request *domain.
 		return nil, api.NewInternalServerErrorWithContext("article", err)
 	}
 
+	// TODO: Not great, may be better to update the already existing entity in-mem rather than re-retrieving
+	existingArticle, err = as.getExistingArticleForFavoriting(ctx, request)
+
+	// Error is converted in our utility method, so pass it back up the stack
+	if err != nil {
+		return nil, err
+	}
+
 	return makeArticleMapping(existingArticle, true, request.UserId), nil
 }
 
@@ -365,6 +373,14 @@ func (as *articlesService) UnfavoriteArticle(ctx context.Context, request *domai
 			favorite.UserID(request.UserId),
 		).
 		Exec(ctx)
+
+	// TODO: Not great, may be better to update the already existing entity in-mem rather than re-retrieving
+	existingArticle, err = as.getExistingArticleForFavoriting(ctx, request)
+
+	// Error is converted in our utility method, so pass it back up the stack
+	if err != nil {
+		return nil, err
+	}
 
 	return makeArticleMapping(existingArticle, false, request.UserId), nil
 }

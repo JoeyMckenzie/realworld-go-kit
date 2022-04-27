@@ -54,7 +54,7 @@ start-api: ## Start the API container
 
 .PHONY: start-db
 start-db: ## Start the database container
-	@docker-compose -f ./docker-compose.postgres.yml up --build --remove-o
+	@docker-compose -f ./docker-compose.postgres.yml up --build --remove-orphans
 
 .PHONY: start-metrics
 start-metrics: ## Start the Prometheus metrics container

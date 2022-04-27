@@ -161,5 +161,5 @@ func (mw *articlesServiceLoggingMiddleware) UnfavoriteArticle(ctx context.Contex
 		"request", request.ToSafeLoggingStruct(),
 	)
 
-	return mw.next.FavoriteArticle(ctx, request)
+	return mw.next.UnfavoriteArticle(ctx, request)
 }

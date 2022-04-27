@@ -29,7 +29,7 @@ var (
 				Symbol:     "articles_users_articles",
 				Columns:    []*schema.Column{ArticlesColumns[7]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -50,7 +50,7 @@ var (
 				Symbol:     "article_tags_articles_article_tags",
 				Columns:    []*schema.Column{ArticleTagsColumns[2]},
 				RefColumns: []*schema.Column{ArticlesColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "article_tags_tags_article_tags",
@@ -79,13 +79,13 @@ var (
 				Symbol:     "comments_articles_article_comments",
 				Columns:    []*schema.Column{CommentsColumns[4]},
 				RefColumns: []*schema.Column{ArticlesColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "comments_users_comments",
 				Columns:    []*schema.Column{CommentsColumns[5]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -106,13 +106,13 @@ var (
 				Symbol:     "favorites_articles_favorites",
 				Columns:    []*schema.Column{FavoritesColumns[2]},
 				RefColumns: []*schema.Column{ArticlesColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "favorites_users_favorites",
 				Columns:    []*schema.Column{FavoritesColumns[3]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -133,13 +133,13 @@ var (
 				Symbol:     "follows_users_followers",
 				Columns:    []*schema.Column{FollowsColumns[2]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "follows_users_followees",
 				Columns:    []*schema.Column{FollowsColumns[3]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}

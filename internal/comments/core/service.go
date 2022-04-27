@@ -10,6 +10,7 @@ import (
 	sharedDomain "github.com/joeymckenzie/realworld-go-kit/internal/shared/domain"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
+	"net/http"
 )
 
 type (
@@ -42,13 +43,13 @@ func (cs *commentsService) AddComment(ctx context.Context, request *domain.AddAr
 		First(ctx)
 
 	if ent.IsNotFound(err) {
-		return nil, utilities.ErrArticlesNotFound
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrArticlesNotFound)
 	}
 
 	existingUser, err := cs.client.User.Get(ctx, request.UserId)
 
 	if ent.IsNotFound(err) {
-		return nil, utilities.ErrUserNotFound
+		return nil, api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrUserNotFound)
 	}
 
 	// Create the comment, then add it to the article
@@ -56,6 +57,7 @@ func (cs *commentsService) AddComment(ctx context.Context, request *domain.AddAr
 		Create().
 		SetBody(request.Body).
 		SetArticle(existingArticle).
+		SetUser(existingUser).
 		Save(ctx)
 
 	if err != nil {
@@ -90,7 +92,7 @@ func (cs *commentsService) DeleteComment(ctx context.Context, request *domain.De
 		First(ctx)
 
 	if ent.IsNotFound(err) {
-		return utilities.ErrCommentNotFound
+		return api.NewApiErrorWithContext(http.StatusNotFound, "article", utilities.ErrCommentNotFound)
 	}
 
 	if err = cs.client.Comment.DeleteOne(existingComment).Exec(ctx); err != nil {
@@ -112,7 +114,7 @@ func (cs *commentsService) GetArticleComments(ctx context.Context, request *doma
 		return nil, api.NewInternalServerErrorWithContext("comments", err)
 	}
 
-	mappedComments := make([]*domain.CommentDto, len(existingComments))
+	var mappedComments []*domain.CommentDto
 
 	// Iterate over the articles to determine if the requesting user is following the authors of said comment
 	for _, existingComment := range existingComments {

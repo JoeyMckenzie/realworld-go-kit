@@ -14,7 +14,7 @@ import (
 	"os"
 )
 
-func InitializeEnt(logger log.Logger, environment string) (*ent.Client, *sql.Driver) {
+func InitializeEnt(logger log.Logger, environment string, applySeed bool) (*ent.Client, *sql.Driver) {
 	// Build out our connection to the database
 	var connectionString string
 	{
@@ -43,7 +43,9 @@ func InitializeEnt(logger log.Logger, environment string) (*ent.Client, *sql.Dri
 		migrate.WithDropIndex(true),
 		migrate.WithDropColumn(true))
 
-	SeedData(ctx, entClient)
+	if applySeed {
+		SeedData(ctx, entClient)
+	}
 
 	if err != nil {
 		level.Error(logger).Log("main", "failed running auto migrations", "error", err)

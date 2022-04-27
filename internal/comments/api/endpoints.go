@@ -26,7 +26,14 @@ func NewCommentEndpoints(service core.CommentsService) *commentEndpoints {
 func makeAddCommentEndpoint(service core.CommentsService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
-			serviceRequest := request.(domain.AddArticleCommentServiceRequest)
+			apiRequest := request.(domain.AddCommentApiRequest)
+
+			serviceRequest := domain.AddArticleCommentServiceRequest{
+				Body:   apiRequest.Comment.Body,
+				UserId: tokenMeta.UserId,
+				Slug:   apiRequest.Slug,
+			}
+
 			comment, err := service.AddComment(ctx, &serviceRequest)
 
 			if err != nil {
@@ -46,9 +53,9 @@ func makeDeleteCommentEndpoint(service core.CommentsService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
 			serviceRequest := request.(domain.DeleteArticleCommentServiceRequest)
-			err := service.DeleteComment(ctx, &serviceRequest)
+			serviceRequest.UserId = tokenMeta.UserId
 
-			if err != nil {
+			if err := service.DeleteComment(ctx, &serviceRequest); err != nil {
 				return nil, err
 			}
 

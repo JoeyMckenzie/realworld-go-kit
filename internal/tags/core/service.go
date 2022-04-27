@@ -31,6 +31,7 @@ func NewTagsService(validator *validator.Validate, client *ent.Client) TagsServi
 func (ts *tagsService) GetTags(ctx context.Context) ([]string, error) {
 	tags, err := ts.client.Tag.
 		Query().
+		Order(ent.Desc(tag.FieldCreateTime)).
 		Select(tag.FieldTag).
 		Strings(ctx)
 
