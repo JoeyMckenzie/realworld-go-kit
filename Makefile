@@ -18,7 +18,7 @@ version: ## Displays the version of the API server
 
 .PHONY: start
 start: ## Run the API server
-	go run ./cmd/api -env development -port 8080 -seed true
+	@go run ./cmd/api -env development -port 8080 -seed true
 
 .PHONY: build
 build:  ## Build the API binary
@@ -30,23 +30,23 @@ clean: ## Remove the application binary
 
 .PHONY: lint
 lint: ## Lint all go code
-	go vet ./...
+	@go vet ./...
 
 .PHONY: format
 format: ## Format all code
-	go fmt ./...
+	@go fmt ./...
 
 .PHONY: tidy
 tidy: ## Tidy go imports
-	go mod tidy
+	@go mod tidy
 
 .PHONY: test
 test: ## Run all tests in the project
-	go test ./...
+	@go test ./...
 
 .PHONY: test-integration
 test-integration: ## Runs all integration tests via Postman
-	./run-postman-tests
+	@./run-postman-tests
 
 .PHONY: start-api
 start-api: ## Start the API container
@@ -61,7 +61,7 @@ start-metrics: ## Start the Prometheus metrics container
 	@docker-compose -f ./docker-compose.metrics.yml up --build
 
 .PHONY: start-conduit
-start-conduit: ## Start the Prometheus metrics container
+start-conduit: ## Start all containers required for to run the full application
 	@docker-compose -f ./docker-compose.postgres.yml -f ./docker-compose.api.yml -f ./docker-compose.metrics.yml up --build
 
 .PHONY: install-deps
@@ -83,24 +83,24 @@ install-deps: ## Installs all application package dependencies
 
 .PHONY: ent-init
 ent-init: ## Runs the create entity ent command
-	go run entgo.io/ent/cmd/ent init
+	@go run entgo.io/ent/cmd/ent init
 
 .PHONY: ent-generate
 ent-generate: ## Generates the ent entity code
-	go generate ./ent
+	@go generate ./ent
 
 .PHONY: ent-regenerate
 ent-regenerate: ## Generates the ent entity code
-	make ent-clean
-	go generate ./ent
+	@make ent-clean
+	@go generate ./ent
 
 .PHONY: ent-clean
 ent-clean: ## Cleans the ent codegen while maintaining existing models
-	mkdir ./tmp
-	cp -r ./ent/schema ./tmp
-	cp ./ent/generate.go ./tmp
-	rm -rf ./ent
-	mkdir ./ent
-	cp -r ./tmp/schema ./ent
-	cp ./tmp/generate.go ./ent
-	rm -rf ./tmp
+	@mkdir ./tmp
+	@cp -r ./ent/schema ./tmp
+	@cp ./ent/generate.go ./tmp
+	@rm -rf ./ent
+	@mkdir ./ent
+	@cp -r ./tmp/schema ./ent
+	@cp ./tmp/generate.go ./ent
+	@rm -rf ./tmp

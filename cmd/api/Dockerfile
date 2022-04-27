@@ -8,7 +8,6 @@ RUN go mod download
 RUN go mod verify
 
 COPY ./cmd ./cmd
-COPY ./config ./config
 COPY ./internal ./internal
 COPY ./pkg ./pkg
 COPY ./ent ./ent
