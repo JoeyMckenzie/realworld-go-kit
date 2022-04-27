@@ -18,7 +18,7 @@ version: ## Displays the version of the API server
 
 .PHONY: start
 start: ## Run the API server
-	go run ./cmd/api -env development -port 8080
+	go run ./cmd/api -env development -port 8080 -seed true
 
 .PHONY: build
 build:  ## Build the API binary

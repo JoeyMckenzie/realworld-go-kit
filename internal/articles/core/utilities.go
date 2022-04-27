@@ -100,14 +100,17 @@ func makeArticleMapping(queriedArticle *ent.Article, defaultHasFavorited bool, u
 		}
 	}
 
+	createdAt := queriedArticle.CreateTime.Format(time.RFC3339Nano)
+	updatedAt := queriedArticle.UpdateTime.Format(time.RFC3339Nano)
+
 	return &domain.ArticleDto{
 		Slug:           queriedArticle.Slug,
 		Title:          queriedArticle.Title,
 		Description:    queriedArticle.Description,
 		Body:           queriedArticle.Body,
 		TagList:        tags,
-		CreatedAt:      queriedArticle.CreateTime.Format(time.RFC3339),
-		UpdatedAt:      queriedArticle.UpdateTime.Format(time.RFC3339),
+		CreatedAt:      createdAt,
+		UpdatedAt:      updatedAt,
 		Favorited:      userHasFavorited,
 		FavoritesCount: len(queriedArticle.Edges.Favorites),
 		Author: sharedDomain.AuthorDto{
