@@ -123,3 +123,8 @@ make start
 
 If you're starting the application for the first time, it will attempt to seed a bit of data that is also used for
 testing.
+
+## Todo
+
+There's quite a bit of code cleanup to do throughout the project, and any and all issues/PRs are welcome. Good first issues
+would be helping with code cleanup and adding more unit test coverage. Eventually, I would like to include a sweet of integration tests using `httptest` as well.
