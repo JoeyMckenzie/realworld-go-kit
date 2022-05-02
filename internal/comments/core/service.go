@@ -11,7 +11,6 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"net/http"
-	"time"
 )
 
 type (
@@ -67,8 +66,8 @@ func (cs *commentsService) AddComment(ctx context.Context, request *domain.AddAr
 
 	return &domain.CommentDto{
 		Id:        newComment.ID,
-		CreatedAt: newComment.CreateTime.Format(time.RFC3339Nano),
-		UpdatedAt: newComment.UpdateTime.Format(time.RFC3339Nano),
+		CreatedAt: newComment.CreateTime,
+		UpdatedAt: newComment.UpdateTime,
 		Body:      newComment.Body,
 		Author: sharedDomain.AuthorDto{
 			Username:  existingUser.Username,
@@ -117,12 +116,16 @@ func (cs *commentsService) GetArticleComments(ctx context.Context, request *doma
 
 	var mappedComments []*domain.CommentDto
 
+	if len(existingComments) == 0 {
+		return mappedComments, nil
+	}
+
 	// Iterate over the articles to determine if the requesting user is following the authors of said comment
 	for _, existingComment := range existingComments {
 		mappedComment := &domain.CommentDto{
 			Id:        existingComment.ID,
-			CreatedAt: existingComment.CreateTime.Format(time.RFC3339Nano),
-			UpdatedAt: existingComment.UpdateTime.Format(time.RFC3339Nano),
+			CreatedAt: existingComment.CreateTime,
+			UpdatedAt: existingComment.UpdateTime,
 			Body:      existingComment.Body,
 			Author: sharedDomain.AuthorDto{
 				Username:  existingComment.Edges.User.Username,

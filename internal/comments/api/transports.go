@@ -71,7 +71,6 @@ func decodeDeleteCommentRequest(_ context.Context, r *http.Request) (interface{}
 	}
 
 	request := domain.DeleteArticleCommentServiceRequest{
-		Slug:      chi.URLParam(r, "slug"),
 		CommentId: int(commentId),
 	}
 

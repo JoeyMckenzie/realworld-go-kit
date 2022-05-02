@@ -2,13 +2,14 @@ package domain
 
 import (
 	sharedDomain "github.com/joeymckenzie/realworld-go-kit/internal/shared/domain"
+	"time"
 )
 
 type (
 	CommentDto struct {
 		Id        int                    `json:"id"`
-		CreatedAt string                 `json:"createdAt"`
-		UpdatedAt string                 `json:"updatedAt"`
+		CreatedAt time.Time              `json:"createdAt"`
+		UpdatedAt time.Time              `json:"updatedAt"`
 		Body      string                 `json:"body"`
 		Author    sharedDomain.AuthorDto `json:"author"`
 	}

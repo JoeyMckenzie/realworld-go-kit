@@ -214,8 +214,8 @@ func (as *articlesService) CreateArticle(ctx context.Context, request *domain.Cr
 		Description:    createdArticle.Description,
 		Body:           createdArticle.Body,
 		TagList:        tagsToCreate,
-		CreatedAt:      createdArticle.CreateTime.Format(time.RFC3339Nano),
-		UpdatedAt:      createdArticle.UpdateTime.Format(time.RFC3339Nano),
+		CreatedAt:      createdArticle.CreateTime,
+		UpdatedAt:      createdArticle.UpdateTime,
 		Favorited:      false,
 		FavoritesCount: 0,
 		Author: sharedDomain.AuthorDto{
@@ -289,8 +289,8 @@ func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.Up
 		Description:    updatedArticle.Description,
 		Body:           updatedArticle.Body,
 		TagList:        tagList,
-		CreatedAt:      updatedArticle.CreateTime.Format(time.RFC3339Nano),
-		UpdatedAt:      updatedArticle.UpdateTime.Format(time.RFC3339Nano),
+		CreatedAt:      updatedArticle.CreateTime,
+		UpdatedAt:      updatedArticle.UpdateTime,
 		Favorited:      false,
 		FavoritesCount: len(existingArticle.Edges.Favorites),
 		Author: sharedDomain.AuthorDto{

@@ -50,19 +50,19 @@ test-integration: ## Runs all integration tests via Postman
 
 .PHONY: start-api
 start-api: ## Start the API container
-	@docker-compose -f ./docker-compose.api.yml up --build
+	@docker compose -f ./docker-compose.api.yml up --build
 
 .PHONY: start-db
 start-db: ## Start the database container
-	@docker-compose -f ./docker-compose.postgres.yml up --build --remove-orphans
+	@docker compose -f ./docker-compose.postgres.yml up --build --remove-orphans
 
 .PHONY: start-metrics
 start-metrics: ## Start the Prometheus metrics container
-	@docker-compose -f ./docker-compose.metrics.yml up --build
+	@docker compose -f ./docker-compose.metrics.yml up --build
 
 .PHONY: start-conduit
 start-conduit: ## Start all containers required for to run the full application
-	@docker-compose -f ./docker-compose.postgres.yml -f ./docker-compose.api.yml -f ./docker-compose.metrics.yml up --build
+	@docker compose -f ./docker-compose.postgres.yml -f ./docker-compose.api.yml -f ./docker-compose.metrics.yml up --build
 
 .PHONY: install-deps
 install-deps: ## Installs all application package dependencies

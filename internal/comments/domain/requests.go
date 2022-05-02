@@ -17,9 +17,8 @@ type (
 	}
 
 	DeleteArticleCommentServiceRequest struct {
-		CommentId int    `validate:"required"`
-		UserId    int    `validate:"required"`
-		Slug      string `validate:"required"`
+		CommentId int `validate:"required"`
+		UserId    int `validate:"required"`
 	}
 
 	GetCommentsServiceRequest struct {
@@ -41,7 +40,7 @@ func (r *DeleteArticleCommentServiceRequest) ToSafeLoggingStruct() string {
 		return "<nil>"
 	}
 
-	return fmt.Sprintf("userId: %d; slug: %s; commentId: %d", r.UserId, r.Slug, r.CommentId)
+	return fmt.Sprintf("userId: %d; commentId: %d", r.UserId, r.CommentId)
 }
 
 func (r *AddArticleCommentServiceRequest) ToSafeLoggingStruct() string {

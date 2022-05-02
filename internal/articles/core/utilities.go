@@ -11,7 +11,6 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
 	"net/http"
 	"sort"
-	"time"
 )
 
 func removeDuplicates(tags *[]string) []string {
@@ -100,8 +99,8 @@ func makeArticleMapping(queriedArticle *ent.Article, defaultHasFavorited bool, u
 		}
 	}
 
-	createdAt := queriedArticle.CreateTime.Format(time.RFC3339Nano)
-	updatedAt := queriedArticle.UpdateTime.Format(time.RFC3339Nano)
+	createdAt := queriedArticle.CreateTime
+	updatedAt := queriedArticle.UpdateTime
 
 	return &domain.ArticleDto{
 		Slug:           queriedArticle.Slug,
