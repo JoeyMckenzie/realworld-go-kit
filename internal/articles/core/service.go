@@ -274,6 +274,10 @@ func (as *articlesService) UpdateArticle(ctx context.Context, request *domain.Up
 		SetUpdateTime(time.Now()).
 		Save(ctx)
 
+	if err != nil {
+		return nil, api.NewInternalServerErrorWithContext("article", err)
+	}
+
 	var tagList []string
 	{
 		for _, existingTag := range existingArticle.Edges.ArticleTags {
@@ -366,13 +370,15 @@ func (as *articlesService) UnfavoriteArticle(ctx context.Context, request *domai
 		return nil, err
 	}
 
-	_, err = as.client.Favorite.
+	if _, err = as.client.Favorite.
 		Delete().
 		Where(
 			favorite.ArticleID(existingArticle.ID),
 			favorite.UserID(request.UserId),
 		).
-		Exec(ctx)
+		Exec(ctx); err != nil {
+		return nil, api.NewInternalServerErrorWithContext("article_favorite", err)
+	}
 
 	// TODO: Not great, may be better to update the already existing entity in-mem rather than re-retrieving
 	existingArticle, err = as.getExistingArticleForFavoriting(ctx, request)

@@ -9,16 +9,16 @@ import (
 	"strings"
 )
 
-type ApiError map[string][]string
+type ConduitErrorMap map[string][]string
 
-type ApiErrors struct {
-	Code   int      `json:"code,omitempty"`
-	Errors ApiError `json:"errors"`
+type ConduitError struct {
+	Code   int             `json:"-"`
+	Errors ConduitErrorMap `json:"errors"`
 }
 
-func NewGenericError() *ApiErrors {
-	return &ApiErrors{
-		Errors: ApiError{
+func NewGenericError() *ConduitError {
+	return &ConduitError{
+		Errors: ConduitErrorMap{
 			"message": []string{
 				utilities.ErrInternalServerError.Error(),
 			},
@@ -26,15 +26,15 @@ func NewGenericError() *ApiErrors {
 	}
 }
 
-func NewApiErrors(code int, errors map[string][]string) *ApiErrors {
-	return &ApiErrors{
+func NewApiErrors(code int, errors map[string][]string) *ConduitError {
+	return &ConduitError{
 		Code:   code,
 		Errors: errors,
 	}
 }
 
-func NewApiErrorWithContext(code int, context string, err error) *ApiErrors {
-	return &ApiErrors{
+func NewApiErrorWithContext(code int, context string, err error) *ConduitError {
+	return &ConduitError{
 		Code: code,
 		Errors: map[string][]string{
 			context: {
@@ -44,8 +44,8 @@ func NewApiErrorWithContext(code int, context string, err error) *ApiErrors {
 	}
 }
 
-func NewInternalServerErrorWithContext(context string, err error) *ApiErrors {
-	return &ApiErrors{
+func NewInternalServerErrorWithContext(context string, err error) *ConduitError {
+	return &ConduitError{
 		Code: http.StatusInternalServerError,
 		Errors: map[string][]string{
 			context: {
@@ -55,7 +55,7 @@ func NewInternalServerErrorWithContext(context string, err error) *ApiErrors {
 	}
 }
 
-func (ae ApiErrors) Error() string {
+func (ae ConduitError) Error() string {
 	serialized, _ := json.Marshal(ae)
 	return string(serialized)
 }
@@ -71,20 +71,18 @@ func ToFriendlyError(fieldError validator.FieldError) string {
 	return fieldError.Error()
 }
 
-func NewValidationError(validationErrors error) *ApiErrors {
+func NewValidationError(validationErrors error) *ConduitError {
 	apiErrors := make(map[string][]string)
 
 	for _, validationErr := range validationErrors.(validator.ValidationErrors) {
 		structField := strings.ToLower(validationErr.StructField())
-		if field, exists := apiErrors[structField]; exists {
-			field = append(field, ToFriendlyError(validationErr))
-		} else {
+		if _, exists := apiErrors[structField]; !exists {
 			apiErrors[structField] = []string{ToFriendlyError(validationErr)}
 		}
 	}
 
-	return &ApiErrors{
-		Code:   http.StatusUnsupportedMediaType,
+	return &ConduitError{
+		Code:   http.StatusUnprocessableEntity,
 		Errors: apiErrors,
 	}
 }

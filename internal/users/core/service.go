@@ -74,6 +74,7 @@ func (us *usersService) RegisterUser(ctx context.Context, request *domain.Regist
 		All(ctx)
 
 	if err != nil {
+		// return nil, api.NewInternalServerErrorWithContext("user", err)
 		return nil, err
 	} else if len(existingUsers) > 0 {
 		return nil, api.NewApiErrorWithContext(http.StatusConflict, "user", utilities.ErrUsernameOrEmailTaken)
@@ -81,6 +82,7 @@ func (us *usersService) RegisterUser(ctx context.Context, request *domain.Regist
 
 	// Hash the user password with bcrypt
 	hashedPassword, err := us.securityService.HashPassword(request.Password)
+
 	if err != nil {
 		return nil, api.NewApiErrorWithContext(http.StatusInternalServerError, "user", err)
 	}
@@ -101,6 +103,7 @@ func (us *usersService) RegisterUser(ctx context.Context, request *domain.Regist
 
 	// Generate a JWT for the user
 	token, err := us.tokenService.GenerateUserToken(createdUser.ID, createdUser.Email)
+
 	if err != nil {
 		return nil, api.NewApiErrorWithContext(http.StatusInternalServerError, "user", err)
 	}

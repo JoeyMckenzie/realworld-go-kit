@@ -30,7 +30,7 @@ clean: ## Remove the application binary
 
 .PHONY: lint
 lint: ## Lint all go code
-	@go vet ./...
+	@golangci-lint run --exclude strings
 
 .PHONY: format
 format: ## Format all code

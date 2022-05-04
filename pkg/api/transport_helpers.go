@@ -65,16 +65,9 @@ func EncodeError(_ context.Context, err error, w http.ResponseWriter) {
 		return
 	}
 
-	statusCode := http.StatusInternalServerError
-
-	if apiError, ok := err.(*ApiErrors); ok {
-		statusCode = apiError.Code
-		w.WriteHeader(statusCode)
-		json.NewEncoder(w).Encode(struct {
-			Errors ApiError `json:"errors"`
-		}{
-			Errors: apiError.Errors,
-		})
+	if apiError, ok := err.(*ConduitError); ok {
+		w.WriteHeader(apiError.Code)
+		json.NewEncoder(w).Encode(apiError)
 	} else {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(NewGenericError())

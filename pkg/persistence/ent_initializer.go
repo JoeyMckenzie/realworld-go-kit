@@ -14,7 +14,7 @@ import (
 	"os"
 )
 
-func InitializeEnt(logger log.Logger, environment string, applySeed bool) (*ent.Client, *sql.Driver) {
+func InitializeEnt(logger log.Logger, environment string, applySeed bool) (*ent.Client, *sql.Driver, error) {
 	// Build out our connection to the database
 	var connectionString string
 	{
@@ -28,6 +28,10 @@ func InitializeEnt(logger log.Logger, environment string, applySeed bool) (*ent.
 
 	// Generate the ent client
 	driver, err := sql.Open(dialect.Postgres, connectionString)
+
+	if err != nil {
+		return nil, nil, err
+	}
 
 	driverWithDebugContext := dialect.DebugWithContext(driver, func(ctx context.Context, i ...interface{}) {
 		level.Debug(logger).Log("query", fmt.Sprintf("%v", i))
@@ -52,5 +56,5 @@ func InitializeEnt(logger log.Logger, environment string, applySeed bool) (*ent.
 		os.Exit(1)
 	}
 
-	return entClient, driver
+	return entClient, driver, nil
 }

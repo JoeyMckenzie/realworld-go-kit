@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-kit/kit/transport"
 	httpTransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
@@ -16,58 +15,53 @@ import (
 )
 
 func MakeUsersTransport(router *chi.Mux, logger log.Logger, service core.UsersService) *chi.Mux {
-	options := []httpTransport.ServerOption{
-		httpTransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
-		httpTransport.ServerErrorEncoder(api.EncodeError),
-	}
-
 	registerUserHandler := httpTransport.NewServer(
 		makeRegisterUserEndpoint(service),
 		decodeRegisterUserRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	loginUserHandler := httpTransport.NewServer(
 		makeLoginUserEndpoint(service),
 		decodeLoginUserRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	getCurrentUserHandler := httpTransport.NewServer(
 		makeGetUserEndpoint(service),
 		api.DecodeDefaultRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	getUserProfileHandler := httpTransport.NewServer(
 		makeGetUserProfileEndpoint(service),
 		decodeGetUserProfileRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	updateUserHandler := httpTransport.NewServer(
 		makeUpdateUserEndpoint(service),
 		decodeUpdateUserRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	addUserFollowHandler := httpTransport.NewServer(
 		makeAddUserFollowEndpoint(service),
 		decodeUserFollowRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	removeUserFollowHandler := httpTransport.NewServer(
 		makeRemoveUserFollowEndpoint(service),
 		decodeUserFollowRequest,
 		api.EncodeSuccessfulResponse,
-		options...,
+		api.HandlerOptions(logger)...,
 	)
 
 	router.Route("/profiles", func(r chi.Router) {
