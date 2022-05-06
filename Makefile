@@ -18,31 +18,38 @@ version: ## Displays the version of the API server
 
 .PHONY: start
 start: ## Run the API server
-	@go run ./cmd/api -env development -port 8080 -seed true
+	@go run ./conduit-api -env development -port 8080 -seed true
 
 .PHONY: build
 build:  ## Build the API binary
-	go build -a -o conduit ./cmd/api
+	go build -a -o conduit ./conduit-api
 
 .PHONY: clean
 clean: ## Remove the application binary
-	@rm -f conduit
+	@rm -f ./conduit-api/conduit
 
+# TODO: golangci-lint doesn't seem to handle workspace mode properly just yet https://github.com/golangci/golangci-lint/issues/2654
 .PHONY: lint
 lint: ## Lint all go code
-	@golangci-lint run --exclude strings
+	@golangci-lint run --exclude strings ./conduit-api/...
+	@golangci-lint run --exclude strings ./conduit-core/...
+	@golangci-lint run --exclude strings ./conduit-shared/...
 
 .PHONY: format
 format: ## Format all code
-	@go fmt ./...
+	@cd ./conduit-api && go fmt ./...
+	@cd ./conduit-core && go fmt ./...
+	@cd ./conduit-shared && go fmt ./...
 
-.PHONY: tidy
-tidy: ## Tidy go imports
-	@go mod tidy
+.PHONY: sync
+sync: ## Sync go imports
+	@go work sync
 
 .PHONY: test
 test: ## Run all tests in the project
-	@go test ./...
+	@go test ./conduit-api/...
+	@go test ./conduit-core/...
+	@go test ./conduit-shared/...
 
 .PHONY: test-integration
 test-integration: ## Runs all integration tests via Postman

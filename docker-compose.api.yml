@@ -5,7 +5,7 @@ services:
     image: realworld_go_kit_conduit
     build:
       context: .
-      dockerfile: ./cmd/api/Dockerfile
+      dockerfile: ./conduit-api/Dockerfile
     volumes:
       - /tmp/app:/var/log/app
     ports:

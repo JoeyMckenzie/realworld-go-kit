@@ -1,34 +1,34 @@
 package domain
 
 import (
-    sharedDomain "github.com/joeymckenzie/realworld-go-kit/conduit-core/shared/domain"
-    "time"
+	"github.com/joeymckenzie/realworld-go-kit/conduit-core/shared"
+	"time"
 )
 
 type (
-    UpsertArticleResponse struct {
-        Article *ArticleDto `json:"article"`
-    }
+	UpsertArticleResponse struct {
+		Article *ArticleDto `json:"article"`
+	}
 
-    ArticleDto struct {
-        Slug           string                 `json:"slug"`
-        Title          string                 `json:"title"`
-        Description    string                 `json:"description"`
-        Body           string                 `json:"body"`
-        TagList        []string               `json:"tagList"`
-        CreatedAt      time.Time              `json:"createdAt"`
-        UpdatedAt      time.Time              `json:"updatedAt"`
-        Favorited      bool                   `json:"favorited"`
-        FavoritesCount int                    `json:"favoritesCount"`
-        Author         sharedDomain.AuthorDto `json:"author"`
-    }
+	ArticleDto struct {
+		Slug           string           `json:"slug"`
+		Title          string           `json:"title"`
+		Description    string           `json:"description"`
+		Body           string           `json:"body"`
+		TagList        []string         `json:"tagList"`
+		CreatedAt      time.Time        `json:"createdAt"`
+		UpdatedAt      time.Time        `json:"updatedAt"`
+		Favorited      bool             `json:"favorited"`
+		FavoritesCount int              `json:"favoritesCount"`
+		Author         shared.AuthorDto `json:"author"`
+	}
 
-    GetArticlesResponse struct {
-        Articles      []*ArticleDto `json:"articles"`
-        ArticlesCount int           `json:"articlesCount"`
-    }
+	GetArticlesResponse struct {
+		Articles      []*ArticleDto `json:"articles"`
+		ArticlesCount int           `json:"articlesCount"`
+	}
 
-    GetArticleResponse struct {
-        Article *ArticleDto `json:"article"`
-    }
+	GetArticleResponse struct {
+		Article *ArticleDto `json:"article"`
+	}
 )
