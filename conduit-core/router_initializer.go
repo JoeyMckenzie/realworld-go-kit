@@ -7,7 +7,7 @@ import (
     commentsApi "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/api"
     tagsApi "github.com/joeymckenzie/realworld-go-kit/conduit-core/tags/api"
     usersApi "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/api"
-    "github.com/joeymckenzie/realworld-go-kit/pkg/api"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
     "github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

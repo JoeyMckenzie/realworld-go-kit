@@ -1,16 +1,16 @@
 package core
 
 import (
-	"context"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/domain"
-	sharedDomain "github.com/joeymckenzie/realworld-go-kit/conduit-core/shared/domain"
-	"github.com/joeymckenzie/realworld-go-kit/ent"
-	"github.com/joeymckenzie/realworld-go-kit/ent/article"
-	"github.com/joeymckenzie/realworld-go-kit/ent/tag"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
-	"net/http"
-	"sort"
+    "context"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/domain"
+    sharedDomain "github.com/joeymckenzie/realworld-go-kit/conduit-core/shared/domain"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/article"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/tag"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
+    "net/http"
+    "sort"
 )
 
 func removeDuplicates(tags *[]string) []string {

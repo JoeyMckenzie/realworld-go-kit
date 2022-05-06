@@ -1,7 +1,8 @@
 go 1.18
 
-use ./conduit-api/
-
-use ./conduit-shared/
-
-use ./conduit-core/
+use (
+	./conduit-api
+	./conduit-core
+	./conduit-ent-gen
+	./conduit-shared
+)

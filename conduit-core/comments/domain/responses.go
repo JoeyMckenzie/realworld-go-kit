@@ -1,17 +1,17 @@
 package domain
 
 import (
-    sharedDomain "github.com/joeymckenzie/realworld-go-kit/conduit-core/shared/domain"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-api/shared"
     "time"
 )
 
 type (
     CommentDto struct {
-        Id        int                    `json:"id"`
-        CreatedAt time.Time              `json:"createdAt"`
-        UpdatedAt time.Time              `json:"updatedAt"`
-        Body      string                 `json:"body"`
-        Author    sharedDomain.AuthorDto `json:"author"`
+        Id        int              `json:"id"`
+        CreatedAt time.Time        `json:"createdAt"`
+        UpdatedAt time.Time        `json:"updatedAt"`
+        Body      string           `json:"body"`
+        Author    shared.AuthorDto `json:"author"`
     }
 
     CommentResponse struct {

@@ -5,8 +5,8 @@ import (
     "github.com/go-kit/kit/endpoint"
     "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/core"
     "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/domain"
-    "github.com/joeymckenzie/realworld-go-kit/pkg/api"
-    "github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
 )
 
 type commentEndpoints struct {

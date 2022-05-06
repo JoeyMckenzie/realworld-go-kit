@@ -1,15 +1,16 @@
 package core
 
 import (
-	"context"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/domain"
-	sharedDomain "github.com/joeymckenzie/realworld-go-kit/conduit-core/shared/domain"
-	"github.com/joeymckenzie/realworld-go-kit/ent"
-	"github.com/joeymckenzie/realworld-go-kit/ent/article"
-	"github.com/joeymckenzie/realworld-go-kit/ent/comment"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
-	"net/http"
+    "context"
+    "github.com/go-playground/validator/v10"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-api/shared"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/domain"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/article"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/comment"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
+    "net/http"
 )
 
 type (
@@ -68,7 +69,7 @@ func (cs *commentsService) AddComment(ctx context.Context, request *domain.AddAr
         CreatedAt: newComment.CreateTime,
         UpdatedAt: newComment.UpdateTime,
         Body:      newComment.Body,
-        Author: sharedDomain.AuthorDto{
+        Author: shared.AuthorDto{
             Username:  existingUser.Username,
             Bio:       existingUser.Bio,
             Image:     existingUser.Image,
@@ -126,7 +127,7 @@ func (cs *commentsService) GetArticleComments(ctx context.Context, request *doma
             CreatedAt: existingComment.CreateTime,
             UpdatedAt: existingComment.UpdateTime,
             Body:      existingComment.Body,
-            Author: sharedDomain.AuthorDto{
+            Author: shared.AuthorDto{
                 Username:  existingComment.Edges.User.Username,
                 Bio:       existingComment.Edges.User.Bio,
                 Image:     existingComment.Edges.User.Image,

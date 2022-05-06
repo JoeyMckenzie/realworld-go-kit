@@ -96,11 +96,12 @@ ent-regenerate: ## Generates the ent entity code
 
 .PHONY: ent-clean
 ent-clean: ## Cleans the ent codegen while maintaining existing models
-	@mkdir ./tmp
-	@cp -r ./ent/schema ./tmp
-	@cp ./ent/generate.go ./tmp
-	@rm -rf ./ent
-	@mkdir ./ent
-	@cp -r ./tmp/schema ./ent
-	@cp ./tmp/generate.go ./ent
-	@rm -rf ./tmp
+	@cd ./conduit-ent-gen
+	@mkdir ./conduit-ent-gen/tmp
+	@cp -r ./conduit-ent-gen/ent/schema ./conduit-ent-gen/tmp
+	@cp ./conduit-ent-gen/ent/generate.go ./conduit-ent-gen/tmp
+	@rm -rf ./conduit-ent-gen/ent
+	@mkdir ./conduit-ent-gen/ent
+	@cp -r ./conduit-ent-gen/tmp/schema ./conduit-ent-gen/ent
+	@cp ./conduit-ent-gen/tmp/generate.go ./conduit-ent-gen/ent
+	@rm -rf ./conduit-ent-gen/tmp

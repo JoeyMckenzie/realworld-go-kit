@@ -2,7 +2,7 @@ package specs
 
 import (
     "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/domain"
-    "github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
     "github.com/stretchr/testify/assert"
     "github.com/stretchr/testify/mock"
     "testing"

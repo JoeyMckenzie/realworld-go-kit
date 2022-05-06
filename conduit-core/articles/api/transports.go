@@ -1,17 +1,18 @@
 package api
 
 import (
-	"context"
-	"encoding/json"
-	httpTransport "github.com/go-kit/kit/transport/http"
-	"github.com/go-kit/log"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/core"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/domain"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/services"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
-	"net/http"
-	"strconv"
+    "context"
+    "encoding/json"
+    "github.com/go-chi/chi/v5"
+    httpTransport "github.com/go-kit/kit/transport/http"
+    "github.com/go-kit/log"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/core"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/domain"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/services"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
+    "net/http"
+    "strconv"
 )
 
 func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.ArticlesService) *chi.Mux {

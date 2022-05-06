@@ -1,14 +1,14 @@
 package main
 
 import (
-	"entgo.io/ent/dialect/sql"
-	"fmt"
-	"github.com/go-kit/log/level"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-shared/config"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-shared/persistence"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
-	"net/http"
-	"os"
+    "entgo.io/ent/dialect/sql"
+    "fmt"
+    "github.com/go-kit/log/level"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/config"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/persistence"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
+    "net/http"
+    "os"
 )
 
 func main() {

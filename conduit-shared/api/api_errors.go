@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-playground/validator/v10"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
+	"github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
 	"net/http"
 	"strings"
 )

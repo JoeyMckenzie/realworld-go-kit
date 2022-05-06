@@ -1,16 +1,16 @@
 package api
 
 import (
-	"context"
-	"encoding/json"
-	httpTransport "github.com/go-kit/kit/transport/http"
-	"github.com/go-kit/log"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/users/core"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/users/domain"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/services"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
-	"net/http"
+    "context"
+    "encoding/json"
+    httpTransport "github.com/go-kit/kit/transport/http"
+    "github.com/go-kit/log"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/core"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/domain"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/services"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
+    "net/http"
 )
 
 func MakeUsersTransport(router *chi.Mux, logger log.Logger, service core.UsersService) *chi.Mux {

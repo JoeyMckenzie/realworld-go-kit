@@ -11,9 +11,9 @@ import (
     tagsMiddlewares "github.com/joeymckenzie/realworld-go-kit/conduit-core/tags/core/middlewares"
     usersCore "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/core"
     usersMiddlewares "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/core/middlewares"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/services"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
-    "github.com/joeymckenzie/realworld-go-kit/ent"
 )
 
 type ConduitServiceRegister struct {

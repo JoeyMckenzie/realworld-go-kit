@@ -1,14 +1,14 @@
 package specs
 
 import (
-	"context"
-	"entgo.io/ent/dialect"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/core"
-	"github.com/joeymckenzie/realworld-go-kit/ent"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/persistence"
-	_ "github.com/mattn/go-sqlite3"
-	"os"
-	"testing"
+    "context"
+    "entgo.io/ent/dialect"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/core"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/persistence"
+    _ "github.com/mattn/go-sqlite3"
+    "os"
+    "testing"
 )
 
 var fixture *articlesServiceTestFixture

@@ -3,8 +3,10 @@ package api
 import (
     "context"
     "github.com/go-kit/kit/endpoint"
-    "github.com/joeymckenzie/realworld-go-kit/pkg/api"
-    "github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-api/articles/core"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-api/articles/domain"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
 )
 
 type articleEndpoints struct {

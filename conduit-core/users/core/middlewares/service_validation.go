@@ -1,11 +1,11 @@
 package middlewares
 
 import (
-	"context"
-	"github.com/go-kit/log"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/users/core"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/users/domain"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
+    "context"
+    "github.com/go-kit/log"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/core"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/domain"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
 )
 
 type usersServiceRequestValidationMiddleware struct {

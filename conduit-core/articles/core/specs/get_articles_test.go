@@ -3,7 +3,7 @@ package specs
 import (
     "github.com/gosimple/slug"
     "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/domain"
-    "github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
     "github.com/stretchr/testify/assert"
     "testing"
 )

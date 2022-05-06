@@ -1,20 +1,21 @@
 package core
 
 import (
-	"context"
-	"github.com/gosimple/slug"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/domain"
-	sharedDomain "github.com/joeymckenzie/realworld-go-kit/conduit-core/shared/domain"
-	"github.com/joeymckenzie/realworld-go-kit/ent"
-	"github.com/joeymckenzie/realworld-go-kit/ent/article"
-	"github.com/joeymckenzie/realworld-go-kit/ent/articletag"
-	"github.com/joeymckenzie/realworld-go-kit/ent/favorite"
-	"github.com/joeymckenzie/realworld-go-kit/ent/tag"
-	"github.com/joeymckenzie/realworld-go-kit/ent/user"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
-	"net/http"
-	"time"
+    "context"
+    "github.com/go-playground/validator/v10"
+    "github.com/gosimple/slug"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/domain"
+    sharedDomain "github.com/joeymckenzie/realworld-go-kit/conduit-core/shared/domain"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/article"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/articletag"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/favorite"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/tag"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/user"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
+    "net/http"
+    "time"
 )
 
 var defaultArticlesResponse = make([]*domain.ArticleDto, 0)

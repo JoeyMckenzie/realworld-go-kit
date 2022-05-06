@@ -1,16 +1,17 @@
 package core
 
 import (
-	"context"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-core/users/domain"
-	"github.com/joeymckenzie/realworld-go-kit/ent"
-	"github.com/joeymckenzie/realworld-go-kit/ent/follow"
-	"github.com/joeymckenzie/realworld-go-kit/ent/user"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/api"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/services"
-	"github.com/joeymckenzie/realworld-go-kit/pkg/utilities"
-	"net/http"
-	"time"
+    "context"
+    "github.com/go-playground/validator/v10"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/domain"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/follow"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/user"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/services"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
+    "net/http"
+    "time"
 )
 
 type (
