@@ -11,7 +11,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gosimple/slug v1.12.0
-	github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen v0.0.0-00010101000000-000000000000
+	github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen v0.0.0-20220506175452-016436a59380
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.4
 	github.com/prometheus/client_golang v1.12.1

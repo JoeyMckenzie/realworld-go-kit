@@ -5,8 +5,8 @@ go 1.18
 require (
 	entgo.io/ent v0.10.1
 	github.com/go-kit/log v0.2.0
-	github.com/joeymckenzie/realworld-go-kit/conduit-core v0.0.0-00010101000000-000000000000
-	github.com/joeymckenzie/realworld-go-kit/conduit-shared v0.0.0-00010101000000-000000000000
+	github.com/joeymckenzie/realworld-go-kit/conduit-core v0.0.0-20220506175452-016436a59380
+	github.com/joeymckenzie/realworld-go-kit/conduit-shared v0.0.0-20220506175452-016436a59380
 )
 
 replace (
