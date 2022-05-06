@@ -1,4 +1,4 @@
-module github.com/joeymckenzie/realworld-go-kit/conduit-api
+module github.com/joeymckenzie/realworld-go-kit/conduit-core
 
 go 1.18
 

@@ -87,12 +87,12 @@ ent-init: ## Runs the create entity ent command
 
 .PHONY: ent-generate
 ent-generate: ## Generates the ent entity code
-	@go generate ./ent
+	@go generate ./conduit-ent-gen/ent
 
 .PHONY: ent-regenerate
 ent-regenerate: ## Generates the ent entity code
 	@make ent-clean
-	@go generate ./ent
+	@go generate ./conduit-ent-gen/ent
 
 .PHONY: ent-clean
 ent-clean: ## Cleans the ent codegen while maintaining existing models

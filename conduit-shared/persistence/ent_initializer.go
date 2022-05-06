@@ -5,11 +5,11 @@ import (
     "entgo.io/ent/dialect"
     "entgo.io/ent/dialect/sql"
     "entgo.io/ent/dialect/sql/schema"
+    "entgo.io/ent/entc/integration/ent"
+    "entgo.io/ent/entc/integration/ent/migrate"
     "fmt"
     "github.com/go-kit/log"
     "github.com/go-kit/log/level"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/migrate"
     _ "github.com/lib/pq"
     "os"
 )

@@ -3,8 +3,8 @@ package core
 import (
     "context"
     "github.com/go-playground/validator/v10"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-api/shared"
     "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/domain"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/shared"
     "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
     "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/article"
     "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/comment"

@@ -1,7 +1,7 @@
 package domain
 
 import (
-    "github.com/joeymckenzie/realworld-go-kit/conduit-api/shared"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/shared"
     "time"
 )
 
