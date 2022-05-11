@@ -9,28 +9,28 @@ import (
 )
 
 type tagsServiceLoggingMiddleware struct {
-    logger log.Logger
-    next   tags.TagsService
+	logger log.Logger
+	next   tags.TagsService
 }
 
 func NewTagsServiceLoggingMiddleware(logger log.Logger) tags.TagsServiceMiddleware {
-    return func(next tags.TagsService) tags.TagsService {
-        return &tagsServiceLoggingMiddleware{
-            logger: logger,
-            next:   next,
-        }
-    }
+	return func(next tags.TagsService) tags.TagsService {
+		return &tagsServiceLoggingMiddleware{
+			logger: logger,
+			next:   next,
+		}
+	}
 }
 
 func (mw *tagsServiceLoggingMiddleware) GetTags(ctx context.Context) (tags []string, err error) {
-    defer func(begin time.Time) {
-        level.Info(mw.logger).Log(
-            "method", "GetTags",
-            "request_time", time.Since(begin),
-            "tags", len(tags),
-            "error", err,
-        )
-    }(time.Now())
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "GetTags",
+			"request_time", time.Since(begin),
+			"tags", len(tags),
+			"error", err,
+		)
+	}(time.Now())
 
-    return mw.next.GetTags(ctx)
+	return mw.next.GetTags(ctx)
 }
