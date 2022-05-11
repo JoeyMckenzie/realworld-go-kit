@@ -7,12 +7,12 @@ import (
     commentsApi "github.com/joeymckenzie/realworld-go-kit/conduit-api/comments"
     tagsApi "github.com/joeymckenzie/realworld-go-kit/conduit-api/tags"
     usersApi "github.com/joeymckenzie/realworld-go-kit/conduit-api/users"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-core"
+    conduitCore "github.com/joeymckenzie/realworld-go-kit/conduit-core"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
     "github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func NewConduitRouter(logger log.Logger, serviceRegister *conduit_core.ConduitServiceRegister) *chi.Mux {
+func NewConduitRouter(logger log.Logger, serviceRegister *conduitCore.ConduitServiceRegister) *chi.Mux {
     router := api.NewChiRouter()
     router.Get("/metrics", promhttp.Handler().ServeHTTP)
     router = usersApi.MakeUsersTransport(router, logger, serviceRegister.UsersService)
