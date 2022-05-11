@@ -11,4 +11,3 @@ issues:
       linters:
         - errcheck
       text: 'Error return value of `client.Schema.Create` is not checked'
-

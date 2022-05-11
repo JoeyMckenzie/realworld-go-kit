@@ -53,16 +53,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/users",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "users"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["users"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Login",
@@ -106,17 +101,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/users/login",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "users",
-                "login"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["users", "login"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Login and Remember Token",
@@ -167,17 +156,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/users/login",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "users",
-                "login"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["users", "login"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Current User",
@@ -225,16 +208,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/user",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "user"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["user"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Update User",
@@ -282,16 +260,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/user",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "user"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["user"]
             }
           },
-          "response": [
-          ]
+          "response": []
         }
       ]
     },
@@ -362,16 +335,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Articles by Author",
@@ -436,12 +404,8 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles?author=johnjacob",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ],
+              "host": ["{{APIURL}}"],
+              "path": ["articles"],
               "query": [
                 {
                   "key": "author",
@@ -450,8 +414,7 @@
               ]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Articles Favorited by Username",
@@ -516,12 +479,8 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles?favorited={{USERNAME}}",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ],
+              "host": ["{{APIURL}}"],
+              "path": ["articles"],
               "query": [
                 {
                   "key": "favorited",
@@ -530,8 +489,7 @@
               ]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Articles by Tag",
@@ -596,12 +554,8 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles?tag=dragons",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ],
+              "host": ["{{APIURL}}"],
+              "path": ["articles"],
               "query": [
                 {
                   "key": "tag",
@@ -610,8 +564,7 @@
               ]
             }
           },
-          "response": [
-          ]
+          "response": []
         }
       ]
     },
@@ -676,16 +629,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Feed",
@@ -754,17 +702,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles/feed",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles",
-                "feed"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles", "feed"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "All Articles",
@@ -833,16 +775,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "All Articles with auth",
@@ -911,16 +848,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Articles by Author",
@@ -989,12 +921,8 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles?author={{USERNAME}}",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ],
+              "host": ["{{APIURL}}"],
+              "path": ["articles"],
               "query": [
                 {
                   "key": "author",
@@ -1003,8 +931,7 @@
               ]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Articles by Author with auth",
@@ -1073,12 +1000,8 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles?author={{USERNAME}}",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ],
+              "host": ["{{APIURL}}"],
+              "path": ["articles"],
               "query": [
                 {
                   "key": "author",
@@ -1087,8 +1010,7 @@
               ]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Single Article by slug",
@@ -1145,17 +1067,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles/{{slug}}",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles",
-                "{{slug}}"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles", "{{slug}}"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Articles by Tag",
@@ -1220,12 +1136,8 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles?tag=dragons",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ],
+              "host": ["{{APIURL}}"],
+              "path": ["articles"],
               "query": [
                 {
                   "key": "tag",
@@ -1234,8 +1146,7 @@
               ]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Update Article",
@@ -1294,17 +1205,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles/{{slug}}",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles",
-                "{{slug}}"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles", "{{slug}}"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Favorite Article",
@@ -1363,18 +1268,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles/{{slug}}/favorite",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles",
-                "{{slug}}",
-                "favorite"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles", "{{slug}}", "favorite"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Articles Favorited by Username",
@@ -1436,12 +1334,8 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles?favorited={{USERNAME}}",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ],
+              "host": ["{{APIURL}}"],
+              "path": ["articles"],
               "query": [
                 {
                   "key": "favorited",
@@ -1450,8 +1344,7 @@
               ]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Articles Favorited by Username with auth",
@@ -1513,12 +1406,8 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles?favorited={{USERNAME}}",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles"
-              ],
+              "host": ["{{APIURL}}"],
+              "path": ["articles"],
               "query": [
                 {
                   "key": "favorited",
@@ -1527,8 +1416,7 @@
               ]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Unfavorite Article",
@@ -1586,18 +1474,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles/{{slug}}/favorite",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles",
-                "{{slug}}",
-                "favorite"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles", "{{slug}}", "favorite"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Create Comment for Article",
@@ -1650,18 +1531,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles/{{slug}}/comments",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles",
-                "{{slug}}",
-                "comments"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles", "{{slug}}", "comments"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "All Comments for Article",
@@ -1719,18 +1593,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles/{{slug}}/comments",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles",
-                "{{slug}}",
-                "comments"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles", "{{slug}}", "comments"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "All Comments for Article without login",
@@ -1784,18 +1651,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles/{{slug}}/comments",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles",
-                "{{slug}}",
-                "comments"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles", "{{slug}}", "comments"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Delete Comment for Article",
@@ -1821,19 +1681,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles/{{slug}}/comments/{{commentId}}",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles",
-                "{{slug}}",
-                "comments",
-                "{{commentId}}"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles", "{{slug}}", "comments", "{{commentId}}"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Delete Article",
@@ -1859,17 +1711,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/articles/{{slug}}",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "articles",
-                "{{slug}}"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["articles", "{{slug}}"]
             }
           },
-          "response": [
-          ]
+          "response": []
         }
       ],
       "event": [
@@ -1878,9 +1724,7 @@
           "script": {
             "id": "67853a4a-e972-4573-a295-dad12a46a9d7",
             "type": "text/javascript",
-            "exec": [
-              ""
-            ]
+            "exec": [""]
           }
         },
         {
@@ -1888,9 +1732,7 @@
           "script": {
             "id": "3057f989-15e4-484e-b8fa-a041043d0ac0",
             "type": "text/javascript",
-            "exec": [
-              ""
-            ]
+            "exec": [""]
           }
         }
       ]
@@ -1942,16 +1784,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/users",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "users"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["users"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Profile",
@@ -2006,17 +1843,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "profiles",
-                "celeb_{{USERNAME}}"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["profiles", "celeb_{{USERNAME}}"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Follow Profile",
@@ -2072,18 +1903,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}/follow",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "profiles",
-                "celeb_{{USERNAME}}",
-                "follow"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["profiles", "celeb_{{USERNAME}}", "follow"]
             }
           },
-          "response": [
-          ]
+          "response": []
         },
         {
           "name": "Unfollow Profile",
@@ -2139,18 +1963,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}/follow",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "profiles",
-                "celeb_{{USERNAME}}",
-                "follow"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["profiles", "celeb_{{USERNAME}}", "follow"]
             }
           },
-          "response": [
-          ]
+          "response": []
         }
       ]
     },
@@ -2198,16 +2015,11 @@
             },
             "url": {
               "raw": "{{APIURL}}/tags",
-              "host": [
-                "{{APIURL}}"
-              ],
-              "path": [
-                "tags"
-              ]
+              "host": ["{{APIURL}}"],
+              "path": ["tags"]
             }
           },
-          "response": [
-          ]
+          "response": []
         }
       ]
     }

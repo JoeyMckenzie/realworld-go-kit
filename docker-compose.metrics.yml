@@ -5,7 +5,7 @@ services:
     container_name: realworld_go_kit_metrics
     image: prom/prometheus:latest
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     restart: always

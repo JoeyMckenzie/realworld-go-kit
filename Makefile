@@ -61,9 +61,9 @@ test: ## Run all tests in the project
 test-integration: ## Runs all integration tests via Postman
 	@./run-postman-tests
 
-.PHONY: start-api
-start-api: ## Start the API container
-	@docker compose -f ./docker-compose.api.yml up --build
+.PHONY: start-server
+start-server: ## Start the API container
+	@docker compose -f ./docker-compose.server.yml up --build --remove-orphans
 
 .PHONY: start-db
 start-db: ## Start the database container
@@ -71,11 +71,15 @@ start-db: ## Start the database container
 
 .PHONY: start-metrics
 start-metrics: ## Start the Prometheus metrics container
-	@docker compose -f ./docker-compose.metrics.yml up --build
+	@docker compose -f ./docker-compose.metrics.yml up --build --remove-orphans
+
+.PHONY: start-web
+start-web: ## Start the angular web container
+	@docker compose -f ./docker-compose.web.yml up --build --remove-orphans
 
 .PHONY: start-conduit
 start-conduit: ## Start all containers required for to run the full application
-	@docker compose -f ./docker-compose.postgres.yml -f ./docker-compose.api.yml -f ./docker-compose.metrics.yml up --build
+	@docker compose -f ./docker-compose.postgres.yml -f ./docker-compose.server.yml -f ./docker-compose.web.yml -f ./docker-compose.metrics.yml up --build
 
 .PHONY: install-deps
 install-deps: ## Installs all application package dependencies

@@ -17,4 +17,4 @@ RUN go work sync
 # Since we're using some libs that rely on gcc, add build-base before running building our go binary
 RUN apk add --no-cache build-base && go build -a -o conduit ./conduit-bin
 
-CMD ["./conduit", "-env", "docker", "-port", "8080"]
+CMD ["./conduit", "-env", "docker", "-port", "8080", "-seed", "true"]
