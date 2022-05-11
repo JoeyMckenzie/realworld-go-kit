@@ -74,7 +74,7 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service articles.
         apiUtilities.HandlerOptions(logger)...,
     )
 
-    router.Route("/articlesDomain", func(r chi.Router) {
+    router.Route("/articles", func(r chi.Router) {
         r.Get("/", getArticlesHandler.ServeHTTP)
 
         r.Route("/{slug}", func(r chi.Router) {

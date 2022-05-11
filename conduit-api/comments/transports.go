@@ -40,7 +40,7 @@ func MakeCommentsTransport(router *chi.Mux, logger log.Logger, service comments.
         apiUtilities.HandlerOptions(logger)...,
     )
 
-    router.Route("/articles/{slug}/commentsDomain", func(r chi.Router) {
+    router.Route("/articles/{slug}/comments", func(r chi.Router) {
         r.Get("/", getCommentsHandler.ServeHTTP)
         r.Group(func(r chi.Router) {
             r.Use(apiUtilities.AuthorizedRequestMiddleware)

@@ -76,7 +76,7 @@ func MakeUsersTransport(router *chi.Mux, logger log.Logger, service users.UsersS
     })
 
     // Login/register handlers
-    router.Route("/usersDomain", func(r chi.Router) {
+    router.Route("/users", func(r chi.Router) {
         r.Post("/", registerUserHandler.ServeHTTP)
         r.Post("/login", loginUserHandler.ServeHTTP)
     })

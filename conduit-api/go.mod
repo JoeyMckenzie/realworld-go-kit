@@ -7,8 +7,8 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/go-kit/kit v0.12.0
 	github.com/go-kit/log v0.2.0
-	github.com/joeymckenzie/realworld-go-kit/conduit-core v0.0.0-00010101000000-000000000000
-	github.com/joeymckenzie/realworld-go-kit/conduit-domain v0.0.0-00010101000000-000000000000
+	github.com/joeymckenzie/realworld-go-kit/conduit-core v0.0.0-20220506175452-016436a59380
+	github.com/joeymckenzie/realworld-go-kit/conduit-domain v0.0.0-20220506175452-016436a59380
 	github.com/joeymckenzie/realworld-go-kit/conduit-shared v0.0.0-20220506175452-016436a59380
 	github.com/prometheus/client_golang v1.12.1
 )

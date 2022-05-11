@@ -3,7 +3,7 @@ package specs
 import (
     "context"
     "entgo.io/ent/dialect"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/core"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles"
     "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/persistence"
     _ "github.com/mattn/go-sqlite3"
@@ -15,13 +15,13 @@ var fixture *articlesServiceTestFixture
 
 type articlesServiceTestFixture struct {
     ctx     context.Context
-    service core.ArticlesService
+    service articles.ArticlesService
 }
 
 func newArticlesServiceTestFixture(ctx context.Context, client *ent.Client) *articlesServiceTestFixture {
     return &articlesServiceTestFixture{
         ctx:     ctx,
-        service: core.NewArticlesServices(nil, client),
+        service: articles.NewArticlesServices(nil, client),
     }
 }
 
