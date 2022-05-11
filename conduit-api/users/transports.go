@@ -1,4 +1,4 @@
-package api
+package users
 
 import (
     "context"
@@ -6,62 +6,62 @@ import (
     "github.com/go-chi/chi/v5"
     httpTransport "github.com/go-kit/kit/transport/http"
     "github.com/go-kit/log"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/core"
+    apiUtilities "github.com/joeymckenzie/realworld-go-kit/conduit-api/utilities"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/users"
     usersDomain "github.com/joeymckenzie/realworld-go-kit/conduit-domain/users"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/services"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
     "net/http"
 )
 
-func MakeUsersTransport(router *chi.Mux, logger log.Logger, service core.UsersService) *chi.Mux {
+func MakeUsersTransport(router *chi.Mux, logger log.Logger, service users.UsersService) *chi.Mux {
     registerUserHandler := httpTransport.NewServer(
         makeRegisterUserEndpoint(service),
         decodeRegisterUserRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     loginUserHandler := httpTransport.NewServer(
         makeLoginUserEndpoint(service),
         decodeLoginUserRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     getCurrentUserHandler := httpTransport.NewServer(
         makeGetUserEndpoint(service),
-        api.DecodeDefaultRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.DecodeDefaultRequest,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     getUserProfileHandler := httpTransport.NewServer(
         makeGetUserProfileEndpoint(service),
         decodeGetUserProfileRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     updateUserHandler := httpTransport.NewServer(
         makeUpdateUserEndpoint(service),
         decodeUpdateUserRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     addUserFollowHandler := httpTransport.NewServer(
         makeAddUserFollowEndpoint(service),
         decodeUserFollowRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     removeUserFollowHandler := httpTransport.NewServer(
         makeRemoveUserFollowEndpoint(service),
         decodeUserFollowRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     router.Route("/profiles", func(r chi.Router) {
@@ -69,7 +69,7 @@ func MakeUsersTransport(router *chi.Mux, logger log.Logger, service core.UsersSe
 
         // Authorized profile requests for following/unfollowing usersDomain
         r.Group(func(r chi.Router) {
-            r.Use(api.AuthorizedRequestMiddleware)
+            r.Use(apiUtilities.AuthorizedRequestMiddleware)
             r.Post("/{username}/follow", addUserFollowHandler.ServeHTTP)
             r.Delete("/{username}/follow", removeUserFollowHandler.ServeHTTP)
         })
@@ -83,7 +83,7 @@ func MakeUsersTransport(router *chi.Mux, logger log.Logger, service core.UsersSe
 
     // Authenticated usersDomain requests flows for updating and retrieving user information
     router.Route("/user", func(r chi.Router) {
-        r.Use(api.AuthorizedRequestMiddleware)
+        r.Use(apiUtilities.AuthorizedRequestMiddleware)
         r.Put("/", updateUserHandler.ServeHTTP)
         r.Get("/", getCurrentUserHandler.ServeHTTP)
     })

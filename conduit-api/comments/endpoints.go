@@ -3,9 +3,9 @@ package comments
 import (
     "context"
     "github.com/go-kit/kit/endpoint"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/core"
+    apiUtilities "github.com/joeymckenzie/realworld-go-kit/conduit-api/utilities"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments"
     commentsDomain "github.com/joeymckenzie/realworld-go-kit/conduit-domain/comments"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
 )
 
@@ -15,7 +15,7 @@ type commentEndpoints struct {
     MakeGetCommentsEndpoint   endpoint.Endpoint
 }
 
-func NewCommentEndpoints(service core.CommentsService) *commentEndpoints {
+func NewCommentEndpoints(service comments.CommentsService) *commentEndpoints {
     return &commentEndpoints{
         MakeAddCommentEndpoint:    makeAddCommentEndpoint(service),
         MakeDeleteCommentEndpoint: makeDeleteCommentEndpoint(service),
@@ -23,9 +23,9 @@ func NewCommentEndpoints(service core.CommentsService) *commentEndpoints {
     }
 }
 
-func makeAddCommentEndpoint(service core.CommentsService) endpoint.Endpoint {
+func makeAddCommentEndpoint(service comments.CommentsService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
-        if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+        if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             apiRequest := request.(commentsDomain.AddCommentApiRequest)
 
             serviceRequest := commentsDomain.AddArticleCommentServiceRequest{
@@ -49,9 +49,9 @@ func makeAddCommentEndpoint(service core.CommentsService) endpoint.Endpoint {
     }
 }
 
-func makeDeleteCommentEndpoint(service core.CommentsService) endpoint.Endpoint {
+func makeDeleteCommentEndpoint(service comments.CommentsService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
-        if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+        if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             serviceRequest := request.(commentsDomain.DeleteArticleCommentServiceRequest)
             serviceRequest.UserId = tokenMeta.UserId
 
@@ -66,7 +66,7 @@ func makeDeleteCommentEndpoint(service core.CommentsService) endpoint.Endpoint {
     }
 }
 
-func makeGetCommentsEndpoint(service core.CommentsService) endpoint.Endpoint {
+func makeGetCommentsEndpoint(service comments.CommentsService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         serviceRequest := request.(commentsDomain.GetCommentsServiceRequest)
         comments, err := service.GetArticleComments(ctx, &serviceRequest)

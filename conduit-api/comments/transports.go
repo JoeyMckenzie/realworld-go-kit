@@ -6,43 +6,44 @@ import (
     "github.com/go-chi/chi/v5"
     httpTransport "github.com/go-kit/kit/transport/http"
     "github.com/go-kit/log"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/core"
+    apiUtilities "github.com/joeymckenzie/realworld-go-kit/conduit-api/utilities"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/shared"
     commentsDomain "github.com/joeymckenzie/realworld-go-kit/conduit-domain/comments"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/services"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
     "net/http"
     "strconv"
 )
 
-func MakeCommentsTransport(router *chi.Mux, logger log.Logger, service core.CommentsService) *chi.Mux {
+func MakeCommentsTransport(router *chi.Mux, logger log.Logger, service comments.CommentsService) *chi.Mux {
     endpoints := NewCommentEndpoints(service)
 
     addCommentHandler := httpTransport.NewServer(
         endpoints.MakeAddCommentEndpoint,
         decodeAddCommentRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     deleteCommentHandler := httpTransport.NewServer(
         endpoints.MakeDeleteCommentEndpoint,
         decodeDeleteCommentRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     getCommentsHandler := httpTransport.NewServer(
         endpoints.MakeGetCommentsEndpoint,
         decodeGetCommentsRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     router.Route("/articles/{slug}/commentsDomain", func(r chi.Router) {
         r.Get("/", getCommentsHandler.ServeHTTP)
         r.Group(func(r chi.Router) {
-            r.Use(api.AuthorizedRequestMiddleware)
+            r.Use(apiUtilities.AuthorizedRequestMiddleware)
             r.Post("/", addCommentHandler.ServeHTTP)
             r.Delete("/{id:^[1-9]+}", deleteCommentHandler.ServeHTTP)
         })
@@ -67,7 +68,7 @@ func decodeDeleteCommentRequest(_ context.Context, r *http.Request) (interface{}
     commentId, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 32)
 
     if err != nil {
-        return nil, api.NewInternalServerErrorWithContext("commentsDomain", err)
+        return nil, shared.NewInternalServerErrorWithContext("commentsDomain", err)
     }
 
     request := commentsDomain.DeleteArticleCommentServiceRequest{

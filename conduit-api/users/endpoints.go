@@ -1,15 +1,15 @@
-package api
+package users
 
 import (
     "context"
     "github.com/go-kit/kit/endpoint"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/core"
+    apiUtilities "github.com/joeymckenzie/realworld-go-kit/conduit-api/utilities"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/users"
     usersDomain "github.com/joeymckenzie/realworld-go-kit/conduit-domain/users"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
 )
 
-func makeRegisterUserEndpoint(service core.UsersService) endpoint.Endpoint {
+func makeRegisterUserEndpoint(service users.UsersService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         apiRequest := request.(usersDomain.RegisterUserApiRequest)
         response, err := service.RegisterUser(ctx, &usersDomain.RegisterUserServiceRequest{
@@ -30,7 +30,7 @@ func makeRegisterUserEndpoint(service core.UsersService) endpoint.Endpoint {
     }
 }
 
-func makeLoginUserEndpoint(service core.UsersService) endpoint.Endpoint {
+func makeLoginUserEndpoint(service users.UsersService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         apiRequest := request.(usersDomain.LoginUserApiRequest)
         response, err := service.LoginUser(ctx, &usersDomain.LoginUserServiceRequest{
@@ -50,9 +50,9 @@ func makeLoginUserEndpoint(service core.UsersService) endpoint.Endpoint {
     }
 }
 
-func makeGetUserEndpoint(service core.UsersService) endpoint.Endpoint {
+func makeGetUserEndpoint(service users.UsersService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
-        if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+        if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             response, err := service.GetUser(ctx, tokenMeta.UserId)
 
             if err != nil {
@@ -70,9 +70,9 @@ func makeGetUserEndpoint(service core.UsersService) endpoint.Endpoint {
     }
 }
 
-func makeUpdateUserEndpoint(service core.UsersService) endpoint.Endpoint {
+func makeUpdateUserEndpoint(service users.UsersService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
-        if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+        if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             apiRequest := request.(usersDomain.UpdateUserApiRequest)
             serviceRequest := &usersDomain.UpdateUserServiceRequest{
                 UserId:   tokenMeta.UserId,
@@ -100,7 +100,7 @@ func makeUpdateUserEndpoint(service core.UsersService) endpoint.Endpoint {
     }
 }
 
-func makeGetUserProfileEndpoint(service core.UsersService) endpoint.Endpoint {
+func makeGetUserProfileEndpoint(service users.UsersService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         apiRequest := request.(usersDomain.GetUserProfileApiRequest)
         response, err := service.GetUserProfile(ctx, apiRequest.ProfileUsername, apiRequest.CurrentUserId)
@@ -115,9 +115,9 @@ func makeGetUserProfileEndpoint(service core.UsersService) endpoint.Endpoint {
     }
 }
 
-func makeAddUserFollowEndpoint(service core.UsersService) endpoint.Endpoint {
+func makeAddUserFollowEndpoint(service users.UsersService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
-        if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+        if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             response, err := service.AddUserFollow(ctx, tokenMeta.UserId, request.(string))
 
             if err != nil {
@@ -133,9 +133,9 @@ func makeAddUserFollowEndpoint(service core.UsersService) endpoint.Endpoint {
     }
 }
 
-func makeRemoveUserFollowEndpoint(service core.UsersService) endpoint.Endpoint {
+func makeRemoveUserFollowEndpoint(service users.UsersService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
-        if tokenMeta, ok := ctx.Value(api.TokenMeta{}).(api.TokenMeta); ok && tokenMeta.UserId > 0 {
+        if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             response, err := service.RemoveUserFollow(ctx, tokenMeta.UserId, request.(string))
 
             if err != nil {

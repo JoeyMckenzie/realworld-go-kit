@@ -3,19 +3,21 @@ package conduit_core
 import (
     "github.com/go-kit/log"
     "github.com/go-playground/validator/v10"
-    articlesCore "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/core"
-    articlesMiddlewares "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/core/middlewares"
-    commentsCore "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/core"
-    commentsMiddlewares "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/core/middlewares"
-    tagsCore "github.com/joeymckenzie/realworld-go-kit/conduit-core/tags/core"
-    tagsMiddlewares "github.com/joeymckenzie/realworld-go-kit/conduit-core/tags/core/middlewares"
-    usersCore "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/core"
-    usersMiddlewares "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/core/middlewares"
+    articlesCore "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles"
+    articlesMiddlewares "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/middlewares"
+    commentsCore "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments"
+    commentsMiddlewares "github.com/joeymckenzie/realworld-go-kit/conduit-core/comments/middlewares"
+    tagsCore "github.com/joeymckenzie/realworld-go-kit/conduit-core/tags"
+    tagsMiddlewares "github.com/joeymckenzie/realworld-go-kit/conduit-core/tags/middlewares"
+    usersCore "github.com/joeymckenzie/realworld-go-kit/conduit-core/users"
+    usersMiddlewares "github.com/joeymckenzie/realworld-go-kit/conduit-core/users/middlewares"
     "github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/services"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
 )
 
+// ConduitServiceRegister houses all application services used within the core layer. Each service comprises a primary
+// business logic service wrapped by various middleware orchestrated by go-kit to facilitate logging, validation, etc.
 type ConduitServiceRegister struct {
     UsersService    usersCore.UsersService
     ArticlesService articlesCore.ArticlesService

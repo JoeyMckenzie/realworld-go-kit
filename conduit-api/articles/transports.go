@@ -6,72 +6,72 @@ import (
     "github.com/go-chi/chi/v5"
     httpTransport "github.com/go-kit/kit/transport/http"
     "github.com/go-kit/log"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles/core"
+    apiUtilities "github.com/joeymckenzie/realworld-go-kit/conduit-api/utilities"
+    "github.com/joeymckenzie/realworld-go-kit/conduit-core/articles"
     articlesDomain "github.com/joeymckenzie/realworld-go-kit/conduit-domain/articles"
-    "github.com/joeymckenzie/realworld-go-kit/conduit-shared/api"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/services"
     "github.com/joeymckenzie/realworld-go-kit/conduit-shared/utilities"
     "net/http"
     "strconv"
 )
 
-func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.ArticlesService) *chi.Mux {
+func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service articles.ArticlesService) *chi.Mux {
     endpoints := NewArticleEndpoints(service)
 
     createArticleHandler := httpTransport.NewServer(
         endpoints.MakeCreateArticleEndpoint,
         decodeCreateArticleRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     getArticlesHandler := httpTransport.NewServer(
         endpoints.MakeGetArticlesEndpoint,
         decodeGetArticlesRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     getArticleHandler := httpTransport.NewServer(
         endpoints.MakeGetArticleEndpoint,
         decodeGetArticleRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     getFeedHandler := httpTransport.NewServer(
         endpoints.MakeGetFeedEndpoint,
         decodeGetFeedRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     updateArticleHandler := httpTransport.NewServer(
         endpoints.MakeUpdateArticleEndpoint,
         decodeUpdateArticleRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     deleteArticleHandler := httpTransport.NewServer(
         endpoints.MakeDeleteArticleEndpoint,
         decodeDeleteArticleRequest,
-        api.EncodeSuccessfulResponseWithNoContent,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponseWithNoContent,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     favoriteArticleHandler := httpTransport.NewServer(
         endpoints.MakeFavoriteArticleEndpoint,
         decodeFavoriteArticleRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     unfavoriteArticleHandler := httpTransport.NewServer(
         endpoints.MakeUnfavoriteArticleEndpoint,
         decodeFavoriteArticleRequest,
-        api.EncodeSuccessfulResponse,
-        api.HandlerOptions(logger)...,
+        apiUtilities.EncodeSuccessfulResponse,
+        apiUtilities.HandlerOptions(logger)...,
     )
 
     router.Route("/articlesDomain", func(r chi.Router) {
@@ -80,7 +80,7 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
         r.Route("/{slug}", func(r chi.Router) {
             r.Get("/", getArticleHandler.ServeHTTP)
             r.Group(func(r chi.Router) {
-                r.Use(api.AuthorizedRequestMiddleware)
+                r.Use(apiUtilities.AuthorizedRequestMiddleware)
                 r.Put("/", updateArticleHandler.ServeHTTP)
                 r.Delete("/", deleteArticleHandler.ServeHTTP)
                 r.Post("/favorite", favoriteArticleHandler.ServeHTTP)
@@ -89,7 +89,7 @@ func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service core.Arti
         })
 
         r.Group(func(r chi.Router) {
-            r.Use(api.AuthorizedRequestMiddleware)
+            r.Use(apiUtilities.AuthorizedRequestMiddleware)
             r.Post("/", createArticleHandler.ServeHTTP)
             r.Get("/feed", getFeedHandler.ServeHTTP)
         })
