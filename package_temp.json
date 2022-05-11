@@ -1,0 +1,18 @@
+{
+  "name": "realworld-go-kit",
+  "version": "1.0.0",
+  "description": "Realworld implementation using Go and go-kit",
+  "author": "Joey McKenzie",
+  "repository": "https://github.com/JoeyMckenzie/realworld-go-kit",
+  "license": "ISC",
+  "lint-staged": {
+    "*.go": "make format"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0",
+    "lint-staged": "^12.4.0"
+  },
+  "scripts": {
+    "prepare": "husky install"
+  }
+}

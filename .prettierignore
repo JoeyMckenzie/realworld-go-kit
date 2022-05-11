@@ -1,0 +1,12 @@
+# Ignore artifacts:
+build
+coverage
+.angular/
+
+# ignore our go files, let gofmt handle that
+conduit-api/
+conduit-bin/
+conduit-core/
+conduit-domain/
+conduit-ent-gen/
+conduit-shared/

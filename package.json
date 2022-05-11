@@ -1,18 +1,54 @@
 {
-  "name": "realworld-go-kit",
-  "version": "1.0.0",
-  "description": "Realworld implementation using Go and go-kit",
-  "author": "Joey McKenzie",
-  "repository": "https://github.com/JoeyMckenzie/realworld-go-kit",
-  "license": "ISC",
+  "name": "conduit-web",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "prepare": "husky install",
+    "lint": "ng lint"
+  },
+  "private": true,
   "lint-staged": {
-    "*.go": "make format"
+    "*.go": "make format",
+    "*.{ts,js,html,json}": "npx prettier --write ."
+  },
+  "dependencies": {
+    "@angular/animations": "~13.3.0",
+    "@angular/common": "~13.3.0",
+    "@angular/compiler": "~13.3.0",
+    "@angular/core": "~13.3.0",
+    "@angular/forms": "~13.3.0",
+    "@angular/platform-browser": "~13.3.0",
+    "@angular/platform-browser-dynamic": "~13.3.0",
+    "@angular/router": "~13.3.0",
+    "rxjs": "~7.5.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.11.4"
   },
   "devDependencies": {
+    "@angular-builders/jest": "latest",
+    "@angular-devkit/build-angular": "~13.3.5",
+    "@angular-eslint/builder": "13.2.1",
+    "@angular-eslint/eslint-plugin": "13.2.1",
+    "@angular-eslint/eslint-plugin-template": "13.2.1",
+    "@angular-eslint/schematics": "13.2.1",
+    "@angular-eslint/template-parser": "13.2.1",
+    "@angular/cli": "~13.3.5",
+    "@angular/compiler-cli": "~13.3.0",
+    "@briebug/jest-schematic": "^4.0.0",
+    "@types/jest": "latest",
+    "@types/node": "^12.11.1",
+    "@typescript-eslint/eslint-plugin": "5.17.0",
+    "@typescript-eslint/parser": "5.17.0",
+    "eslint": "^8.12.0",
+    "eslint-config-prettier": "^8.5.0",
     "husky": "^8.0.0",
-    "lint-staged": "^12.4.0"
-  },
-  "scripts": {
-    "prepare": "husky install"
+    "jest": "latest",
+    "lint-staged": "^12.4.0",
+    "prettier": "2.6.2",
+    "typescript": "~4.6.2"
   }
 }

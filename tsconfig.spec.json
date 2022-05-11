@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": ["jest"],
+    "module": "commonjs",
+    "emitDecoratorMetadata": true,
+    "allowJs": true
+  },
+  "files": ["conduit-web/test.ts", "conduit-web/polyfills.ts"],
+  "include": ["conduit-web/**/*.spec.ts", "conduit-web/**/*.d.ts"]
+}
