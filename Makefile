@@ -81,23 +81,6 @@ start-web: ## Start the angular web container
 start-conduit: ## Start all containers required for to run the full application
 	@docker compose -f ./docker-compose.postgres.yml -f ./docker-compose.server.yml -f ./docker-compose.web.yml -f ./docker-compose.metrics.yml up --build
 
-.PHONY: install-deps
-install-deps: ## Installs all application package dependencies
-	go get github.com/go-chi/chi/v5
-	go get github.com/go-chi/cors
-	go get github.com/joho/godotenv
-	go get github.com/lib/pq
-	go get github.com/go-kit/log
-	go get github.com/go-kit/kit/endpoint
-	go get github.com/go-kit/kit/transport/http
-	go get github.com/go-kit/kit/metrics/prometheus
-	go get github.com/prometheus/client_golang/prometheus
-	go get github.com/go-playground/validator/v10
-	go get github.com/golang-jwt/jwt
-	go get golang.org/x/crypto
-	go get github.com/gosimple/slug
-	go get github.com/mattn/go-sqlite3
-
 .PHONY: ent-init
 ent-init: ## Runs the create entity ent command
 	@go run entgo.io/ent/cmd/ent init
