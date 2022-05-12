@@ -8,9 +8,9 @@ require (
 	github.com/go-kit/log v0.2.0
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/gosimple/slug v1.12.0
-	github.com/joeymckenzie/realworld-go-kit/conduit-domain v0.0.0-20220506175452-016436a59380
-	github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen v0.0.0-20220506175452-016436a59380
-	github.com/joeymckenzie/realworld-go-kit/conduit-shared v0.0.0-20220506175452-016436a59380
+	github.com/joeymckenzie/realworld-go-kit/conduit-domain v0.0.0-20220511193712-3cc236683d80
+	github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen v0.0.0-20220511193712-3cc236683d80
+	github.com/joeymckenzie/realworld-go-kit/conduit-shared v0.0.0-20220511193712-3cc236683d80
 	github.com/mattn/go-sqlite3 v1.14.12
 	github.com/stretchr/testify v1.7.1
 )

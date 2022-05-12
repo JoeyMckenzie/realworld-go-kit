@@ -6,9 +6,9 @@ require (
 	entgo.io/ent v0.10.1
 	github.com/go-kit/kit v0.12.0
 	github.com/go-kit/log v0.2.0
-	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/golang-jwt/jwt v3.2.2+incompatiblec
 	github.com/gosimple/slug v1.12.0
-	github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen v0.0.0-20220506175452-016436a59380
+	github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen v0.0.0-20220511193712-3cc236683d80
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.4
 	github.com/prometheus/client_golang v1.12.1

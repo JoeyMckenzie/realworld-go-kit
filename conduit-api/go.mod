@@ -7,9 +7,9 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/go-kit/kit v0.12.0
 	github.com/go-kit/log v0.2.0
-	github.com/joeymckenzie/realworld-go-kit/conduit-core v0.0.0-20220506175452-016436a59380
-	github.com/joeymckenzie/realworld-go-kit/conduit-domain v0.0.0-20220506175452-016436a59380
-	github.com/joeymckenzie/realworld-go-kit/conduit-shared v0.0.0-20220506175452-016436a59380
+	github.com/joeymckenzie/realworld-go-kit/conduit-core latest
+	github.com/joeymckenzie/realworld-go-kit/conduit-domain latest
+	github.com/joeymckenzie/realworld-go-kit/conduit-shared latest
 	github.com/prometheus/client_golang v1.12.1
 )
 
@@ -39,7 +39,7 @@ require (
 	github.com/gosimple/slug v1.12.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/hashicorp/hcl/v2 v2.10.0 // indirect
-	github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen v0.0.0-20220506175452-016436a59380 // indirect
+	github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen v0.0.0-20220511193712-3cc236683d80 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
