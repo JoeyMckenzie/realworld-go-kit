@@ -90,7 +90,7 @@ ent-generate: ## Generates the ent entity code
 	@go generate ./conduit-ent-gen/ent
 
 .PHONY: ent-regenerate
-ent-regenerate: ## Generates the ent entity code
+ent-regenerate: ## Regenerates the ent entity code
 	@make ent-clean
 	@go generate ./conduit-ent-gen/ent
 
