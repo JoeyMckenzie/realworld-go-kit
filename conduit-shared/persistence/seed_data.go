@@ -3,6 +3,7 @@ package persistence
 import (
 	"context"
 	"github.com/gosimple/slug"
+	"github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
 	"github.com/joeymckenzie/realworld-go-kit/conduit-shared/services"
 )
 

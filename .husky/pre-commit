@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# make test
-# make lint
-# npx lint-staged
+make test
+make lint
+npx lint-staged
