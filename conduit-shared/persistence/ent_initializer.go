@@ -8,8 +8,7 @@ import (
 	"fmt"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent"
-	"github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/ent/migrate"
+	"github.com/joeymckenzie/realworld-go-kit/conduit-ent-gen/migrate"
 	_ "github.com/lib/pq"
 	"os"
 )
