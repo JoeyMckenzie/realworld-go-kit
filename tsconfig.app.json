@@ -5,6 +5,6 @@
     "outDir": "./out-tsc/app",
     "types": []
   },
-  "files": ["conduit-web/main.ts", "conduit-web/polyfills.ts"],
-  "include": ["conduit-web/**/*.d.ts"]
+  "files": ["source/conduit-web/main.ts", "source/conduit-web/polyfills.ts"],
+  "include": ["source/conduit-web/**/*.d.ts"]
 }

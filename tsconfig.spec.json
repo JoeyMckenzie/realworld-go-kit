@@ -7,6 +7,6 @@
     "emitDecoratorMetadata": true,
     "allowJs": true
   },
-  "files": ["conduit-web/test.ts", "conduit-web/polyfills.ts"],
+  "files": ["src/conduit-web/test.ts", "src/conduit-web/polyfills.ts"],
   "include": ["conduit-web/**/*.spec.ts", "conduit-web/**/*.d.ts"]
 }

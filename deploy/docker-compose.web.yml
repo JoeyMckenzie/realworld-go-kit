@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  realworld_go_kit_web:
+    container_name: realworld_go_kit_web
+    build:
+      context: ../
+      dockerfile: ./source/conduit-web/Dockerfile
+    restart: always
+    ports:
+      - '4200:80'

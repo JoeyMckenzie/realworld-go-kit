@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  realworld_go_kit_postgres:
+    container_name: realworld_go_kit_postgres
+    image: postgres:latest
+    restart: always
+    env_file:
+      - ../.env
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - '5432:5432'

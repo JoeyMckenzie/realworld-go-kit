@@ -11,19 +11,22 @@
         }
       },
       "root": "",
-      "sourceRoot": "conduit-web",
+      "sourceRoot": "source/conduit-web",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/conduit-web",
-            "index": "conduit-web/index.html",
-            "main": "conduit-web/main.ts",
-            "polyfills": "conduit-web/polyfills.ts",
+            "index": "source/conduit-web/index.html",
+            "main": "source/conduit-web/main.ts",
+            "polyfills": "source/conduit-web/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
-            "assets": ["conduit-web/favicon.ico", "conduit-web/assets"],
-            "styles": ["conduit-web/styles.css"],
+            "assets": [
+              "source/conduit-web/favicon.ico",
+              "source/conduit-web/assets"
+            ],
+            "styles": ["source/conduit-web/styles.css"],
             "scripts": []
           },
           "configurations": {
@@ -42,8 +45,8 @@
               ],
               "fileReplacements": [
                 {
-                  "replace": "conduit-web/environments/environment.ts",
-                  "with": "conduit-web/environments/environment.prod.ts"
+                  "replace": "source/conduit-web/environments/environment.ts",
+                  "with": "source/conduit-web/environments/environment.prod.ts"
                 }
               ],
               "outputHashing": "all"
@@ -81,15 +84,21 @@
           "builder": "@angular-builders/jest:run",
           "options": {
             "tsConfig": "tsconfig.spec.json",
-            "assets": ["conduit-web/favicon.ico", "conduit-web/assets"],
-            "styles": ["conduit-web/styles.css"],
+            "assets": [
+              "source/conduit-web/favicon.ico",
+              "source/conduit-web/assets"
+            ],
+            "styles": ["source/conduit-web/styles.css"],
             "scripts": []
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["conduit-web/**/*.ts", "conduit-web/**/*.html"]
+            "lintFilePatterns": [
+              "source/conduit-web/**/*.ts",
+              "source/conduit-web/**/*.html"
+            ]
           }
         }
       }
