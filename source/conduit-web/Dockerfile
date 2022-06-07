@@ -15,7 +15,7 @@ COPY ./tsconfig.docker.json ./tsconfig.app.json
 COPY ./tsconfig.json .
 
 # Install all the dependencies
-RUN npm install --save-dev
+RUN npm install --save-dev --force
 
 # Copy over the rest of the source files
 COPY ./source/conduit-web ./src

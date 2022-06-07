@@ -18,15 +18,15 @@ version: ## Displays the version of the API server
 
 .PHONY: dev
 dev: ## Run the API server
-	@go run ./conduit-bin -env development -port 8080 -seed true
+	@go run ./conduit-bin -env development -port 8080 -seed true && ng serve
 
 .PHONY: build
 build:  ## Build the API binary
-	go build -a -o conduit ./conduit-bin
+	go build -a -o conduit ./conduit-bin && ng build --omit=dev
 
 .PHONY: clean
 clean: ## Remove the application binary
-	@rm -f ./conduit
+	@rm -f ./conduit && rm -rf ./dist
 
 # TODO: golangci-lint doesn't seem to handle workspace mode properly just yet https://github.com/golangci/golangci-lint/issues/2654
 .PHONY: lint

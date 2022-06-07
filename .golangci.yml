@@ -1,6 +1,5 @@
 linters-settings:
   errcheck:
-    # exclude: errcheck-exclude.txt
     exclude-functions:
       - (github.com/go-kit/log.Logger).Log
       - (*encoding/json.Encoder).Encode
