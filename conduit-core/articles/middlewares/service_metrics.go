@@ -12,11 +12,11 @@ import (
 type articlesServiceMetricsMiddleware struct {
     requestCount   metrics.Counter
     requestLatency metrics.Histogram
-    service        articles.ArticlesService
+    service        articles.ConduitArticlesService
 }
 
-func NewArticlesServiceMetricsMiddleware(requestCount metrics.Counter, requestLatency metrics.Histogram) articles.ArticlesServiceMiddleware {
-    return func(next articles.ArticlesService) articles.ArticlesService {
+func NewArticlesServiceMetricsMiddleware(requestCount metrics.Counter, requestLatency metrics.Histogram) articles.ConduitArticlesServiceMiddleware {
+    return func(next articles.ConduitArticlesService) articles.ConduitArticlesService {
         return &articlesServiceMetricsMiddleware{
             requestCount:   requestCount,
             requestLatency: requestLatency,

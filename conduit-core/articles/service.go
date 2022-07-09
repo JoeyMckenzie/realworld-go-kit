@@ -21,7 +21,7 @@ import (
 var DefaultArticlesResponse = make([]*articlesDomain.ArticleDto, 0)
 
 type (
-    ArticlesService interface {
+    ConduitArticlesService interface {
         GetArticles(ctx context.Context, request *articlesDomain.GetArticlesServiceRequest) ([]*articlesDomain.ArticleDto, error)
         GetArticle(ctx context.Context, request *articlesDomain.GetArticleServiceRequest) (*articlesDomain.ArticleDto, error)
         GetFeed(ctx context.Context, request *articlesDomain.GetArticlesServiceRequest) ([]*articlesDomain.ArticleDto, error)
@@ -37,10 +37,10 @@ type (
         client    *ent.Client
     }
 
-    ArticlesServiceMiddleware func(articlesService ArticlesService) ArticlesService
+    ConduitArticlesServiceMiddleware func(articlesService ConduitArticlesService) ConduitArticlesService
 )
 
-func NewArticlesServices(validator *validator.Validate, client *ent.Client) ArticlesService {
+func NewArticlesServices(validator *validator.Validate, client *ent.Client) ConduitArticlesService {
     return &articlesService{
         validator: validator,
         client:    client,

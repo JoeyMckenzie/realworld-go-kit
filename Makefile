@@ -28,22 +28,13 @@ build:  ## Build the API binary
 clean: ## Remove the application binary
 	@rm -f ./conduit
 
-# TODO: golangci-lint doesn't seem to handle workspace mode properly just yet https://github.com/golangci/golangci-lint/issues/2654
 .PHONY: lint
 lint: ## Lint all go code
-	golangci-lint run --exclude strings ./conduit-api/...
-	golangci-lint run --exclude strings ./conduit-bin/...
-	golangci-lint run --exclude strings ./conduit-core/...
-	golangci-lint run --exclude strings ./conduit-domain/...
-	golangci-lint run --exclude strings ./conduit-shared/...
+	golangci-lint run --exclude strings ./conduit-*
 
 .PHONY: format
 format: ## Format all code
-	@cd ./conduit-api && go fmt ./...
-	@cd ./conduit-bin && go fmt ./...
-	@cd ./conduit-core && go fmt ./...
-	@cd ./conduit-domain && go fmt ./...
-	@cd ./conduit-shared && go fmt ./...
+	@go fmt ./conduit-*
 
 .PHONY: sync
 sync: ## Sync go imports
@@ -51,11 +42,7 @@ sync: ## Sync go imports
 
 .PHONY: test
 test: ## Run all tests in the project
-	@go test ./conduit-api/...
-	@go test ./conduit-bin/...
-	@go test ./conduit-core/...
-	@go test ./conduit-domain/...
-	@go test ./conduit-shared/...
+	@go test ./conduit-*
 
 .PHONY: test-integration
 test-integration: ## Runs all integration tests via Postman
@@ -76,23 +63,6 @@ start-metrics: ## Start the Prometheus metrics container
 .PHONY: start-conduit
 start-conduit: ## Start all containers required for to run the full application
 	@docker compose -f ./docker-compose.postgres.yml -f ./docker-compose.api.yml -f ./docker-compose.metrics.yml up --build
-
-.PHONY: install-deps
-install-deps: ## Installs all application package dependencies
-	go get github.com/go-chi/chi/v5
-	go get github.com/go-chi/cors
-	go get github.com/joho/godotenv
-	go get github.com/lib/pq
-	go get github.com/go-kit/log
-	go get github.com/go-kit/kit/endpoint
-	go get github.com/go-kit/kit/transport/http
-	go get github.com/go-kit/kit/metrics/prometheus
-	go get github.com/prometheus/client_golang/prometheus
-	go get github.com/go-playground/validator/v10
-	go get github.com/golang-jwt/jwt
-	go get golang.org/x/crypto
-	go get github.com/gosimple/slug
-	go get github.com/mattn/go-sqlite3
 
 .PHONY: ent-init
 ent-init: ## Runs the create entity ent command

@@ -15,7 +15,7 @@ var fixture *articlesServiceTestFixture
 
 type articlesServiceTestFixture struct {
     ctx     context.Context
-    service articles.ArticlesService
+    service articles.ConduitArticlesService
 }
 
 func newArticlesServiceTestFixture(ctx context.Context, client *ent.Client) *articlesServiceTestFixture {

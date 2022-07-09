@@ -20,7 +20,7 @@ type articleEndpoints struct {
     MakeUnfavoriteArticleEndpoint endpoint.Endpoint
 }
 
-func NewArticleEndpoints(service articles.ArticlesService) *articleEndpoints {
+func NewArticleEndpoints(service articles.ConduitArticlesService) *articleEndpoints {
     return &articleEndpoints{
         MakeCreateArticleEndpoint:     makeCreateArticleEndpoint(service),
         MakeGetArticlesEndpoint:       makeGetArticlesEndpoint(service),
@@ -33,7 +33,7 @@ func NewArticleEndpoints(service articles.ArticlesService) *articleEndpoints {
     }
 }
 
-func makeCreateArticleEndpoint(service articles.ArticlesService) endpoint.Endpoint {
+func makeCreateArticleEndpoint(service articles.ConduitArticlesService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             apiRequest := request.(articlesDomain.CreateArticleApiRequest)
@@ -58,7 +58,7 @@ func makeCreateArticleEndpoint(service articles.ArticlesService) endpoint.Endpoi
     }
 }
 
-func makeGetArticleEndpoint(service articles.ArticlesService) endpoint.Endpoint {
+func makeGetArticleEndpoint(service articles.ConduitArticlesService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         apiRequest := request.(articlesDomain.GetArticleServiceRequest)
         article, err := service.GetArticle(ctx, &apiRequest)
@@ -73,7 +73,7 @@ func makeGetArticleEndpoint(service articles.ArticlesService) endpoint.Endpoint 
     }
 }
 
-func makeGetArticlesEndpoint(service articles.ArticlesService) endpoint.Endpoint {
+func makeGetArticlesEndpoint(service articles.ConduitArticlesService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         apiRequest := request.(articlesDomain.GetArticlesServiceRequest)
         response, err := service.GetArticles(ctx, &apiRequest)
@@ -89,7 +89,7 @@ func makeGetArticlesEndpoint(service articles.ArticlesService) endpoint.Endpoint
     }
 }
 
-func makeGetFeedEndpoint(service articles.ArticlesService) endpoint.Endpoint {
+func makeGetFeedEndpoint(service articles.ConduitArticlesService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         apiRequest := request.(articlesDomain.GetArticlesServiceRequest)
         response, err := service.GetFeed(ctx, &apiRequest)
@@ -105,7 +105,7 @@ func makeGetFeedEndpoint(service articles.ArticlesService) endpoint.Endpoint {
     }
 }
 
-func makeUpdateArticleEndpoint(service articles.ArticlesService) endpoint.Endpoint {
+func makeUpdateArticleEndpoint(service articles.ConduitArticlesService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             apiRequest := request.(articlesDomain.UpdateArticleApiRequest)
@@ -130,7 +130,7 @@ func makeUpdateArticleEndpoint(service articles.ArticlesService) endpoint.Endpoi
     }
 }
 
-func makeDeleteArticleEndpoint(service articles.ArticlesService) endpoint.Endpoint {
+func makeDeleteArticleEndpoint(service articles.ConduitArticlesService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             apiRequest := request.(articlesDomain.DeleteArticleServiceRequest)
@@ -147,7 +147,7 @@ func makeDeleteArticleEndpoint(service articles.ArticlesService) endpoint.Endpoi
     }
 }
 
-func makeFavoriteArticleEndpoint(service articles.ArticlesService) endpoint.Endpoint {
+func makeFavoriteArticleEndpoint(service articles.ConduitArticlesService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             serviceRequest := request.(articlesDomain.ArticleFavoriteServiceRequest)
@@ -166,7 +166,7 @@ func makeFavoriteArticleEndpoint(service articles.ArticlesService) endpoint.Endp
     }
 }
 
-func makeUnfavoriteArticleEndpoint(service articles.ArticlesService) endpoint.Endpoint {
+func makeUnfavoriteArticleEndpoint(service articles.ConduitArticlesService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         if tokenMeta, ok := ctx.Value(apiUtilities.TokenMeta{}).(apiUtilities.TokenMeta); ok && tokenMeta.UserId > 0 {
             serviceRequest := request.(articlesDomain.ArticleFavoriteServiceRequest)

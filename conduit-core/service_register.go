@@ -20,12 +20,12 @@ import (
 // business logic service wrapped by various middleware orchestrated by go-kit to facilitate logging, validation, etc.
 type ConduitServiceRegister struct {
     UsersService    usersCore.UsersService
-    ArticlesService articlesCore.ArticlesService
+    ArticlesService articlesCore.ConduitArticlesService
     CommentsService commentsCore.CommentsService
     TagsService     tagsCore.TagsService
 }
 
-func newConduitServiceRegister(usersService usersCore.UsersService, articlesService articlesCore.ArticlesService, commentsService commentsCore.CommentsService, tagsService tagsCore.TagsService) *ConduitServiceRegister {
+func newConduitServiceRegister(usersService usersCore.UsersService, articlesService articlesCore.ConduitArticlesService, commentsService commentsCore.CommentsService, tagsService tagsCore.TagsService) *ConduitServiceRegister {
     return &ConduitServiceRegister{
         UsersService:    usersService,
         ArticlesService: articlesService,
@@ -46,7 +46,7 @@ func InitializeServices(logger log.Logger, entClient *ent.Client) *ConduitServic
         usersService = usersMiddlewares.NewUsersServiceRequestValidationMiddleware(logger, requestValidator)(usersService)
     }
 
-    var articlesService articlesCore.ArticlesService
+    var articlesService articlesCore.ConduitArticlesService
     {
         requestCount, requestLatency := utilities.NewServiceMetrics("articles_service")
         articlesService = articlesCore.NewArticlesServices(requestValidator, entClient)

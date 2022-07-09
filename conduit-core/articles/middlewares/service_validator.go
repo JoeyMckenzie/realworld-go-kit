@@ -13,11 +13,11 @@ import (
 type articlesServiceRequestValidationMiddleware struct {
     logger    log.Logger
     validator *validator.Validate
-    next      articles.ArticlesService
+    next      articles.ConduitArticlesService
 }
 
-func NewArticlesServiceRequestValidationMiddleware(logger log.Logger, validator *validator.Validate) articles.ArticlesServiceMiddleware {
-    return func(next articles.ArticlesService) articles.ArticlesService {
+func NewArticlesServiceRequestValidationMiddleware(logger log.Logger, validator *validator.Validate) articles.ConduitArticlesServiceMiddleware {
+    return func(next articles.ConduitArticlesService) articles.ConduitArticlesService {
         return &articlesServiceRequestValidationMiddleware{
             logger:    logger,
             validator: validator,

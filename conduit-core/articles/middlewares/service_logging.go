@@ -12,11 +12,11 @@ import (
 
 type articlesServiceLoggingMiddleware struct {
     logger log.Logger
-    next   articles.ArticlesService
+    next   articles.ConduitArticlesService
 }
 
-func NewArticlesServiceLoggingMiddleware(logger log.Logger) articles.ArticlesServiceMiddleware {
-    return func(next articles.ArticlesService) articles.ArticlesService {
+func NewArticlesServiceLoggingMiddleware(logger log.Logger) articles.ConduitArticlesServiceMiddleware {
+    return func(next articles.ConduitArticlesService) articles.ConduitArticlesService {
         return &articlesServiceLoggingMiddleware{
             logger: logger,
             next:   next,

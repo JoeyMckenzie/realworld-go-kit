@@ -15,7 +15,7 @@ import (
     "strconv"
 )
 
-func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service articles.ArticlesService) *chi.Mux {
+func MakeArticlesTransport(router *chi.Mux, logger log.Logger, service articles.ConduitArticlesService) *chi.Mux {
     endpoints := NewArticleEndpoints(service)
 
     createArticleHandler := httpTransport.NewServer(
