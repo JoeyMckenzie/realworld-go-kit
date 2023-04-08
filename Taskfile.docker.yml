@@ -1,0 +1,30 @@
+version: '3'
+
+env:
+  CONTAINER_NAME: realworld_go_kit
+
+tasks:
+  build:
+    cmds:
+      - docker build . -t $CONTAINER_NAME
+  rebuild:
+    cmds:
+      - task: stop
+      - task: rm
+      - task: build
+  run:
+    cmds:
+      - docker run -d
+          -e PORT=$PORT
+          -e DATABASE_URL=$DATABASE_URL
+          --name $CONTAINER_NAME
+          -it $CONTAINER_NAME
+  start:
+    cmds:
+      - docker start $CONTAINER_NAME
+  stop:
+    cmds:
+      - docker stop $CONTAINER_NAME
+  rm:
+    cmds:
+      - docker rm $CONTAINER_NAME

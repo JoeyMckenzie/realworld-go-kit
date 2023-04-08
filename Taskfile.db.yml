@@ -1,0 +1,22 @@
+version: '3'
+
+env:
+  DB_NAME: realworld_go_kit_db
+
+tasks:
+  run:
+    cmds:
+      - docker run -d
+          -p 5432:5432
+          -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+          --name $DB_NAME
+          postgres
+  start:
+    cmds:
+      - docker start $DB_NAME
+  stop:
+    cmds:
+      - docker stop $DB_NAME
+  rm:
+    cmds:
+      - docker rm $DB_NAME

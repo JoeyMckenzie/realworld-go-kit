@@ -1,0 +1,34 @@
+version: '3'
+
+env:
+  POSTGRES_PASSWORD: mySuperSecretPassword!
+  DATABASE_URL: postgres://postgres:mySuperSecretPassword!@localhost:5432/postgres?sslmode=disable
+  PORT: 8080
+
+tasks:
+  run:
+    cmds:
+      - DATABASE_URL=$DATABASE_URL PORT=$PORT go run ./main.go
+  build:
+    cmds:
+      - go build -v -o ./realworld_go_kit ./main.go
+  run-build:
+    cmds:
+      - ./realworld_go_kit
+  format:
+    cmds:
+      - go fmt ./...
+
+includes:
+  docker:
+    taskfile: ./Taskfile.docker.yml
+    vars:
+      DATABASE_URL: $DATABASE_URL
+      PORT: $PORT
+  db:
+    taskfile: ./Taskfile.db.yml
+    vars:
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+  users:
+    taskfile: ./app/users/Taskfile.yml
+    dir: ./app/users
