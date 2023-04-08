@@ -1,0 +1,5 @@
+# While we _could_ use a traditional migration tool, our usecase is simple enough for now that we'll build out the schema in one go
+FROM postgres:latest
+
+# Copy over the schema file into the postgres initialization folder that will run the SQL on container startup
+COPY ./schema.sql /docker-entrypoint-initdb.d/

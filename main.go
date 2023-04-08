@@ -1,7 +1,7 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,8 +11,8 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/jackc/pgx/v5"
 	"github.com/joeymckenzie/realworld-go-kit/app/users"
-	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -26,39 +26,42 @@ func main() {
 	connectionString := os.Getenv("DATABASE_URL")
 	port := os.Getenv("PORT")
 	parsedPost, err := strconv.Atoi(port)
+	ctx := context.Background()
 
 	if err != nil {
-		level.Error(logger).Log("main", "failed to parse port", "err", err)
+		level.Error(logger).Log("bootstrap", "failed to parse port", "err", err)
 		os.Exit(1)
 	}
 
-	level.Info(logger).Log("main", "initializing database connection...")
+	level.Info(logger).Log("bootstrap", "initializing database connection...")
 
-	db, err := sql.Open("postgres", connectionString)
+	db, err := pgx.Connect(ctx, connectionString)
+
 	if err != nil {
-		level.Error(logger).Log("main", "failed to initialize a connection to postgres", "err", err)
+		level.Error(logger).Log("bootstrap", "failed to initialize a connection to postgres", "err", err)
 		os.Exit(1)
 	}
 
-	if err := db.Ping(); err != nil {
-		level.Error(logger).Log("main", "failed to ping database", "err", err)
+	if err := db.Ping(ctx); err != nil {
+		level.Error(logger).Log("bootstrap", "failed to ping database", "err", err)
 		os.Exit(1)
 	}
 
-	level.Info(logger).Log("main", "database connection successfully initialized, building routes")
-
-	userService := users.NewService(db)
+	level.Info(logger).Log("bootstrap", "database connection successfully initialized, building routes")
 
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 
-	router = users.MakeEndpoints(router, userService)
+	usersRepository := users.NewRepository(db)
+	usersService := users.NewService(usersRepository)
+	router = users.MakeUserRoutes(router, usersService)
+	router.Mount("/api", router)
 
-	level.Info(logger).Log("main", fmt.Sprintf("routes successfully initialized, now listening on port %d", parsedPost))
+	level.Info(logger).Log("bootstrap", fmt.Sprintf("routes successfully initialized, now listening on port %d", parsedPost))
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", parsedPost), router); err != nil {
-		level.Error(logger).Log("main", "failed to start server", "err", err)
+		level.Error(logger).Log("bootstrap", "failed to start server", "err", err)
 		os.Exit(1)
 	}
 }

@@ -10,7 +10,15 @@ tasks:
           -p 5432:5432
           -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD
           --name $DB_NAME
-          postgres
+          -it $DB_NAME
+  build:
+    cmds:
+      - docker build -t $DB_NAME -f Dockerfile.postgres .
+  rebuild:
+    cmds:
+      - task: stop
+      - task: rm
+      - task: build
   start:
     cmds:
       - docker start $DB_NAME

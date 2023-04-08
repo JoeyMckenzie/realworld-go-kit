@@ -2,24 +2,20 @@ package users
 
 import (
 	"context"
-	"database/sql"
-
-	"github.com/joeymckenzie/realworld-go-kit/app/users/repository"
 )
 
 type UsersService interface {
 	Register(ctx context.Context, username, email, password string) error
 }
 
-func NewService(db *sql.DB) UsersService {
-	queries := repository.New(db)
+func NewService(repository UsersRepository) UsersService {
 	return &userService{
-		queries: queries,
+		repository: repository,
 	}
 }
 
 type userService struct {
-	queries *repository.Queries
+	repository UsersRepository
 }
 
 func (us *userService) Register(ctx context.Context, username, email, password string) error {

@@ -1,15 +1,20 @@
 package users
 
 import (
-	"net/http"
+	"context"
+	"errors"
 
-	"github.com/go-chi/chi"
+	"github.com/go-kit/kit/endpoint"
 )
 
-func MakeEndpoints(router *chi.Mux, service UsersService) *chi.Mux {
-	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome"))
-	})
+func makeRegisterUserEndpoint(service UsersService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		registrationRequest := request.(AuthenticationRequest)
 
-	return router
+		if registrationRequest.User.Email == nil {
+			return nil, errors.New("bad request")
+		}
+
+		return nil, nil
+	}
 }

@@ -1,9 +1,6 @@
 version: '3'
 
-env:
-  POSTGRES_PASSWORD: mySuperSecretPassword!
-  DATABASE_URL: postgres://postgres:mySuperSecretPassword!@localhost:5432/postgres?sslmode=disable
-  PORT: 8080
+dotenv: ['.env']
 
 tasks:
   run:
