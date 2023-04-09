@@ -26,6 +26,3 @@ includes:
     taskfile: ./Taskfile.db.yml
     vars:
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-  users:
-    taskfile: ./app/users/Taskfile.yml
-    dir: ./app/users

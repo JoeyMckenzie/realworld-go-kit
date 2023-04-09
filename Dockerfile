@@ -6,7 +6,8 @@ WORKDIR /usr/src/app
 COPY ./go.mod ./go.sum ./
 RUN go mod download && go mod verify
 
-COPY . .
+# COPY . .
+COPY ./cmd ./internal ./
 RUN go build -v -o /usr/local/bin/app ./main.go
 
 # Stage two - we'll utilize a second container to run our built binary from our first container - slim containers!

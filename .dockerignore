@@ -1,2 +1,4 @@
 Taskfile.yml
 Taskfile.*.yml
+.vscode/
+Dockerfile.*

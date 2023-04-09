@@ -7,26 +7,18 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/jackc/pgx/v5"
-	"github.com/joeymckenzie/realworld-go-kit/app/users"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joeymckenzie/realworld-go-kit/internal"
 )
 
 func main() {
-	var logger log.Logger
-	{
-		logger = log.NewLogfmtLogger(os.Stderr)
-		logger = log.NewSyncLogger(logger)
-		logger = log.With(logger, "caller", log.DefaultCaller)
-	}
-
+	// First, spin up our internal dependencies and logger
+	logger := internal.NewLogger()
 	connectionString := os.Getenv("DATABASE_URL")
 	port := os.Getenv("PORT")
-	parsedPost, err := strconv.Atoi(port)
 	ctx := context.Background()
+	parsedPost, err := strconv.Atoi(port)
 
 	if err != nil {
 		level.Error(logger).Log("bootstrap", "failed to parse port", "err", err)
@@ -35,13 +27,15 @@ func main() {
 
 	level.Info(logger).Log("bootstrap", "initializing database connection...")
 
-	db, err := pgx.Connect(ctx, connectionString)
+	// Grab a connection pool from the database
+	db, err := pgxpool.New(ctx, connectionString)
 
 	if err != nil {
 		level.Error(logger).Log("bootstrap", "failed to initialize a connection to postgres", "err", err)
 		os.Exit(1)
 	}
 
+	// Run a quick ping check to make sure we're able to connect
 	if err := db.Ping(ctx); err != nil {
 		level.Error(logger).Log("bootstrap", "failed to ping database", "err", err)
 		os.Exit(1)
@@ -49,14 +43,8 @@ func main() {
 
 	level.Info(logger).Log("bootstrap", "database connection successfully initialized, building routes")
 
-	router := chi.NewRouter()
-	router.Use(middleware.Logger)
-	router.Use(middleware.Recoverer)
-
-	usersRepository := users.NewRepository(db)
-	usersService := users.NewService(usersRepository)
-	router = users.MakeUserRoutes(router, usersService)
-	router.Mount("/api", router)
+	// Initialize the internal router and all services they'll be using
+	router := internal.NewRouter(db)
 
 	level.Info(logger).Log("bootstrap", fmt.Sprintf("routes successfully initialized, now listening on port %d", parsedPost))
 

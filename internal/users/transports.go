@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/joeymckenzie/realworld-go-kit/app/shared"
+	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 )
 
 func MakeUserRoutes(router *chi.Mux, service UsersService) *chi.Mux {
