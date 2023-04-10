@@ -21,6 +21,9 @@ tasks:
   lint:
     cmds:
       - golangci-lint --version
+  test:
+    cmds:
+      - go test ./...
 
 includes:
   docker:
