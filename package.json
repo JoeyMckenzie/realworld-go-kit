@@ -7,10 +7,7 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.go": "task format",
-    "ignore": [
-      "node_modules"
-    ]
+    "*.go": "task format"
   },
   "author": "Joey McKenzie",
   "license": "ISC",
