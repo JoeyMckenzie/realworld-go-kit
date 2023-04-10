@@ -20,7 +20,7 @@ tasks:
       - go vet ./...
   lint:
     cmds:
-      - golangci-lint --version
+      - golangci-lint run
   test:
     cmds:
       - go test ./...
