@@ -1,2 +1,4 @@
 .env
 realworld_go_kit
+.idea/
+.vscode/
