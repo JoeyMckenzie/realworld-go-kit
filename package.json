@@ -1,0 +1,15 @@
+{
+  "name": "realworld-go-kit",
+  "version": "1.0.0",
+  "description": "",
+  "packageManager": "pnpm@8.2.0",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "author": "Joey McKenzie",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^8.0.0"
+  }
+}

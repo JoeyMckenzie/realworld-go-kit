@@ -37,7 +37,11 @@ type (
 	}
 )
 
-func (u UserEntity) ToUser(token string) *User {
+func (u *UserEntity) ToUser(token string) *User {
+	if u == nil {
+		return &User{}
+	}
+
 	return &User{
 		Username: u.Username,
 		Email:    u.Email,

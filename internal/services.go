@@ -18,7 +18,7 @@ func MakeServiceContainer(logger log.Logger, db *pgxpool.Pool) *ServiceContainer
 	var usersService users.UsersService
 	{
 		usersRepository := users.NewRepository(db)
-		usersService = users.NewService(usersRepository)
+		usersService = users.NewService(logger, usersRepository)
 		usersService = users.NewUsersServiceLoggingMiddleware(logger)(usersService)
 		usersService = users.NewUsersServiceValidationMiddleware(validation)(usersService)
 	}

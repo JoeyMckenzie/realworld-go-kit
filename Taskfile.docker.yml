@@ -16,7 +16,7 @@ tasks:
     cmds:
       - docker run -d
           -e PORT=$PORT
-          -e DATABASE_URL=$DATABASE_URL
+          -e DATABASE_URL=$DATABASE_URL_DOCKER
           --name $CONTAINER_NAME
           -it $CONTAINER_NAME
   start:

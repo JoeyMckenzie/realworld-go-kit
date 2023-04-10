@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"github.com/go-kit/log"
 )
 
 type (
@@ -10,14 +11,16 @@ type (
 	}
 
 	userService struct {
+		logger     log.Logger
 		repository UsersRepository
 	}
 
 	UsersServiceMiddleware func(service UsersService) UsersService
 )
 
-func NewService(repository UsersRepository) UsersService {
+func NewService(logger log.Logger, repository UsersRepository) UsersService {
 	return &userService{
+		logger:     logger,
 		repository: repository,
 	}
 }

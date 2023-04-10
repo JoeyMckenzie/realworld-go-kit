@@ -2,7 +2,6 @@ package users
 
 import (
 	"context"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 )
