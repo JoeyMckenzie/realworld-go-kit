@@ -5,16 +5,19 @@ dotenv: ['.env']
 tasks:
   run:
     cmds:
-      - DATABASE_URL=$DATABASE_URL PORT=$PORT go run ./main.go
+      - DATABASE_URL=$DATABASE_URL PORT=$PORT go run ./cmd/conduit/main.go
   build:
     cmds:
-      - go build -v -o ./realworld_go_kit ./main.go
+      - go build -v -o ./realworld_go_kit ./cmd/conduit/main.go
   run-build:
     cmds:
       - ./realworld_go_kit
   format:
     cmds:
       - go fmt ./...
+  lint:
+    cmds:
+      - go vet ./...
 
 includes:
   docker:

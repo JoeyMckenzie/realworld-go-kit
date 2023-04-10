@@ -2,19 +2,18 @@ package users
 
 import (
 	"context"
-	"errors"
-
 	"github.com/go-kit/kit/endpoint"
 )
 
 func makeRegisterUserEndpoint(service UsersService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		registrationRequest := request.(AuthenticationRequest)
+    return func(ctx context.Context, request interface{}) (interface{}, error) {
+        registrationRequest := request.(AuthenticationRequest)
+        createdUser, err := service.Register(ctx, registrationRequest)
 
-		if registrationRequest.User.Email == nil {
-			return nil, errors.New("bad request")
-		}
+        if err != nil {
+            return nil, err
+        }
 
-		return nil, nil
-	}
+        return createdUser, nil
+    }
 }

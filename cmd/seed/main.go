@@ -2,10 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/go-kit/log/level"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -16,16 +13,9 @@ func main() {
 	// First, spin up our internal dependencies and logger
 	logger := internal.NewLogger()
 	connectionString := os.Getenv("DATABASE_URL")
-	port := os.Getenv("PORT")
 	ctx := context.Background()
-	parsedPost, err := strconv.Atoi(port)
 
-	if err != nil {
-		level.Error(logger).Log("bootstrap", "failed to parse port", "err", err)
-		os.Exit(1)
-	}
-
-	level.Info(logger).Log("bootstrap", "initializing database connection...")
+	level.Info(logger).Log("seed", "initializing database connection...")
 
 	// Grab a connection pool from the database
 	db, err := pgxpool.New(ctx, connectionString)
@@ -42,14 +32,4 @@ func main() {
 	}
 
 	level.Info(logger).Log("bootstrap", "database connection successfully initialized, building routes")
-
-	// Initialize the internal router and all services they'll be using
-	router := internal.NewRouter(db)
-
-	level.Info(logger).Log("bootstrap", fmt.Sprintf("routes successfully initialized, now listening on port %d", parsedPost))
-
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", parsedPost), router); err != nil {
-		level.Error(logger).Log("bootstrap", "failed to start server", "err", err)
-		os.Exit(1)
-	}
 }

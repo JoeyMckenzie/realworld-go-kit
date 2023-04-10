@@ -24,12 +24,12 @@ type (
 
 	UserRequest struct {
 		Username *string `json:"username,omitempty"`
-		Email    *string `json:"email"`
-		Password *string `json:"password"`
+		Email    *string `json:"email" validate:"required,email"`
+		Password *string `json:"password" validate:"required"`
 	}
 
 	AuthenticationRequest struct {
-		User *UserRequest `json:"user"`
+		User *UserRequest `json:"user" validate:"required"`
 	}
 
 	AuthenticationResponse struct {
