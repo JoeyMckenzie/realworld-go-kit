@@ -1,0 +1,7 @@
+linters-settings:
+  errcheck:
+    exclude-functions:
+      # We don't necessarily care for handling log errors, so disable for now
+      - (github.com/go-kit/log.Logger).Log
+      # If our JSON encoding fails, we'll have much bigger issues
+      - (*encoding/json.Encoder).Encode

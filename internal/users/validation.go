@@ -22,7 +22,7 @@ func NewUsersServiceValidationMiddleware(validation *validator.Validate) UsersSe
 }
 
 func (mw *usersServiceValidationMiddleware) Register(ctx context.Context, request AuthenticationRequest) (user *User, err error) {
-	if validationErrors := mw.validation.Struct(request); err != nil {
+	if validationErrors := mw.validation.StructCtx(ctx, request); err != nil {
 		return &User{}, shared.MakeValidationError(validationErrors)
 	}
 

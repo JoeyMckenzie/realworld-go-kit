@@ -24,7 +24,7 @@ type usersRepository struct {
 func (r *usersRepository) CreateUser(ctx context.Context, username string, email string, password string) (*UserEntity, error) {
 	var user UserEntity
 
-	if err := pgxscan.Select(ctx, r.db, &user, "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING ID"); err != nil {
+	if err := pgxscan.Select(ctx, r.db, &user, "INSERT INTO users (id, username, email, password, image, bio, create_at, updated_at) VALUES ($1, $2, $3) RETURNING ID"); err != nil {
 		return &user, err
 	}
 

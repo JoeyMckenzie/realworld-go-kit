@@ -15,9 +15,12 @@ tasks:
   format:
     cmds:
       - go fmt ./...
-  lint:
+  vet:
     cmds:
       - go vet ./...
+  lint:
+    cmds:
+      - golangci-lint --version
 
 includes:
   docker:
