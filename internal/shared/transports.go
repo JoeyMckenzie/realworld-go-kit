@@ -38,7 +38,7 @@ func EncodeError(_ context.Context, err error, w http.ResponseWriter) {
 	if err == nil {
 		// Note: we have bigger problems if this happens...
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(MakeGenericError())
+		json.NewEncoder(w).Encode(MakeGenericApiError())
 		return
 	}
 
@@ -58,6 +58,6 @@ func EncodeError(_ context.Context, err error, w http.ResponseWriter) {
 		json.NewEncoder(w).Encode(validationError)
 	} else {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(MakeGenericError())
+		json.NewEncoder(w).Encode(MakeGenericApiError())
 	}
 }

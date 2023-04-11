@@ -90,14 +90,21 @@ func makeApiErrorMapWithMessage(err error) ApiErrorMap[string] {
 	}
 }
 
-func MakeGenericError() *ApiError[string] {
+func MakeGenericApiError() *ApiError[string] {
 	return &ApiError[string]{
 		Code:   http.StatusInternalServerError,
 		Errors: makeApiErrorMapWithMessage(ErrInternalServerError),
 	}
 }
 
-func MakeApiError(code int, err error) *ApiError[string] {
+func MakeApiError(err error) *ApiError[string] {
+	return &ApiError[string]{
+		Code:   http.StatusInternalServerError,
+		Errors: makeApiErrorMapWithMessage(err),
+	}
+}
+
+func MakeApiErrorWithStatus(code int, err error) *ApiError[string] {
 	return &ApiError[string]{
 		Code:   code,
 		Errors: makeApiErrorMapWithMessage(err),

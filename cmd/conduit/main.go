@@ -18,38 +18,37 @@ func main() {
 	dataSourceName := os.Getenv("DSN")
 	port := os.Getenv("PORT")
 	parsedPost, err := strconv.Atoi(port)
+	const loggingSpan string = "bootstrap"
 
 	if err != nil {
-		level.Error(logger).Log("bootstrap", "failed to parse port", "err", err)
+		level.Error(logger).Log(loggingSpan, "failed to parse port", "err", err)
 		os.Exit(1)
 	}
 
-	level.Info(logger).Log("bootstrap", "initializing database connection...")
+	level.Info(logger).Log(loggingSpan, "initializing database connection...")
 
 	// Grab a connection pool from the database
 	db, err := sqlx.Open("mysql", dataSourceName)
 
 	if err != nil {
-		level.Error(logger).Log("bootstrap", "failed to initialize a connection to postgres", "err", err)
+		level.Error(logger).Log(loggingSpan, "failed to initialize a connection to postgres", "err", err)
 		os.Exit(1)
 	}
-
-	// Run a quick ping check to make sure we're able to connect
 	if err := db.Ping(); err != nil {
-		level.Error(logger).Log("bootstrap", "failed to ping database", "err", err)
+		level.Error(logger).Log(loggingSpan, "failed to ping database", "err", err)
 		os.Exit(1)
 	}
 
-	level.Info(logger).Log("bootstrap", "database connection successfully initialized, building routes")
+	level.Info(logger).Log(loggingSpan, "database connection successfully initialized, building routes")
 
 	// Initialize the service container and internal router
 	serviceContainer := internal.MakeServiceContainer(logger, db)
 	router := internal.NewRouter(logger, serviceContainer)
 
-	level.Info(logger).Log("bootstrap", fmt.Sprintf("routes successfully initialized, now listening on port %d", parsedPost))
+	level.Info(logger).Log(loggingSpan, fmt.Sprintf("routes successfully initialized, now listening on port %d", parsedPost))
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", parsedPost), router); err != nil {
-		level.Error(logger).Log("bootstrap", "failed to start server", "err", err)
+		level.Error(logger).Log(loggingSpan, "failed to start server", "err", err)
 		os.Exit(1)
 	}
 }

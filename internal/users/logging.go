@@ -39,3 +39,21 @@ func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request A
 
 	return mw.next.Register(ctx, request)
 }
+
+func (mw *usersServiceLoggingMiddleware) Login(ctx context.Context, request AuthenticationRequest[LoginUserRequest]) (user *User, err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "Login",
+			"request_time", time.Since(begin),
+			"error", err,
+			"user_verified", user != nil,
+		)
+	}(time.Now())
+
+	level.Info(mw.logger).Log(
+		"method", "Login",
+		"request", request,
+	)
+
+	return mw.next.Login(ctx, request)
+}

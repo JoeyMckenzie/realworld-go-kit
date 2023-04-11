@@ -18,7 +18,9 @@ func MakeServiceContainer(logger log.Logger, db *sqlx.DB) *ServiceContainer {
 	var usersService users.UsersService
 	{
 		usersRepository := users.NewRepository(db)
-		usersService = users.NewService(logger, usersRepository)
+		tokenService := users.NewTokenService()
+		securityService := users.NewSecurityService()
+		usersService = users.NewService(logger, usersRepository, tokenService, securityService)
 		usersService = users.NewUsersServiceLoggingMiddleware(logger)(usersService)
 		usersService = users.NewUsersServiceValidationMiddleware(validation)(usersService)
 	}

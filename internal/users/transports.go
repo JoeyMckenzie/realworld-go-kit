@@ -19,13 +19,31 @@ func MakeUserRoutes(logger log.Logger, router *chi.Mux, service UsersService) *c
 		shared.HandlerOptions(logger)...,
 	)
 
+	loginUserHandler := httptransport.NewServer(
+		makeLoginUserEndpoint(service),
+		decodeLoginUserRequest,
+		shared.EncodeSuccessfulResponse,
+		shared.HandlerOptions(logger)...,
+	)
+
 	router.Post("/users", registerUserHandler.ServeHTTP)
+	router.Post("/user/login", loginUserHandler.ServeHTTP)
 
 	return router
 }
 
 func decodeRegisterUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var request AuthenticationRequest[RegisterUserRequest]
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, shared.ErrInvalidRequestBody
+	}
+
+	return request, nil
+}
+
+func decodeLoginUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var request AuthenticationRequest[LoginUserRequest]
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, shared.ErrInvalidRequestBody

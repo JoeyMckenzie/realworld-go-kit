@@ -27,3 +27,11 @@ func (mw *usersServiceValidationMiddleware) Register(ctx context.Context, reques
 
 	return mw.next.Register(ctx, request)
 }
+
+func (mw *usersServiceValidationMiddleware) Login(ctx context.Context, request AuthenticationRequest[LoginUserRequest]) (*User, error) {
+	if err := mw.validation.StructCtx(ctx, request); err != nil {
+		return &User{}, shared.MakeValidationError(err)
+	}
+
+	return mw.next.Login(ctx, request)
+}

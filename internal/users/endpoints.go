@@ -19,3 +19,18 @@ func makeRegisterUserEndpoint(service UsersService) endpoint.Endpoint {
 		}, nil
 	}
 }
+
+func makeLoginUserEndpoint(service UsersService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		loginRequest := request.(AuthenticationRequest[LoginUserRequest])
+		verifiedUser, err := service.Login(ctx, loginRequest)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &AuthenticationResponse{
+			User: verifiedUser,
+		}, nil
+	}
+}
