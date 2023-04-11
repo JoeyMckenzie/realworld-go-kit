@@ -1,9 +1,10 @@
--- While we could use a traditional migration tool, our use case for RealWorld is simple enough that we won't
--- reap the benefits of needing to evolve and maintain
+-- While we could use a traditional migration tool, our use case for RealWorld is
+-- simple enough that we won't reap the benefits of needing to evolve and maintain
 
 -- We'll need a table for users, with username and email as an indexable key
 CREATE TABLE users
 (
+    -- With MySQL, we'll store UUIDs as bytes, using the UUID Go type to map them into structs
     id         BINARY(16) PRIMARY KEY,
     username   VARCHAR(255)  NOT NULL,
     email      VARCHAR(255)  NOT NULL,

@@ -23,6 +23,9 @@ type (
 		GetUser(ctx context.Context, id uuid.UUID) (*UserEntity, error)
 		SearchUsers(ctx context.Context, username, email string) ([]UserEntity, error)
 	}
+	usersRepository struct {
+		db *sqlx.DB
+	}
 )
 
 func (u *UserEntity) ToUser(token string) *User {
@@ -39,10 +42,6 @@ func NewRepository(db *sqlx.DB) UsersRepository {
 	return &usersRepository{
 		db: db,
 	}
-}
-
-type usersRepository struct {
-	db *sqlx.DB
 }
 
 func (r *usersRepository) SearchUsers(ctx context.Context, username, email string) ([]UserEntity, error) {
