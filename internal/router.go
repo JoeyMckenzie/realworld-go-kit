@@ -1,20 +1,25 @@
 package internal
 
 import (
-    "github.com/go-chi/chi"
-    "github.com/go-chi/chi/middleware"
-    "github.com/go-kit/log"
-    "github.com/joeymckenzie/realworld-go-kit/internal/users"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-kit/log"
+	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users"
 )
 
 // NewRouter initializes a new instance of the chi router, mounting all sub-routes for users, articles, etc.
 func NewRouter(logger log.Logger, container *ServiceContainer) *chi.Mux {
-    router := chi.NewRouter()
-    router.Use(middleware.Logger)
-    router.Use(middleware.Recoverer)
-    router = users.MakeUserRoutes(logger, router, container.UsersService)
+	router := chi.NewRouter()
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.RequestID)
+	router.Use(shared.CorsPolicy)
+	router.Use(shared.JsonContentType)
+	router.Use(middleware.AllowContentType("application/json"))
 
-    router.Mount("/api", router)
+	router = users.MakeUserRoutes(logger, router, container.UsersService)
+	router.Mount("/api", router)
 
-    return router
+	return router
 }

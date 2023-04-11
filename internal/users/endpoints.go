@@ -7,13 +7,15 @@ import (
 
 func makeRegisterUserEndpoint(service UsersService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		registrationRequest := request.(AuthenticationRequest)
+		registrationRequest := request.(AuthenticationRequest[RegisterUserRequest])
 		createdUser, err := service.Register(ctx, registrationRequest)
 
 		if err != nil {
 			return nil, err
 		}
 
-		return createdUser, nil
+		return &AuthenticationResponse{
+			User: createdUser,
+		}, nil
 	}
 }

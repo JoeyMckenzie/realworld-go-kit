@@ -1,23 +1,22 @@
 package main
 
 import (
-	"context"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/go-kit/log/level"
-	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/joeymckenzie/realworld-go-kit/internal"
 )
 
 func main() {
 	// First, spin up our internal dependencies and logger
 	logger := internal.NewLogger()
-	connectionString := os.Getenv("DATABASE_URL")
+	dataSourceName := os.Getenv("DSN")
 	port := os.Getenv("PORT")
-	ctx := context.Background()
 	parsedPost, err := strconv.Atoi(port)
 
 	if err != nil {
@@ -28,7 +27,7 @@ func main() {
 	level.Info(logger).Log("bootstrap", "initializing database connection...")
 
 	// Grab a connection pool from the database
-	db, err := pgxpool.New(ctx, connectionString)
+	db, err := sqlx.Open("mysql", dataSourceName)
 
 	if err != nil {
 		level.Error(logger).Log("bootstrap", "failed to initialize a connection to postgres", "err", err)
@@ -36,7 +35,7 @@ func main() {
 	}
 
 	// Run a quick ping check to make sure we're able to connect
-	if err := db.Ping(ctx); err != nil {
+	if err := db.Ping(); err != nil {
 		level.Error(logger).Log("bootstrap", "failed to ping database", "err", err)
 		os.Exit(1)
 	}

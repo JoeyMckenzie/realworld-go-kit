@@ -22,7 +22,7 @@ func NewUsersServiceLoggingMiddleware(logger log.Logger) UsersServiceMiddleware 
 	}
 }
 
-func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request AuthenticationRequest) (user *User, err error) {
+func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request AuthenticationRequest[RegisterUserRequest]) (user *User, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "Register",
