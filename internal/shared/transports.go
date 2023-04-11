@@ -1,25 +1,59 @@
 package shared
 
 import (
-	"context"
-	"encoding/json"
-	"net/http"
+    "context"
+    "encoding/json"
+    "github.com/go-kit/kit/transport"
+    httptransport "github.com/go-kit/kit/transport/http"
+    "github.com/go-kit/log"
+    "net/http"
 )
 
 func EncodeSuccessfulResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	if _, ok := response.(error); ok {
-		w.WriteHeader(http.StatusBadRequest)
-	}
+    if _, ok := response.(error); ok {
+        w.WriteHeader(http.StatusBadRequest)
+    }
 
-	return json.NewEncoder(w).Encode(response)
+    return json.NewEncoder(w).Encode(response)
 }
 
 func EncodeSuccessfulResponseWithNoContent(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	if _, ok := response.(error); ok {
-		w.WriteHeader(http.StatusBadRequest)
-	}
+    if _, ok := response.(error); ok {
+        w.WriteHeader(http.StatusBadRequest)
+    }
 
-	w.WriteHeader(http.StatusNoContent)
+    w.WriteHeader(http.StatusNoContent)
 
-	return nil
+    return nil
+}
+
+func HandlerOptions(logger log.Logger) []httptransport.ServerOption {
+    return []httptransport.ServerOption{
+        httptransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
+        httptransport.ServerErrorEncoder(EncodeError),
+    }
+}
+
+func EncodeError(_ context.Context, err error, w http.ResponseWriter) {
+    if err == nil {
+        // Note: we have bigger problems if this happens...
+        w.WriteHeader(http.StatusInternalServerError)
+        json.NewEncoder(w).Encode(MakeGenericError())
+        return
+    }
+
+    // On unauthorized, don't provide any context for security and hand back 401
+    if err == ErrUnauthorized {
+        w.WriteHeader(http.StatusUnauthorized)
+        return
+    }
+
+    // Attempt to parse the error as an API error, else return a generic error back to the user
+    if apiError, ok := err.(*ApiError); ok {
+        w.WriteHeader(apiError.Code)
+        json.NewEncoder(w).Encode(apiError)
+    } else {
+        w.WriteHeader(http.StatusInternalServerError)
+        json.NewEncoder(w).Encode(MakeGenericError())
+    }
 }
