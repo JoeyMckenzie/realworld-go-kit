@@ -36,7 +36,3 @@ includes:
     vars:
       DATABASE_URL: $DATABASE_URL
       PORT: $PORT
-  db:
-    taskfile: ./Taskfile.db.yml
-    vars:
-      POSTGRES_PASSWORD: $POSTGRES_PASSWORD

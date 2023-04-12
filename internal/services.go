@@ -4,9 +4,10 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
-	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/middleware"
+	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
 )
 
 type ServiceContainer struct {
@@ -20,11 +21,11 @@ func MakeServiceContainer(logger log.Logger, db *sqlx.DB) *ServiceContainer {
 	var usersService core.UsersService
 	{
 		usersRepository := infrastructure.NewRepository(db)
-		tokenService := shared.NewTokenService()
-		securityService := infrastructure.NewSecurityService()
+		tokenService := utilities.NewTokenService()
+		securityService := utilities.NewSecurityService()
 		usersService = core.NewService(logger, usersRepository, tokenService, securityService)
-		usersService = core.NewUsersServiceLoggingMiddleware(logger)(usersService)
-		usersService = core.NewUsersServiceValidationMiddleware(validation)(usersService)
+		usersService = middleware.NewUsersServiceLoggingMiddleware(logger)(usersService)
+		usersService = middleware.NewUsersServiceValidationMiddleware(validation)(usersService)
 	}
 
 	return &ServiceContainer{

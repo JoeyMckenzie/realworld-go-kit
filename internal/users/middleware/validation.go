@@ -1,4 +1,4 @@
-package core
+package middleware
 
 import (
 	"context"
@@ -6,15 +6,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
 )
 
 type usersServiceValidationMiddleware struct {
 	validation *validator.Validate
-	next       UsersService
+	next       core.UsersService
 }
 
-func NewUsersServiceValidationMiddleware(validation *validator.Validate) UsersServiceMiddleware {
-	return func(next UsersService) UsersService {
+func NewUsersServiceValidationMiddleware(validation *validator.Validate) core.UsersServiceMiddleware {
+	return func(next core.UsersService) core.UsersService {
 		return &usersServiceValidationMiddleware{
 			validation: validation,
 			next:       next,

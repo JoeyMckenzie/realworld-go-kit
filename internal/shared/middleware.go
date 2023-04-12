@@ -3,6 +3,7 @@ package shared
 import (
 	"context"
 	"github.com/go-chi/cors"
+	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
 	"net/http"
 )
 
@@ -33,7 +34,7 @@ func AuthorizationRequired(next http.Handler) http.Handler {
 			return
 		}
 
-		requestContext := context.WithValue(r.Context(), TokenContextKey{}, TokenContextKey{UserId: userId})
+		requestContext := context.WithValue(r.Context(), utilities.TokenContextKey{}, utilities.TokenContextKey{UserId: userId})
 		r = r.WithContext(requestContext)
 		next.ServeHTTP(w, r)
 	})
@@ -47,7 +48,7 @@ func AuthorizationOptional(next http.Handler) http.Handler {
 			return
 		}
 
-		requestContext := context.WithValue(r.Context(), TokenContextKey{}, TokenContextKey{UserId: userId})
+		requestContext := context.WithValue(r.Context(), utilities.TokenContextKey{}, utilities.TokenContextKey{UserId: userId})
 		r = r.WithContext(requestContext)
 		next.ServeHTTP(w, r)
 	})

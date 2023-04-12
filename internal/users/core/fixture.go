@@ -3,8 +3,8 @@ package core
 import (
 	"context"
 	"github.com/go-kit/log"
-	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
+	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
 )
 
 var fixture *usersServiceTestFixture
@@ -12,16 +12,16 @@ var fixture *usersServiceTestFixture
 type usersServiceTestFixture struct {
 	ctx                 context.Context
 	service             UsersService
-	mockSecurityService *infrastructure.MockSecurityService
-	mockTokenService    *shared.MockTokenService
+	mockSecurityService *utilities.MockSecurityService
+	mockTokenService    *utilities.MockTokenService
 	mockRepository      *infrastructure.MockUsersRepository
 }
 
 func newUsersServiceTestFixture() *usersServiceTestFixture {
 	ctx := context.Background()
 	nopLogger := log.NewNopLogger()
-	mockTokenService := new(shared.MockTokenService)
-	mockSecurityService := new(infrastructure.MockSecurityService)
+	mockTokenService := new(utilities.MockTokenService)
+	mockSecurityService := new(utilities.MockSecurityService)
 	mockRepository := new(infrastructure.MockUsersRepository)
 	service := NewService(nopLogger, mockRepository, mockTokenService, mockSecurityService)
 
@@ -32,10 +32,4 @@ func newUsersServiceTestFixture() *usersServiceTestFixture {
 		mockSecurityService: mockSecurityService,
 		mockRepository:      mockRepository,
 	}
-}
-
-func (f *usersServiceTestFixture) resetMocks() {
-	f.mockTokenService.ResetMocks()
-	f.mockSecurityService.ResetMocks()
-	f.mockRepository.ResetMocks()
 }

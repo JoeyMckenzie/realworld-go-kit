@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
+	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
 )
 
 func makeRegisterUserEndpoint(service core.UsersService) endpoint.Endpoint {
@@ -40,7 +40,7 @@ func makeLoginUserEndpoint(service core.UsersService) endpoint.Endpoint {
 
 func makeUpdateUserEndpoint(service core.UsersService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
+		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
 		updateRequest := request.(users.AuthenticationRequest[users.UpdateUserRequest])
 		updatedUser, err := service.Update(ctx, updateRequest, uuidClaim.UserId)
 
@@ -56,7 +56,7 @@ func makeUpdateUserEndpoint(service core.UsersService) endpoint.Endpoint {
 
 func makeGetUserEndpoint(service core.UsersService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
+		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
 		existingUser, err := service.Get(ctx, uuidClaim.UserId)
 
 		if err != nil {

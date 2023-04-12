@@ -9,6 +9,7 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
+	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
 	"net/http"
 )
 
@@ -24,14 +25,14 @@ type (
 	userService struct {
 		logger          log.Logger
 		repository      infrastructure.UsersRepository
-		tokenService    shared.TokenService
-		securityService infrastructure.SecurityService
+		tokenService    utilities.TokenService
+		securityService utilities.SecurityService
 	}
 
 	UsersServiceMiddleware func(service UsersService) UsersService
 )
 
-func NewService(logger log.Logger, repository infrastructure.UsersRepository, tokenService shared.TokenService, securityService infrastructure.SecurityService) UsersService {
+func NewService(logger log.Logger, repository infrastructure.UsersRepository, tokenService utilities.TokenService, securityService utilities.SecurityService) UsersService {
 	return &userService{
 		logger:          logger,
 		repository:      repository,
@@ -161,10 +162,10 @@ func (us *userService) Update(ctx context.Context, request users.AuthenticationR
 		existingUser.Password = updatedHashedPassword
 	}
 
-	existingUser.Username = getUpdatedValueIfApplicable(request.User.Username, existingUser.Username)
-	existingUser.Email = getUpdatedValueIfApplicable(request.User.Email, existingUser.Email)
-	existingUser.Bio = getUpdatedValueIfApplicable(request.User.Bio, existingUser.Bio)
-	existingUser.Image = getUpdatedValueIfApplicable(request.User.Image, existingUser.Image)
+	existingUser.Username = shared.GetUpdatedValueIfApplicable(request.User.Username, existingUser.Username)
+	existingUser.Email = shared.GetUpdatedValueIfApplicable(request.User.Email, existingUser.Email)
+	existingUser.Bio = shared.GetUpdatedValueIfApplicable(request.User.Bio, existingUser.Bio)
+	existingUser.Image = shared.GetUpdatedValueIfApplicable(request.User.Image, existingUser.Image)
 
 	level.Info(us.logger).Log(loggingSpan, "attempting to update user in the database", "email", request.User.Email, "id", id.String())
 	updatedUser, err := us.repository.UpdateUser(

@@ -1,9 +1,10 @@
-package core
+package middleware
 
 import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
 	"time"
 
 	"github.com/go-kit/log"
@@ -12,11 +13,11 @@ import (
 
 type usersServiceLoggingMiddleware struct {
 	logger log.Logger
-	next   UsersService
+	next   core.UsersService
 }
 
-func NewUsersServiceLoggingMiddleware(logger log.Logger) UsersServiceMiddleware {
-	return func(next UsersService) UsersService {
+func NewUsersServiceLoggingMiddleware(logger log.Logger) core.UsersServiceMiddleware {
+	return func(next core.UsersService) core.UsersService {
 		return &usersServiceLoggingMiddleware{
 			logger: logger,
 			next:   next,

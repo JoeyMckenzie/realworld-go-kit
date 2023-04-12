@@ -1,4 +1,4 @@
-package infrastructure
+package utilities
 
 import (
 	"github.com/stretchr/testify/mock"
