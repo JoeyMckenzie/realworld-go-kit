@@ -2,11 +2,11 @@ package users
 
 type (
 	User struct {
-		Username string
-		Email    string
-		Token    string
-		Image    string
-		Bio      string
+		Username string `json:"username"`
+		Email    string `json:"email"`
+		Token    string `json:"token"`
+		Image    string `json:"image"`
+		Bio      string `json:"bio"`
 	}
 
 	LoginUserRequest struct {

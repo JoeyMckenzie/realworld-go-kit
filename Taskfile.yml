@@ -24,6 +24,11 @@ tasks:
   test:
     cmds:
       - go test ./...
+  integration:
+    cmds:
+      - ./integrations/run-postman-tests.sh
+    deps:
+      - docker:start
 
 includes:
   docker:

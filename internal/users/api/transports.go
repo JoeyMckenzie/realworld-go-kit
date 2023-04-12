@@ -28,8 +28,10 @@ func MakeUserRoutes(logger log.Logger, router *chi.Mux, service core.UsersServic
 		shared.HandlerOptions(logger)...,
 	)
 
-	router.Post("/users", registerUserHandler.ServeHTTP)
-	router.Post("/user/login", loginUserHandler.ServeHTTP)
+	router.Route("/users", func(r chi.Router) {
+		r.Post("/", registerUserHandler.ServeHTTP)
+		r.Post("/login", loginUserHandler.ServeHTTP)
+	})
 
 	return router
 }
