@@ -6,7 +6,6 @@ on:
     #   - v*
     branches:
       - dev
-  pull_request:
 permissions:
   contents: read
   # Optional: allow read access to pull request. Use with `only-new-issues` option.
