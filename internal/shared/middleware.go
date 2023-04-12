@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"context"
 	"github.com/go-chi/cors"
 	"net/http"
 )
@@ -21,4 +22,33 @@ func CorsPolicy(next http.Handler) http.Handler {
 	}
 
 	return cors.New(corsConfig).Handler(next)
+}
+
+func AuthorizationRequired(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userId, ok := GetUserIdFromAuthorizationHeader(r.Header.Get("Authorization"))
+
+		if !ok {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		requestContext := context.WithValue(r.Context(), TokenContextKey{}, TokenContextKey{UserId: userId})
+		r = r.WithContext(requestContext)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func AuthorizationOptional(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userId, ok := GetUserIdFromAuthorizationHeader(r.Header.Get("Authorization"))
+
+		if !ok {
+			return
+		}
+
+		requestContext := context.WithValue(r.Context(), TokenContextKey{}, TokenContextKey{UserId: userId})
+		r = r.WithContext(requestContext)
+		next.ServeHTTP(w, r)
+	})
 }

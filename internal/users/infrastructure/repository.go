@@ -23,6 +23,7 @@ type (
 		CreateUser(ctx context.Context, username, email, password string) (*UserEntity, error)
 		GetUser(ctx context.Context, id uuid.UUID) (*UserEntity, error)
 		SearchUsers(ctx context.Context, username, email string) ([]UserEntity, error)
+		UpdateUser(ctx context.Context, id uuid.UUID, username, email, bio, image, password string) (*UserEntity, error)
 	}
 	usersRepository struct {
 		db *sqlx.DB
@@ -57,14 +58,14 @@ func (r *usersRepository) SearchUsers(ctx context.Context, username, email strin
 }
 
 func (r *usersRepository) GetUser(ctx context.Context, id uuid.UUID) (*UserEntity, error) {
-	var user *UserEntity
-	const query string = "SELECT * FROM users WHERE id = ? LIMIT 1"
+	var user UserEntity
+	const query string = "SELECT * FROM users WHERE id = UUID_TO_BIN(?) LIMIT 1"
 
-	if err := r.db.SelectContext(ctx, &user, query, id); err != nil {
-		return user, err
+	if err := r.db.GetContext(ctx, &user, query, id); err != nil {
+		return &user, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 func (r *usersRepository) CreateUser(ctx context.Context, username string, email string, password string) (*UserEntity, error) {
@@ -92,4 +93,21 @@ LIMIT 1`
 	}
 
 	return &user, nil
+}
+
+func (r *usersRepository) UpdateUser(ctx context.Context, id uuid.UUID, username, email, bio, image, password string) (*UserEntity, error) {
+	const command string = `
+UPDATE users
+SET username = ?,
+    email = ?,
+    bio = ?,
+	image = ?,
+	password = ?
+WHERE id = UUID_TO_BIN(?)`
+
+	if _, err := r.db.ExecContext(ctx, command, username, email, bio, image, password, id); err != nil {
+		return &UserEntity{}, nil
+	}
+
+	return r.GetUser(ctx, id)
 }

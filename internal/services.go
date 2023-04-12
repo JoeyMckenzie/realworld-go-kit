@@ -4,6 +4,7 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
+	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
 )
@@ -19,7 +20,7 @@ func MakeServiceContainer(logger log.Logger, db *sqlx.DB) *ServiceContainer {
 	var usersService core.UsersService
 	{
 		usersRepository := infrastructure.NewRepository(db)
-		tokenService := infrastructure.NewTokenService()
+		tokenService := shared.NewTokenService()
 		securityService := infrastructure.NewSecurityService()
 		usersService = core.NewService(logger, usersRepository, tokenService, securityService)
 		usersService = core.NewUsersServiceLoggingMiddleware(logger)(usersService)

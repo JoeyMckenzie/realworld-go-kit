@@ -1,4 +1,4 @@
-package infrastructure
+package shared
 
 import (
 	"github.com/google/uuid"

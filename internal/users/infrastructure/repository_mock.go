@@ -31,3 +31,8 @@ func (m *MockUsersRepository) SearchUsers(ctx context.Context, username, email s
 	args := m.Called(ctx, username, email)
 	return args.Get(0).([]UserEntity), args.Error(1)
 }
+
+func (m *MockUsersRepository) UpdateUser(ctx context.Context, id uuid.UUID, username, email, bio, image, password string) (*UserEntity, error) {
+	args := m.Called(ctx, id, username, email, bio, image, password)
+	return args.Get(0).(*UserEntity), args.Error(1)
+}
