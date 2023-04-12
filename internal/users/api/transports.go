@@ -1,9 +1,11 @@
-package users
+package api
 
 import (
 	"context"
 	"encoding/json"
 	"github.com/go-kit/log"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -11,7 +13,7 @@ import (
 	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 )
 
-func MakeUserRoutes(logger log.Logger, router *chi.Mux, service UsersService) *chi.Mux {
+func MakeUserRoutes(logger log.Logger, router *chi.Mux, service core.UsersService) *chi.Mux {
 	registerUserHandler := httptransport.NewServer(
 		makeRegisterUserEndpoint(service),
 		decodeRegisterUserRequest,
@@ -33,7 +35,7 @@ func MakeUserRoutes(logger log.Logger, router *chi.Mux, service UsersService) *c
 }
 
 func decodeRegisterUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var request AuthenticationRequest[RegisterUserRequest]
+	var request users.AuthenticationRequest[users.RegisterUserRequest]
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, shared.ErrInvalidRequestBody
@@ -43,7 +45,7 @@ func decodeRegisterUserRequest(_ context.Context, r *http.Request) (interface{},
 }
 
 func decodeLoginUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var request AuthenticationRequest[LoginUserRequest]
+	var request users.AuthenticationRequest[users.LoginUserRequest]
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, shared.ErrInvalidRequestBody

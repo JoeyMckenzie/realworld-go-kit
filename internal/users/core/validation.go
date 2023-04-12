@@ -1,9 +1,10 @@
-package users
+package core
 
 import (
 	"context"
 	"github.com/go-playground/validator/v10"
 	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users"
 )
 
 type usersServiceValidationMiddleware struct {
@@ -20,17 +21,17 @@ func NewUsersServiceValidationMiddleware(validation *validator.Validate) UsersSe
 	}
 }
 
-func (mw *usersServiceValidationMiddleware) Register(ctx context.Context, request AuthenticationRequest[RegisterUserRequest]) (*User, error) {
+func (mw *usersServiceValidationMiddleware) Register(ctx context.Context, request users.AuthenticationRequest[users.RegisterUserRequest]) (*users.User, error) {
 	if err := mw.validation.StructCtx(ctx, request); err != nil {
-		return &User{}, shared.MakeValidationError(err)
+		return &users.User{}, shared.MakeValidationError(err)
 	}
 
 	return mw.next.Register(ctx, request)
 }
 
-func (mw *usersServiceValidationMiddleware) Login(ctx context.Context, request AuthenticationRequest[LoginUserRequest]) (*User, error) {
+func (mw *usersServiceValidationMiddleware) Login(ctx context.Context, request users.AuthenticationRequest[users.LoginUserRequest]) (*users.User, error) {
 	if err := mw.validation.StructCtx(ctx, request); err != nil {
-		return &User{}, shared.MakeValidationError(err)
+		return &users.User{}, shared.MakeValidationError(err)
 	}
 
 	return mw.next.Login(ctx, request)

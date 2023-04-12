@@ -1,30 +1,32 @@
-package users
+package core
 
 import (
 	"context"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
 	"net/http"
 )
 
 type (
 	UsersService interface {
-		Register(ctx context.Context, request AuthenticationRequest[RegisterUserRequest]) (*User, error)
-		Login(ctx context.Context, request AuthenticationRequest[LoginUserRequest]) (*User, error)
+		Register(ctx context.Context, request users.AuthenticationRequest[users.RegisterUserRequest]) (*users.User, error)
+		Login(ctx context.Context, request users.AuthenticationRequest[users.LoginUserRequest]) (*users.User, error)
 	}
 
 	userService struct {
 		logger          log.Logger
-		repository      UsersRepository
-		tokenService    TokenService
-		securityService SecurityService
+		repository      infrastructure.UsersRepository
+		tokenService    infrastructure.TokenService
+		securityService infrastructure.SecurityService
 	}
 
 	UsersServiceMiddleware func(service UsersService) UsersService
 )
 
-func NewService(logger log.Logger, repository UsersRepository, tokenService TokenService, securityService SecurityService) UsersService {
+func NewService(logger log.Logger, repository infrastructure.UsersRepository, tokenService infrastructure.TokenService, securityService infrastructure.SecurityService) UsersService {
 	return &userService{
 		logger:          logger,
 		repository:      repository,
@@ -33,7 +35,7 @@ func NewService(logger log.Logger, repository UsersRepository, tokenService Toke
 	}
 }
 
-func (us *userService) Register(ctx context.Context, request AuthenticationRequest[RegisterUserRequest]) (*User, error) {
+func (us *userService) Register(ctx context.Context, request users.AuthenticationRequest[users.RegisterUserRequest]) (*users.User, error) {
 	const loggingSpan string = "registration"
 
 	level.Info(us.logger).Log(loggingSpan, "attempting to register new user, checking for existing users", "username", request.User.Username, "email", request.User.Email)
@@ -43,10 +45,10 @@ func (us *userService) Register(ctx context.Context, request AuthenticationReque
 		// Technically, there could be at least two entries here - only log out the first one
 		existingUser := existingUsers[0]
 		level.Error(us.logger).Log(loggingSpan, "username or email is taken", "username", existingUser.Username, "email", existingUser.Email)
-		return &User{}, shared.MakeApiErrorWithStatus(http.StatusConflict, shared.ErrUsernameOrEmailTaken)
+		return &users.User{}, shared.MakeApiErrorWithStatus(http.StatusConflict, shared.ErrUsernameOrEmailTaken)
 	} else if err != nil {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting to query for existing users", "err", err)
-		return &User{}, shared.MakeApiError(err)
+		return &users.User{}, shared.MakeApiError(err)
 	}
 
 	level.Info(us.logger).Log(loggingSpan, "no user clashes found, hashing user password", "username", request.User.Username, "email", request.User.Email)
@@ -54,7 +56,7 @@ func (us *userService) Register(ctx context.Context, request AuthenticationReque
 
 	if err != nil {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting to hash user password", "err", err, "username", request.User.Username, "email", request.User.Email)
-		return &User{}, shared.MakeApiError(err)
+		return &users.User{}, shared.MakeApiError(err)
 	}
 
 	level.Info(us.logger).Log(loggingSpan, "password successfully hashed, creating user", "username", request.User.Username, "email", request.User.Email)
@@ -62,7 +64,7 @@ func (us *userService) Register(ctx context.Context, request AuthenticationReque
 
 	if err != nil {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting create user", "err", err)
-		return &User{}, shared.MakeApiError(err)
+		return &users.User{}, shared.MakeApiError(err)
 	}
 
 	level.Info(us.logger).Log(loggingSpan, "user successfully created, generating token", "username", createdUser.Username, "email", createdUser.Email, "user_id", createdUser.ID.String())
@@ -70,7 +72,7 @@ func (us *userService) Register(ctx context.Context, request AuthenticationReque
 
 	if err != nil {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting generate user token", "err", err)
-		return &User{}, shared.MakeApiError(err)
+		return &users.User{}, shared.MakeApiError(err)
 	}
 
 	level.Info(us.logger).Log(loggingSpan, "token successfully generated", "username", createdUser.Username, "email", createdUser.Email, "user_id", createdUser.ID.String())
@@ -78,7 +80,7 @@ func (us *userService) Register(ctx context.Context, request AuthenticationReque
 	return createdUser.ToUser(token), nil
 }
 
-func (us *userService) Login(ctx context.Context, request AuthenticationRequest[LoginUserRequest]) (*User, error) {
+func (us *userService) Login(ctx context.Context, request users.AuthenticationRequest[users.LoginUserRequest]) (*users.User, error) {
 	const loggingSpan string = "login"
 
 	level.Info(us.logger).Log(loggingSpan, "attempting to login user, checking for existing user", "email", request.User.Email)
@@ -86,10 +88,10 @@ func (us *userService) Login(ctx context.Context, request AuthenticationRequest[
 
 	if len(existingUsers) == 0 {
 		level.Error(us.logger).Log(loggingSpan, "user was not found", "email", request.User.Email)
-		return &User{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
+		return &users.User{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
 	} else if err != nil {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting to query for existing users", "err", err)
-		return &User{}, shared.MakeApiError(err)
+		return &users.User{}, shared.MakeApiError(err)
 	}
 
 	existingUser := existingUsers[0]
@@ -98,7 +100,7 @@ func (us *userService) Login(ctx context.Context, request AuthenticationRequest[
 
 	if !validLoginAttempt {
 		level.Error(us.logger).Log(loggingSpan, "unauthorized attempt to login", "username", existingUser.Username, "email", existingUser.Email)
-		return &User{}, shared.MakeApiErrorWithStatus(http.StatusBadRequest, shared.ErrInvalidLoginAttempt)
+		return &users.User{}, shared.MakeApiErrorWithStatus(http.StatusBadRequest, shared.ErrInvalidLoginAttempt)
 	}
 
 	level.Info(us.logger).Log(loggingSpan, "user successfully verified, generating token", "username", existingUser.Username, "email", existingUser.Email, "user_id", existingUser.ID.String())
@@ -106,7 +108,7 @@ func (us *userService) Login(ctx context.Context, request AuthenticationRequest[
 
 	if err != nil {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting generate user token", "err", err)
-		return &User{}, shared.MakeApiError(err)
+		return &users.User{}, shared.MakeApiError(err)
 	}
 
 	level.Info(us.logger).Log(loggingSpan, "token successfully generated", "username", existingUser.Username, "email", existingUser.Email, "user_id", existingUser.ID.String())

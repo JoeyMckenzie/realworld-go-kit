@@ -1,9 +1,10 @@
-package users
+package infrastructure
 
 import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users"
 )
 
 type (
@@ -28,8 +29,8 @@ type (
 	}
 )
 
-func (u *UserEntity) ToUser(token string) *User {
-	return &User{
+func (u *UserEntity) ToUser(token string) *users.User {
+	return &users.User{
 		Username: u.Username,
 		Email:    u.Email,
 		Token:    token,

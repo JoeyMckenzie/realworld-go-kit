@@ -1,8 +1,9 @@
-package users
+package core
 
 import (
 	"context"
 	"github.com/go-kit/log"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
 )
 
 var fixture *usersServiceTestFixture
@@ -10,17 +11,17 @@ var fixture *usersServiceTestFixture
 type usersServiceTestFixture struct {
 	ctx                 context.Context
 	service             UsersService
-	mockSecurityService *mockSecurityService
-	mockTokenService    *mockTokenService
-	mockRepository      *mockUsersRepository
+	mockSecurityService *infrastructure.MockSecurityService
+	mockTokenService    *infrastructure.MockTokenService
+	mockRepository      *infrastructure.MockUsersRepository
 }
 
 func newUsersServiceTestFixture() *usersServiceTestFixture {
 	ctx := context.Background()
 	nopLogger := log.NewNopLogger()
-	mockTokenService := new(mockTokenService)
-	mockSecurityService := new(mockSecurityService)
-	mockRepository := new(mockUsersRepository)
+	mockTokenService := new(infrastructure.MockTokenService)
+	mockSecurityService := new(infrastructure.MockSecurityService)
+	mockRepository := new(infrastructure.MockUsersRepository)
 	service := NewService(nopLogger, mockRepository, mockTokenService, mockSecurityService)
 
 	return &usersServiceTestFixture{

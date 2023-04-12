@@ -1,6 +1,8 @@
-package users
+package core
 
 import (
+	"github.com/joeymckenzie/realworld-go-kit/internal/users"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -12,8 +14,8 @@ func Test_RegisterReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
 	stubEmail := "email@email.com"
 	stubUsername := "username"
 	stubPassword := "password"
-	request := AuthenticationRequest[RegisterUserRequest]{
-		User: &RegisterUserRequest{
+	request := users.AuthenticationRequest[users.RegisterUserRequest]{
+		User: &users.RegisterUserRequest{
 			Email:    &stubEmail,
 			Username: &stubUsername,
 			Password: &stubPassword,
@@ -22,7 +24,7 @@ func Test_RegisterReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
 
 	fixture.mockRepository.
 		On("SearchUsers", fixture.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("string")).
-		Return([]UserEntity{}, nil)
+		Return([]infrastructure.UserEntity{}, nil)
 
 	fixture.mockSecurityService.
 		On("HashPassword", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
@@ -30,7 +32,7 @@ func Test_RegisterReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
 
 	fixture.mockRepository.
 		On("CreateUser", fixture.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).
-		Return(&UserEntity{}, nil)
+		Return(&infrastructure.UserEntity{}, nil)
 
 	fixture.mockTokenService.
 		On("GenerateUserToken", mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("string")).
@@ -53,8 +55,8 @@ func Test_LoginReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
 	fixture = newUsersServiceTestFixture()
 	stubEmail := "email@email.com"
 	stubPassword := "password"
-	request := AuthenticationRequest[LoginUserRequest]{
-		User: &LoginUserRequest{
+	request := users.AuthenticationRequest[users.LoginUserRequest]{
+		User: &users.LoginUserRequest{
 			Email:    &stubEmail,
 			Password: &stubPassword,
 		},
@@ -62,7 +64,7 @@ func Test_LoginReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
 
 	fixture.mockRepository.
 		On("SearchUsers", fixture.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("string")).
-		Return([]UserEntity{{}}, nil)
+		Return([]infrastructure.UserEntity{{}}, nil)
 
 	fixture.mockSecurityService.
 		On("IsValidPassword", mock.AnythingOfType("string"), mock.AnythingOfType("string")).

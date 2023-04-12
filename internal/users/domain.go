@@ -28,13 +28,3 @@ type (
 		User *User `json:"user"`
 	}
 )
-
-func ToUser(token string) *User {
-	return &User{
-		Username: "",
-		Email:    "",
-		Token:    "",
-		Image:    "",
-		Bio:      "",
-	}
-}

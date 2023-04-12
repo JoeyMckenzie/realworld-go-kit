@@ -1,4 +1,4 @@
-package users
+package infrastructure
 
 import (
 	"github.com/golang-jwt/jwt/v5"

@@ -1,7 +1,8 @@
-package users
+package core
 
 import (
 	"context"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users"
 	"time"
 
 	"github.com/go-kit/log"
@@ -22,7 +23,7 @@ func NewUsersServiceLoggingMiddleware(logger log.Logger) UsersServiceMiddleware 
 	}
 }
 
-func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request AuthenticationRequest[RegisterUserRequest]) (user *User, err error) {
+func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request users.AuthenticationRequest[users.RegisterUserRequest]) (user *users.User, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "Register",
@@ -40,7 +41,7 @@ func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request A
 	return mw.next.Register(ctx, request)
 }
 
-func (mw *usersServiceLoggingMiddleware) Login(ctx context.Context, request AuthenticationRequest[LoginUserRequest]) (user *User, err error) {
+func (mw *usersServiceLoggingMiddleware) Login(ctx context.Context, request users.AuthenticationRequest[users.LoginUserRequest]) (user *users.User, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "Login",
