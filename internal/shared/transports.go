@@ -9,6 +9,10 @@ import (
 	"net/http"
 )
 
+func DecodeNilPayload(ctx context.Context, r *http.Request) (interface{}, error) {
+	return nil, nil
+}
+
 func EncodeSuccessfulResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	if _, ok := response.(error); ok {
 		w.WriteHeader(http.StatusBadRequest)

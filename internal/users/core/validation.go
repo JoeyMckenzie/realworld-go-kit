@@ -41,3 +41,7 @@ func (mw *usersServiceValidationMiddleware) Login(ctx context.Context, request u
 func (mw *usersServiceValidationMiddleware) Update(ctx context.Context, request users.AuthenticationRequest[users.UpdateUserRequest], id uuid.UUID) (*users.User, error) {
 	return mw.next.Update(ctx, request, id)
 }
+
+func (mw *usersServiceValidationMiddleware) Get(ctx context.Context, id uuid.UUID) (*users.User, error) {
+	return mw.next.Get(ctx, id)
+}

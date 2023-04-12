@@ -35,6 +35,13 @@ func MakeUserRoutes(logger log.Logger, router *chi.Mux, service core.UsersServic
 		shared.HandlerOptions(logger)...,
 	)
 
+	getUserHandler := httptransport.NewServer(
+		makeGetUserEndpoint(service),
+		shared.DecodeNilPayload,
+		shared.EncodeSuccessfulResponse,
+		shared.HandlerOptions(logger)...,
+	)
+
 	router.Route("/users", func(r chi.Router) {
 		r.Post("/", registerUserHandler.ServeHTTP)
 		r.Post("/login", loginUserHandler.ServeHTTP)
@@ -43,6 +50,7 @@ func MakeUserRoutes(logger log.Logger, router *chi.Mux, service core.UsersServic
 	router.Route("/user", func(r chi.Router) {
 		r.Use(shared.AuthorizationRequired)
 		r.Put("/", updateUserHandler.ServeHTTP)
+		r.Get("/", getUserHandler.ServeHTTP)
 	})
 
 	return router

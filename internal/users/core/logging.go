@@ -77,3 +77,21 @@ func (mw *usersServiceLoggingMiddleware) Update(ctx context.Context, request use
 
 	return mw.next.Update(ctx, request, id)
 }
+
+func (mw *usersServiceLoggingMiddleware) Get(ctx context.Context, id uuid.UUID) (user *users.User, err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "Get",
+			"request_time", time.Since(begin),
+			"error", err,
+			"user_found", user != nil,
+		)
+	}(time.Now())
+
+	level.Info(mw.logger).Log(
+		"method", "Get",
+		"id", id,
+	)
+
+	return mw.next.Get(ctx, id)
+}

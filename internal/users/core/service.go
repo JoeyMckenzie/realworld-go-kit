@@ -18,6 +18,7 @@ type (
 		Register(ctx context.Context, request users.AuthenticationRequest[users.RegisterUserRequest]) (*users.User, error)
 		Login(ctx context.Context, request users.AuthenticationRequest[users.LoginUserRequest]) (*users.User, error)
 		Update(ctx context.Context, request users.AuthenticationRequest[users.UpdateUserRequest], id uuid.UUID) (*users.User, error)
+		Get(ctx context.Context, id uuid.UUID) (*users.User, error)
 	}
 
 	userService struct {
@@ -128,7 +129,7 @@ func (us *userService) Update(ctx context.Context, request users.AuthenticationR
 	existingUser, err := us.repository.GetUser(ctx, id)
 
 	if err != nil && err != sql.ErrNoRows {
-		level.Error(us.logger).Log(loggingSpan, "error while attempting generate user token", "err", err, "email", request.User.Email, "id", id.String())
+		level.Error(us.logger).Log(loggingSpan, "error while attempting check for existing user", "err", err, "email", request.User.Email, "id", id.String())
 		return &users.User{}, shared.MakeApiError(err)
 	} else if err == sql.ErrNoRows {
 		level.Error(us.logger).Log(loggingSpan, "user was not found", "email", request.User.Email, "id", id.String())
@@ -189,4 +190,29 @@ func (us *userService) Update(ctx context.Context, request users.AuthenticationR
 	}
 
 	return updatedUser.ToUser(token), nil
+}
+
+func (us *userService) Get(ctx context.Context, id uuid.UUID) (*users.User, error) {
+	const loggingSpan string = "get_user"
+
+	level.Info(us.logger).Log(loggingSpan, "attempting to get existing user", "email", "id", id)
+	existingUser, err := us.repository.GetUser(ctx, id)
+
+	if err != nil && err != sql.ErrNoRows {
+		level.Error(us.logger).Log(loggingSpan, "error while attempting check for existing user", "err", err, "id", id)
+		return &users.User{}, shared.MakeApiError(err)
+	} else if err == sql.ErrNoRows {
+		level.Error(us.logger).Log(loggingSpan, "user was not found", "email", "id", id)
+		return &users.User{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
+	}
+
+	level.Info(us.logger).Log(loggingSpan, "user successfully verified, generating new token", "email", existingUser.Email, "id", id)
+	token, err := us.tokenService.GenerateUserToken(existingUser.ID, existingUser.Email)
+
+	if err != nil {
+		level.Error(us.logger).Log(loggingSpan, "error while generating new access token", "err", err, "email", existingUser.Email, "id", id)
+		return &users.User{}, shared.MakeApiError(err)
+	}
+
+	return existingUser.ToUser(token), nil
 }

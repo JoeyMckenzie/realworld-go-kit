@@ -53,3 +53,18 @@ func makeUpdateUserEndpoint(service core.UsersService) endpoint.Endpoint {
 		}, nil
 	}
 }
+
+func makeGetUserEndpoint(service core.UsersService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
+		existingUser, err := service.Get(ctx, uuidClaim.UserId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &users.AuthenticationResponse{
+			User: existingUser,
+		}, nil
+	}
+}
