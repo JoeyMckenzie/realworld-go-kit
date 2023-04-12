@@ -21,11 +21,11 @@ type (
     }
 
     UpdateUserRequest struct {
-        Username *string
-        Email    *string
-        Password *string
-        Image    *string
-        Bio      *string
+        Username *string `json:"username,omitempty"`
+        Email    *string `json:"email,omitempty"`
+        Password *string `json:"password,omitempty"`
+        Image    *string `json:"image,omitempty"`
+        Bio      *string `json:"bio,omitempty"`
     }
 
     AuthenticationRequest[T LoginUserRequest | RegisterUserRequest | UpdateUserRequest] struct {
