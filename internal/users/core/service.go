@@ -15,6 +15,7 @@ type (
     UsersService interface {
         Register(ctx context.Context, request users.AuthenticationRequest[users.RegisterUserRequest]) (*users.User, error)
         Login(ctx context.Context, request users.AuthenticationRequest[users.LoginUserRequest]) (*users.User, error)
+        Update(ctx context.Context, request users.AuthenticationRequest[users.UpdateUserRequest]) (*users.User, error)
     }
 
     userService struct {
@@ -115,4 +116,9 @@ func (us *userService) Login(ctx context.Context, request users.AuthenticationRe
     level.Info(us.logger).Log(loggingSpan, "token successfully generated", "username", existingUser.Username, "email", existingUser.Email, "user_id", existingUser.ID.String())
 
     return existingUser.ToUser(token), nil
+}
+
+func (us *userService) Update(ctx context.Context, request users.AuthenticationRequest[users.UpdateUserRequest]) (*users.User, error) {
+    //TODO implement me
+    panic("implement me")
 }
