@@ -3,7 +3,7 @@ set -x
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-APIURL=${APIURL:-http://localhost:8080/api}
+APIURL=${APIURL:-https://realworld-go-kit.fly.dev/api}
 USERNAME=${USERNAME:-u$(date +%s)}
 EMAIL=${EMAIL:-$USERNAME@mail.com}
 PASSWORD=${PASSWORD:-password}
