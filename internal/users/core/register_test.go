@@ -1,0 +1,47 @@
+package core
+
+import (
+    "github.com/joeymckenzie/realworld-go-kit/internal/users"
+    "github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/mock"
+    "testing"
+)
+
+func Test_RegisterReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
+    // Arrange
+    fixture = newUsersServiceTestFixture()
+    request := users.AuthenticationRequest[users.RegisterUserRequest]{
+        User: &users.RegisterUserRequest{
+            Email:    stubEmail,
+            Username: stubUsername,
+            Password: stubPassword,
+        },
+    }
+
+    fixture.mockRepository.
+        On("SearchUsers", fixture.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+        Return([]infrastructure.UserEntity{}, nil)
+
+    fixture.mockSecurityService.
+        On("HashPassword", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+        Return("stub hashed password", nil)
+
+    fixture.mockRepository.
+        On("CreateUser", fixture.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).
+        Return(&infrastructure.UserEntity{}, nil)
+
+    fixture.mockTokenService.
+        On("GenerateUserToken", mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("string")).
+        Return("stub token", nil)
+
+    // Act
+    response, err := fixture.service.Register(fixture.ctx, request)
+
+    assert.Nil(t, err)
+    assert.NotNil(t, response)
+    fixture.mockRepository.AssertNumberOfCalls(t, "SearchUsers", 1)
+    fixture.mockRepository.AssertNumberOfCalls(t, "CreateUser", 1)
+    fixture.mockSecurityService.AssertNumberOfCalls(t, "HashPassword", 1)
+    fixture.mockTokenService.AssertNumberOfCalls(t, "GenerateUserToken", 1)
+}
