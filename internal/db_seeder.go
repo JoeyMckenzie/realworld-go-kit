@@ -15,7 +15,7 @@ type dbSeeder struct {
 	logger    log.Logger
 }
 
-func SeedDatabase(ctx context.Context, logger log.Logger, serviceContainer *ServiceContainer) {
+func SeedDatabase(ctx context.Context, serviceContainer *ServiceContainer) {
 	seeder := dbSeeder{
 		container: serviceContainer,
 	}
@@ -46,7 +46,7 @@ func (s dbSeeder) seedUser(ctx context.Context, wg *sync.WaitGroup) {
 		User: &users.RegisterUserRequest{
 			Username: fmt.Sprintf("user%d", uniqueKey),
 			Email:    fmt.Sprintf("email%d@email.com", uniqueKey),
-			// We'll reuse the same password so we can access any unique user
+			// We'll reuse the same password, so we can access any unique user
 			Password: "password",
 		},
 	}

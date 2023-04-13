@@ -6,7 +6,6 @@ WORKDIR /usr/src/app
 COPY ./go.mod ./go.sum ./
 RUN go mod download && go mod verify
 
-# COPY . .
 COPY ./cmd/conduit/main.go ./
 COPY ./internal ./internal
 RUN go build -v -o /usr/local/bin/app ./main.go

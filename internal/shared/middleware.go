@@ -2,6 +2,7 @@ package shared
 
 import (
 	"context"
+	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
 	"net/http"
@@ -35,6 +36,21 @@ func AuthorizationRequired(next http.Handler) http.Handler {
 		}
 
 		requestContext := context.WithValue(r.Context(), utilities.TokenContextKey{}, utilities.TokenContextKey{UserId: userId})
+		r = r.WithContext(requestContext)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func UsernameRequired(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username := chi.URLParam(r, "username")
+
+		if username == "" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		requestContext := context.WithValue(r.Context(), UsernameContextKey{}, UsernameContextKey{Username: username})
 		r = r.WithContext(requestContext)
 		next.ServeHTTP(w, r)
 	})

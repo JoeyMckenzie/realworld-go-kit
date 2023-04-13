@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/joho/godotenv"
 	"net/http"
 	"os"
 	"strconv"
@@ -18,12 +17,6 @@ func main() {
 
 	// First, spin up our internal dependencies and logger
 	logger := internal.NewLogger()
-
-	if err := godotenv.Load(); err != nil {
-		level.Error(logger).Log(loggingSpan, "failed to local environment variables", "err", err)
-		os.Exit(1)
-	}
-
 	dataSourceName := os.Getenv("DSN")
 	port := os.Getenv("PORT")
 	parsedPost, err := strconv.Atoi(port)

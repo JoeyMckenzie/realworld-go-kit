@@ -23,8 +23,12 @@ type (
 		CreateUser(ctx context.Context, username, email, password string) (*UserEntity, error)
 		GetUserById(ctx context.Context, id uuid.UUID) (*UserEntity, error)
 		GetUserByUsernameAndEmail(ctx context.Context, username, email string) (*UserEntity, error)
+		GetUserByUsername(ctx context.Context, username string) (*UserEntity, error)
 		SearchUsers(ctx context.Context, username, email string) ([]UserEntity, error)
 		UpdateUser(ctx context.Context, id uuid.UUID, username, email, bio, image, password string) (*UserEntity, error)
+		GetExistingFollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) (uuid.UUID, error)
+		AddFollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) error
+		DeleteFollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) error
 	}
 	usersRepository struct {
 		db *sqlx.DB
@@ -82,6 +86,17 @@ func (r *usersRepository) GetUserByUsernameAndEmail(ctx context.Context, usernam
 	return &user, nil
 }
 
+func (r *usersRepository) GetUserByUsername(ctx context.Context, username string) (*UserEntity, error) {
+	var user UserEntity
+	const query string = "SELECT * FROM users WHERE username = ?"
+
+	if err := r.db.GetContext(ctx, &user, query, username); err != nil {
+		return &user, err
+	}
+
+	return &user, nil
+}
+
 func (r *usersRepository) CreateUser(ctx context.Context, username string, email string, password string) (*UserEntity, error) {
 	const command string = "INSERT INTO users (id, username, email, password) VALUES (UUID_TO_BIN(UUID()), ?, ?, ?)"
 
@@ -108,4 +123,39 @@ WHERE id = UUID_TO_BIN(?)`
 	}
 
 	return r.GetUserById(ctx, id)
+}
+
+func (r *usersRepository) GetExistingFollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) (uuid.UUID, error) {
+	var followId uuid.UUID
+	const query string = "SELECT id FROM user_follows WHERE (follower_id, followee_id) = (UUID_TO_BIN(?), UUID_TO_BIN(?))"
+
+	if err := r.db.GetContext(ctx, &followId, query, followerId, followeeId); err != nil {
+		return uuid.Nil, err
+	}
+
+	return followId, nil
+}
+
+func (r *usersRepository) AddFollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) error {
+	const command string = `
+INSERT INTO user_follows (id, follower_id, followee_id)
+VALUES (UUID_TO_BIN(UUID()), UUID_TO_BIN(?), UUID_TO_BIN(?))`
+
+	if _, err := r.db.ExecContext(ctx, command, followerId, followeeId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *usersRepository) DeleteFollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) error {
+	const command string = `
+DELETE FROM user_follows
+WHERE (follower_id, followee_id) = (UUID_TO_BIN(?), UUID_TO_BIN(?))`
+
+	if _, err := r.db.ExecContext(ctx, command, followerId, followeeId); err != nil {
+		return err
+	}
+
+	return nil
 }

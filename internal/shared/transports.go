@@ -13,20 +13,14 @@ func DecodeNilPayload(ctx context.Context, r *http.Request) (interface{}, error)
 	return nil, nil
 }
 
-func EncodeSuccessfulResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+func EncodeSuccessfulOkResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	if _, ok := response.(error); ok {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	return json.NewEncoder(w).Encode(response)
-}
-
-func EncodeSuccessfulResponseWithNoContent(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	if _, ok := response.(error); ok {
-		w.WriteHeader(http.StatusBadRequest)
+	if response != nil {
+		return json.NewEncoder(w).Encode(response)
 	}
-
-	w.WriteHeader(http.StatusNoContent)
 
 	return nil
 }

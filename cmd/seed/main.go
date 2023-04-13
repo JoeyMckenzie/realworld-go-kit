@@ -41,5 +41,5 @@ func main() {
 	level.Info(logger).Log(loggingSpan, "database connection successfully initialized, building initializing services")
 	serviceContainer := internal.MakeServiceContainer(logger, db)
 
-	internal.SeedDatabase(context.Background(), logger, serviceContainer)
+	internal.SeedDatabase(context.Background(), serviceContainer)
 }

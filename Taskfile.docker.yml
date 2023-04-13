@@ -12,6 +12,10 @@ tasks:
       - task: stop
       - task: rm
       - task: build
+  restart:
+    cmds:
+      - task: rebuild
+      - task: run
   run:
     cmds:
       - docker run -d

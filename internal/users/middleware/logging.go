@@ -97,7 +97,7 @@ func (mw *usersServiceLoggingMiddleware) Get(ctx context.Context, id uuid.UUID) 
 	return mw.next.Get(ctx, id)
 }
 
-func (mw *usersServiceLoggingMiddleware) Follow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) (err error) {
+func (mw *usersServiceLoggingMiddleware) Follow(ctx context.Context, username string, followeeId uuid.UUID) (err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "Follow",
@@ -108,14 +108,14 @@ func (mw *usersServiceLoggingMiddleware) Follow(ctx context.Context, followerId 
 
 	level.Info(mw.logger).Log(
 		"method", "Follow",
-		"follower_id", followerId,
+		"username", username,
 		"followee_id", followeeId,
 	)
 
-	return mw.next.Follow(ctx, followerId, followeeId)
+	return mw.next.Follow(ctx, username, followeeId)
 }
 
-func (mw *usersServiceLoggingMiddleware) Unfollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) (err error) {
+func (mw *usersServiceLoggingMiddleware) Unfollow(ctx context.Context, username string, followeeId uuid.UUID) (err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "Unfollow",
@@ -126,9 +126,9 @@ func (mw *usersServiceLoggingMiddleware) Unfollow(ctx context.Context, followerI
 
 	level.Info(mw.logger).Log(
 		"method", "Unfollow",
-		"follower_id", followerId,
+		"username", username,
 		"followee_id", followeeId,
 	)
 
-	return mw.next.Unfollow(ctx, followerId, followeeId)
+	return mw.next.Unfollow(ctx, username, followeeId)
 }

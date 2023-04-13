@@ -24,9 +24,14 @@ tasks:
   test:
     cmds:
       - go test ./...
-  integration:
+  integration:production:
     cmds:
-      - ./integrations/run-postman-tests.sh
+      - ./integrations/run-postman-tests.sh https://realworld-go-kit.fly.dev
+    deps:
+      - docker:start
+  integration:local:
+    cmds:
+      - ./integrations/run-postman-tests.sh http://localhost:8080
     deps:
       - docker:start
 

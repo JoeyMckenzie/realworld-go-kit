@@ -15,3 +15,11 @@ CREATE TABLE users
     updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY idx_users_username_email (username, email)
 );
+
+CREATE TABLE user_follows
+(
+    id          BINARY(16) PRIMARY KEY,
+    follower_id BINARY(16) NOT NULL,
+    followee_id BINARY(16) NOT NULL,
+    created_at  TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

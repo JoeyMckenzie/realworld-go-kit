@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -x
 
+echo $1
+
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-APIURL=${APIURL:-https://realworld-go-kit.fly.dev/api}
+APIURL=${APIURL:-$1/api}
 USERNAME=${USERNAME:-u$(date +%s)}
 EMAIL=${EMAIL:-$USERNAME@mail.com}
 PASSWORD=${PASSWORD:-password}

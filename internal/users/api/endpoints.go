@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
 	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
@@ -66,5 +67,31 @@ func makeGetUserEndpoint(service core.UsersService) endpoint.Endpoint {
 		return &users.AuthenticationResponse{
 			User: existingUser,
 		}, nil
+	}
+}
+
+func makeFollowUserEndpoint(service core.UsersService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
+		usernameToFollow := ctx.Value(shared.UsernameContextKey{}).(shared.UsernameContextKey)
+
+		if err := service.Follow(ctx, usernameToFollow.Username, uuidClaim.UserId); err != nil {
+			return nil, err
+		}
+
+		return nil, nil
+	}
+}
+
+func makeUnfollowUserEndpoint(service core.UsersService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
+		usernameToFollow := ctx.Value(shared.UsernameContextKey{}).(shared.UsernameContextKey)
+
+		if err := service.Unfollow(ctx, usernameToFollow.Username, uuidClaim.UserId); err != nil {
+			return nil, err
+		}
+
+		return nil, nil
 	}
 }
