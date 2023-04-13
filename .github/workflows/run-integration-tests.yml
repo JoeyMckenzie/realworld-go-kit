@@ -1,4 +1,4 @@
-name: Build, test, and deploy
+name: Run integration tests
 
 on:
   workflow_run:
