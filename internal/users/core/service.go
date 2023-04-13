@@ -16,6 +16,7 @@ type (
 		Login(ctx context.Context, request users.AuthenticationRequest[users.LoginUserRequest]) (*users.User, error)
 		Update(ctx context.Context, request users.AuthenticationRequest[users.UpdateUserRequest], id uuid.UUID) (*users.User, error)
 		Get(ctx context.Context, id uuid.UUID) (*users.User, error)
+		GetProfile(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error)
 		Follow(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error)
 		Unfollow(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error)
 	}

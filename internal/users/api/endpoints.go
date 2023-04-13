@@ -70,6 +70,22 @@ func makeGetUserEndpoint(service core.UsersService) endpoint.Endpoint {
 	}
 }
 
+func makeGetProfileEndpoint(service core.UsersService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
+		usernameToFollow := ctx.Value(shared.UsernameContextKey{}).(shared.UsernameContextKey)
+		profile, err := service.GetProfile(ctx, usernameToFollow.Username, uuidClaim.UserId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &users.ProfileResponse{
+			Profile: profile,
+		}, nil
+	}
+}
+
 func makeFollowUserEndpoint(service core.UsersService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
+	"github.com/google/uuid"
 	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
 	"net/http"
 )
@@ -46,7 +47,7 @@ func UsernameRequired(next http.Handler) http.Handler {
 		username := chi.URLParam(r, "username")
 
 		if username == "" {
-			w.WriteHeader(http.StatusUnauthorized)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
@@ -61,7 +62,8 @@ func AuthorizationOptional(next http.Handler) http.Handler {
 		userId, ok := GetUserIdFromAuthorizationHeader(r.Header.Get("Authorization"))
 
 		if !ok {
-			return
+			// Okay if we don't find a user on this optionally authenticated route, default to the nil value
+			userId = uuid.Nil
 		}
 
 		requestContext := context.WithValue(r.Context(), utilities.TokenContextKey{}, utilities.TokenContextKey{UserId: userId})

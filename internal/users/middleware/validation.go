@@ -47,6 +47,10 @@ func (mw *usersServiceValidationMiddleware) Get(ctx context.Context, id uuid.UUI
 	return mw.next.Get(ctx, id)
 }
 
+func (mw *usersServiceValidationMiddleware) GetProfile(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error) {
+	return mw.next.GetProfile(ctx, username, followeeId)
+}
+
 func (mw *usersServiceValidationMiddleware) Follow(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error) {
 	return mw.next.Follow(ctx, username, followeeId)
 }

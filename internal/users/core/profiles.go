@@ -10,6 +10,41 @@ import (
 	"net/http"
 )
 
+func (us *userService) GetProfile(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error) {
+	const loggingSpan string = "get_profile"
+
+	level.Info(us.logger).Log(loggingSpan, "attempting to retrieve profile status, verifying existing user", "username", username, "followee_id", followeeId)
+	existingUser, err := us.repository.GetUserByUsername(ctx, username)
+
+	if err != nil && err != sql.ErrNoRows {
+		level.Error(us.logger).Log(loggingSpan, "error while attempting to retrieve user profile", "username", username, "followee_id", followeeId, "err", err)
+		return &users.Profile{}, shared.MakeApiError(err)
+	} else if err == sql.ErrNoRows {
+		level.Error(us.logger).Log(loggingSpan, "user profile was not found", "username", username, "followee_id", followeeId)
+		return &users.Profile{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
+	}
+
+	isFollowing := false
+
+	if followeeId != uuid.Nil {
+		followerId := existingUser.ID
+		level.Info(us.logger).Log(loggingSpan, "checking for existing user follow", "username", username, "follower_id", followerId, "followee_id", followeeId)
+		id, err := us.repository.GetExistingFollow(ctx, followerId, followeeId)
+
+		if err != nil && err != sql.ErrNoRows {
+			level.Error(us.logger).Log(loggingSpan, "error while attempting checking for existing user follow", "username", username, "follower_id", followerId, "followee_id", followeeId, "err", err)
+			return &users.Profile{}, shared.MakeApiError(err)
+		} else if id != uuid.Nil {
+			level.Warn(us.logger).Log(loggingSpan, "found existing follow for user", "username", username, "follower_id", followerId, "followee_id", followeeId)
+			isFollowing = true
+		}
+	}
+
+	level.Info(us.logger).Log(loggingSpan, "user follower successfully added", "follower_id", existingUser.ID, "followee_id", followeeId)
+
+	return existingUser.ToProfile(isFollowing), nil
+}
+
 func (us *userService) Follow(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error) {
 	const loggingSpan string = "follower_user"
 

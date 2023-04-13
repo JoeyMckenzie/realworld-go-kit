@@ -116,6 +116,25 @@ func (mw *usersServiceLoggingMiddleware) Follow(ctx context.Context, username st
 	return mw.next.Follow(ctx, username, followeeId)
 }
 
+func (mw *usersServiceLoggingMiddleware) GetProfile(ctx context.Context, username string, followeeId uuid.UUID) (profile *users.Profile, err error) {
+	defer func(begin time.Time) {
+		level.Info(mw.logger).Log(
+			"method", "GetProfile",
+			"request_time", time.Since(begin),
+			"error", err,
+			"profile_found", profile != nil,
+		)
+	}(time.Now())
+
+	level.Info(mw.logger).Log(
+		"method", "GetProfile",
+		"username", username,
+		"followee_id", followeeId,
+	)
+
+	return mw.next.GetProfile(ctx, username, followeeId)
+}
+
 func (mw *usersServiceLoggingMiddleware) Unfollow(ctx context.Context, username string, followeeId uuid.UUID) (profile *users.Profile, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
