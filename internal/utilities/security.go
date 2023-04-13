@@ -4,7 +4,7 @@ import "golang.org/x/crypto/bcrypt"
 
 type (
 	// SecurityService handles the hashing and verification of passwords
-	//when authenticating users during login or registration.
+	// when authenticating users during login or registration.
 	SecurityService interface {
 		HashPassword(rawPassword string) (string, error)
 		IsValidPassword(existingPassword, rawPassword string) bool
