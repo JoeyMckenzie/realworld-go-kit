@@ -25,16 +25,21 @@ func (us *userService) Update(ctx context.Context, request users.AuthenticationR
 		return &users.User{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
 	}
 
-	// Next, if an existing username or email exists, invalidate the request
-	level.Info(us.logger).Log(loggingSpan, "attempting to verify username and email uniqueness", "email", request.User.Email, "username", request.User.Username, "id", id.String())
-	existingUsers, err := us.repository.SearchUsers(ctx, request.User.Username, request.User.Email)
+	usernameRequiresUpdating := request.User.Username != "" && request.User.Username != existingUser.Username
+	emailRequiresUpdating := request.User.Email != "" && request.User.Email != existingUser.Email
 
-	if err != nil && err != sql.ErrNoRows {
-		level.Error(us.logger).Log(loggingSpan, "error attempting to verify username and email uniqueness", "err", err, "email", request.User.Email, "username", request.User.Username, "id", id.String())
-		return &users.User{}, shared.MakeApiError(err)
-	} else if len(existingUsers) > 0 {
-		level.Error(us.logger).Log(loggingSpan, "username or email already exists", "err", err, "email", request.User.Email, "username", request.User.Username, "id", id.String())
-		return &users.User{}, shared.MakeApiErrorWithStatus(http.StatusConflict, shared.ErrUsernameOrEmailTaken)
+	if usernameRequiresUpdating || emailRequiresUpdating {
+		// Next, if an existing username or email exists, invalidate the request
+		level.Info(us.logger).Log(loggingSpan, "attempting to verify username and email uniqueness", "email", request.User.Email, "username", request.User.Username, "id", id.String())
+		existingUsers, err := us.repository.SearchUsers(ctx, request.User.Username, request.User.Email)
+
+		if err != nil && err != sql.ErrNoRows {
+			level.Error(us.logger).Log(loggingSpan, "error attempting to verify username and email uniqueness", "err", err, "email", request.User.Email, "username", request.User.Username, "id", id.String())
+			return &users.User{}, shared.MakeApiError(err)
+		} else if len(existingUsers) > 0 {
+			level.Error(us.logger).Log(loggingSpan, "username or email already exists", "err", err, "email", request.User.Email, "username", request.User.Username, "id", id.String())
+			return &users.User{}, shared.MakeApiErrorWithStatus(http.StatusConflict, shared.ErrUsernameOrEmailTaken)
+		}
 	}
 
 	// Next, re-hash the password if one is found on the request

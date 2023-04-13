@@ -9,6 +9,14 @@ type (
 		Bio      string `json:"bio"`
 	}
 
+	Profile struct {
+		Username  string `json:"username"`
+		Email     string `json:"email"`
+		Image     string `json:"image"`
+		Bio       string `json:"bio"`
+		Following bool   `json:"following"`
+	}
+
 	LoginUserRequest struct {
 		Email    string `validate:"required,email"`
 		Password string `validate:"required"`
@@ -34,5 +42,9 @@ type (
 
 	AuthenticationResponse struct {
 		User *User `json:"user"`
+	}
+
+	ProfileResponse struct {
+		Profile *Profile `json:"profile"`
 	}
 )

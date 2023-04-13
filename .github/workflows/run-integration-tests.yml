@@ -1,0 +1,24 @@
+name: Build, test, and deploy
+
+on:
+  workflow_run:
+    workflows: ['Build, test, and deploy']
+    types:
+      - completed
+
+jobs:
+  build:
+    name: build and deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+          cache: false
+
+      - name: Install task CLI
+        run: go install github.com/go-task/task/v3/cmd/task@latest
+
+      - name: Build project
+        run: task integration:production

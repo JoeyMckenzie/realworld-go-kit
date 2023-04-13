@@ -26,9 +26,9 @@ type (
 		GetUserByUsername(ctx context.Context, username string) (*UserEntity, error)
 		SearchUsers(ctx context.Context, username, email string) ([]UserEntity, error)
 		UpdateUser(ctx context.Context, id uuid.UUID, username, email, bio, image, password string) (*UserEntity, error)
-		GetExistingFollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) (uuid.UUID, error)
-		AddFollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) error
-		DeleteFollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) error
+		GetExistingFollow(ctx context.Context, followerId, followeeId uuid.UUID) (uuid.UUID, error)
+		AddFollow(ctx context.Context, followerId, followeeId uuid.UUID) error
+		DeleteFollow(ctx context.Context, followerId, followeeId uuid.UUID) error
 	}
 	usersRepository struct {
 		db *sqlx.DB
@@ -42,6 +42,16 @@ func (u *UserEntity) ToUser(token string) *users.User {
 		Token:    token,
 		Image:    u.Image,
 		Bio:      u.Bio,
+	}
+}
+
+func (u *UserEntity) ToProfile(following bool) *users.Profile {
+	return &users.Profile{
+		Username:  u.Username,
+		Email:     u.Email,
+		Image:     u.Image,
+		Bio:       u.Bio,
+		Following: following,
 	}
 }
 

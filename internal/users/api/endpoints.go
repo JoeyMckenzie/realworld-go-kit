@@ -74,24 +74,30 @@ func makeFollowUserEndpoint(service core.UsersService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
 		usernameToFollow := ctx.Value(shared.UsernameContextKey{}).(shared.UsernameContextKey)
+		profile, err := service.Follow(ctx, usernameToFollow.Username, uuidClaim.UserId)
 
-		if err := service.Follow(ctx, usernameToFollow.Username, uuidClaim.UserId); err != nil {
+		if err != nil {
 			return nil, err
 		}
 
-		return nil, nil
+		return &users.ProfileResponse{
+			Profile: profile,
+		}, nil
 	}
 }
 
 func makeUnfollowUserEndpoint(service core.UsersService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
-		usernameToFollow := ctx.Value(shared.UsernameContextKey{}).(shared.UsernameContextKey)
+		usernameToUnfollow := ctx.Value(shared.UsernameContextKey{}).(shared.UsernameContextKey)
+		profile, err := service.Unfollow(ctx, usernameToUnfollow.Username, uuidClaim.UserId)
 
-		if err := service.Unfollow(ctx, usernameToFollow.Username, uuidClaim.UserId); err != nil {
+		if err != nil {
 			return nil, err
 		}
 
-		return nil, nil
+		return &users.ProfileResponse{
+			Profile: profile,
+		}, nil
 	}
 }

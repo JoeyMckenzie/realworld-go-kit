@@ -97,12 +97,13 @@ func (mw *usersServiceLoggingMiddleware) Get(ctx context.Context, id uuid.UUID) 
 	return mw.next.Get(ctx, id)
 }
 
-func (mw *usersServiceLoggingMiddleware) Follow(ctx context.Context, username string, followeeId uuid.UUID) (err error) {
+func (mw *usersServiceLoggingMiddleware) Follow(ctx context.Context, username string, followeeId uuid.UUID) (profile *users.Profile, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "Follow",
 			"request_time", time.Since(begin),
 			"error", err,
+			"profile_found", profile != nil,
 		)
 	}(time.Now())
 
@@ -115,12 +116,13 @@ func (mw *usersServiceLoggingMiddleware) Follow(ctx context.Context, username st
 	return mw.next.Follow(ctx, username, followeeId)
 }
 
-func (mw *usersServiceLoggingMiddleware) Unfollow(ctx context.Context, username string, followeeId uuid.UUID) (err error) {
+func (mw *usersServiceLoggingMiddleware) Unfollow(ctx context.Context, username string, followeeId uuid.UUID) (profile *users.Profile, err error) {
 	defer func(begin time.Time) {
 		level.Info(mw.logger).Log(
 			"method", "Unfollow",
 			"request_time", time.Since(begin),
 			"error", err,
+			"profile_found", profile != nil,
 		)
 	}(time.Now())
 
