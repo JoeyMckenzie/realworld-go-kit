@@ -46,3 +46,11 @@ func (mw *usersServiceValidationMiddleware) Update(ctx context.Context, request 
 func (mw *usersServiceValidationMiddleware) Get(ctx context.Context, id uuid.UUID) (*users.User, error) {
 	return mw.next.Get(ctx, id)
 }
+
+func (mw *usersServiceValidationMiddleware) Follow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) error {
+	return mw.next.Follow(ctx, followerId, followeeId)
+}
+
+func (mw *usersServiceValidationMiddleware) Unfollow(ctx context.Context, followerId uuid.UUID, followeeId uuid.UUID) error {
+	return mw.next.Unfollow(ctx, followerId, followeeId)
+}

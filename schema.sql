@@ -12,8 +12,6 @@ CREATE TABLE users
     image      VARCHAR(4096) NOT NULL DEFAULT '',
     bio        VARCHAR(4096) NOT NULL DEFAULT '',
     created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY idx_users_username_email (username, email)
 );
-
-CREATE INDEX idx_users_username_email
-    ON users (username, email);

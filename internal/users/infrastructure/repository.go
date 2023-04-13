@@ -21,7 +21,8 @@ type (
 
 	UsersRepository interface {
 		CreateUser(ctx context.Context, username, email, password string) (*UserEntity, error)
-		GetUser(ctx context.Context, id uuid.UUID) (*UserEntity, error)
+		GetUserById(ctx context.Context, id uuid.UUID) (*UserEntity, error)
+		GetUserByUsernameAndEmail(ctx context.Context, username, email string) (*UserEntity, error)
 		SearchUsers(ctx context.Context, username, email string) ([]UserEntity, error)
 		UpdateUser(ctx context.Context, id uuid.UUID, username, email, bio, image, password string) (*UserEntity, error)
 	}
@@ -57,7 +58,7 @@ func (r *usersRepository) SearchUsers(ctx context.Context, username, email strin
 	return user, nil
 }
 
-func (r *usersRepository) GetUser(ctx context.Context, id uuid.UUID) (*UserEntity, error) {
+func (r *usersRepository) GetUserById(ctx context.Context, id uuid.UUID) (*UserEntity, error) {
 	var user UserEntity
 	const query string = "SELECT * FROM users WHERE id = UUID_TO_BIN(?) LIMIT 1"
 
@@ -68,31 +69,27 @@ func (r *usersRepository) GetUser(ctx context.Context, id uuid.UUID) (*UserEntit
 	return &user, nil
 }
 
-func (r *usersRepository) CreateUser(ctx context.Context, username string, email string, password string) (*UserEntity, error) {
+func (r *usersRepository) GetUserByUsernameAndEmail(ctx context.Context, username, email string) (*UserEntity, error) {
 	var user UserEntity
-	const command string = "INSERT INTO users (users.id, users.username, users.email, users.password) VALUES (UUID_TO_BIN(UUID()), ?, ?, ?)"
-	const query string = `
-SELECT id,
-       username,
-       email,
-       password,
-       image,
-       bio,
-       created_at,
-       updated_at
-FROM users
-WHERE id = LAST_INSERT_ID()
-LIMIT 1`
 
-	if _, err := r.db.ExecContext(ctx, command, username, email, password); err != nil {
+	// We can use the username/email key here as we index as a unique key in the database on both fields
+	const query string = "SELECT * FROM users WHERE (username, email) = (?, ?)"
+
+	if err := r.db.GetContext(ctx, &user, query, username, email); err != nil {
 		return &user, err
 	}
 
-	if err := r.db.GetContext(ctx, &user, query); err != nil {
-		return &user, nil
+	return &user, nil
+}
+
+func (r *usersRepository) CreateUser(ctx context.Context, username string, email string, password string) (*UserEntity, error) {
+	const command string = "INSERT INTO users (id, username, email, password) VALUES (UUID_TO_BIN(UUID()), ?, ?, ?)"
+
+	if _, err := r.db.ExecContext(ctx, command, username, email, password); err != nil {
+		return &UserEntity{}, err
 	}
 
-	return &user, nil
+	return r.GetUserByUsernameAndEmail(ctx, username, email)
 }
 
 func (r *usersRepository) UpdateUser(ctx context.Context, id uuid.UUID, username, email, bio, image, password string) (*UserEntity, error) {
@@ -102,12 +99,13 @@ SET username = ?,
     email = ?,
     bio = ?,
 	image = ?,
-	password = ?
+	password = ?,
+	updated_at = CURRENT_TIMESTAMP
 WHERE id = UUID_TO_BIN(?)`
 
 	if _, err := r.db.ExecContext(ctx, command, username, email, bio, image, password, id); err != nil {
 		return &UserEntity{}, nil
 	}
 
-	return r.GetUser(ctx, id)
+	return r.GetUserById(ctx, id)
 }
