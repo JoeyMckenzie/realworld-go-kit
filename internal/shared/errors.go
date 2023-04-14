@@ -46,6 +46,10 @@ type (
 	}
 )
 
+func ErrorWithContext(message string, err error) error {
+	return fmt.Errorf("%s: %w", message, err)
+}
+
 // Error converts an ApiError type into a valid error value.
 func (err ApiError[T]) Error() string {
 	serialized, _ := json.Marshal(err)

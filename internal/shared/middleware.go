@@ -5,7 +5,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/google/uuid"
-	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
+	"github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/utilities"
 	"net/http"
 )
 

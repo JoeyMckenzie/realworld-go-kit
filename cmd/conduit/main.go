@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/joeymckenzie/realworld-go-kit/internal/features"
 	"net/http"
 	"os"
 	"strconv"
@@ -43,7 +44,7 @@ func main() {
 	level.Info(logger).Log(loggingSpan, "data connection successfully initialized, building routes")
 
 	// Initialize the service container and internal router
-	serviceContainer := internal.NewServiceContainer(logger, db)
+	serviceContainer := features.NewServiceContainer(logger, db)
 	router := internal.NewRouter(logger, serviceContainer)
 
 	level.Info(logger).Log(loggingSpan, fmt.Sprintf("routes successfully initialized, now listening on port %d", parsedPost))

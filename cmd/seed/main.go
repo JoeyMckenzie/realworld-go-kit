@@ -6,12 +6,13 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/joeymckenzie/realworld-go-kit/internal"
+	"github.com/joeymckenzie/realworld-go-kit/internal/features"
 	"github.com/joho/godotenv"
 	"os"
 )
 
 func main() {
-	const loggingSpan string = "bootstrap"
+	const loggingSpan string = "seed"
 
 	// First, spin up our internal dependencies and logger
 	logger := internal.NewLogger()
@@ -39,7 +40,7 @@ func main() {
 
 	// Initialize the service container and internal router
 	level.Info(logger).Log(loggingSpan, "data connection successfully initialized, building initializing services")
-	serviceContainer := internal.NewServiceContainer(logger, db)
+	serviceContainer := features.NewServiceContainer(logger, db)
 
 	internal.SeedDatabase(context.Background(), serviceContainer)
 }
