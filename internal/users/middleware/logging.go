@@ -1,98 +1,98 @@
 package middleware
 
 import (
-	"context"
-	"github.com/google/uuid"
-	"github.com/joeymckenzie/realworld-go-kit/internal/users"
-	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
-	"time"
+    "context"
+    "github.com/google/uuid"
+    "github.com/joeymckenzie/realworld-go-kit/internal/domain"
+    "github.com/joeymckenzie/realworld-go-kit/internal/users/core"
+    "time"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
+    "github.com/go-kit/log"
+    "github.com/go-kit/log/level"
 )
 
 type usersServiceLoggingMiddleware struct {
-	logger log.Logger
-	next   core.UsersService
+    logger log.Logger
+    next   core.UsersService
 }
 
 func NewUsersServiceLoggingMiddleware(logger log.Logger) core.UsersServiceMiddleware {
-	return func(next core.UsersService) core.UsersService {
-		return &usersServiceLoggingMiddleware{
-			logger: logger,
-			next:   next,
-		}
-	}
+    return func(next core.UsersService) core.UsersService {
+        return &usersServiceLoggingMiddleware{
+            logger: logger,
+            next:   next,
+        }
+    }
 }
 
-func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request users.AuthenticationRequest[users.RegisterUserRequest]) (user *users.User, err error) {
-	defer func(begin time.Time) {
-		level.Info(mw.logger).Log(
-			"method", "Register",
-			"request_time", time.Since(begin),
-			"error", err,
-			"user_created", user != nil,
-		)
-	}(time.Now())
+func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request domain.AuthenticationRequest[domain.RegisterUserRequest]) (user *domain.User, err error) {
+    defer func(begin time.Time) {
+        level.Info(mw.logger).Log(
+            "method", "Register",
+            "request_time", time.Since(begin),
+            "error", err,
+            "user_created", user != nil,
+        )
+    }(time.Now())
 
-	level.Info(mw.logger).Log(
-		"method", "Register",
-		"request", request,
-	)
+    level.Info(mw.logger).Log(
+        "method", "Register",
+        "request", request,
+    )
 
-	return mw.next.Register(ctx, request)
+    return mw.next.Register(ctx, request)
 }
 
-func (mw *usersServiceLoggingMiddleware) Login(ctx context.Context, request users.AuthenticationRequest[users.LoginUserRequest]) (user *users.User, err error) {
-	defer func(begin time.Time) {
-		level.Info(mw.logger).Log(
-			"method", "Login",
-			"request_time", time.Since(begin),
-			"error", err,
-			"user_verified", user != nil,
-		)
-	}(time.Now())
+func (mw *usersServiceLoggingMiddleware) Login(ctx context.Context, request domain.AuthenticationRequest[domain.LoginUserRequest]) (user *domain.User, err error) {
+    defer func(begin time.Time) {
+        level.Info(mw.logger).Log(
+            "method", "Login",
+            "request_time", time.Since(begin),
+            "error", err,
+            "user_verified", user != nil,
+        )
+    }(time.Now())
 
-	level.Info(mw.logger).Log(
-		"method", "Login",
-		"request", request,
-	)
+    level.Info(mw.logger).Log(
+        "method", "Login",
+        "request", request,
+    )
 
-	return mw.next.Login(ctx, request)
+    return mw.next.Login(ctx, request)
 }
 
-func (mw *usersServiceLoggingMiddleware) Update(ctx context.Context, request users.AuthenticationRequest[users.UpdateUserRequest], id uuid.UUID) (user *users.User, err error) {
-	defer func(begin time.Time) {
-		level.Info(mw.logger).Log(
-			"method", "Update",
-			"request_time", time.Since(begin),
-			"error", err,
-			"user_updated", user != nil,
-		)
-	}(time.Now())
+func (mw *usersServiceLoggingMiddleware) Update(ctx context.Context, request domain.AuthenticationRequest[domain.UpdateUserRequest], id uuid.UUID) (user *domain.User, err error) {
+    defer func(begin time.Time) {
+        level.Info(mw.logger).Log(
+            "method", "Update",
+            "request_time", time.Since(begin),
+            "error", err,
+            "user_updated", user != nil,
+        )
+    }(time.Now())
 
-	level.Info(mw.logger).Log(
-		"method", "Update",
-		"request", request,
-	)
+    level.Info(mw.logger).Log(
+        "method", "Update",
+        "request", request,
+    )
 
-	return mw.next.Update(ctx, request, id)
+    return mw.next.Update(ctx, request, id)
 }
 
-func (mw *usersServiceLoggingMiddleware) Get(ctx context.Context, id uuid.UUID) (user *users.User, err error) {
-	defer func(begin time.Time) {
-		level.Info(mw.logger).Log(
-			"method", "Get",
-			"request_time", time.Since(begin),
-			"error", err,
-			"user_found", user != nil,
-		)
-	}(time.Now())
+func (mw *usersServiceLoggingMiddleware) Get(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
+    defer func(begin time.Time) {
+        level.Info(mw.logger).Log(
+            "method", "Get",
+            "request_time", time.Since(begin),
+            "error", err,
+            "user_found", user != nil,
+        )
+    }(time.Now())
 
-	level.Info(mw.logger).Log(
-		"method", "Get",
-		"id", id,
-	)
+    level.Info(mw.logger).Log(
+        "method", "Get",
+        "id", id,
+    )
 
-	return mw.next.Get(ctx, id)
+    return mw.next.Get(ctx, id)
 }

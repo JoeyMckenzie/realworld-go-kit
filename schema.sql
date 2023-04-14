@@ -23,3 +23,33 @@ CREATE TABLE user_follows
     followee_id BINARY(16) NOT NULL,
     created_at  TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE article
+(
+    id          BINARY(16) PRIMARY KEY,
+    author_id   BINARY(16) PRIMARY KEY,
+    slug        VARCHAR(255)  NOT NULL,
+    title       VARCHAR(255)  NOT NULL,
+    description VARCHAR(255)  NOT NULL,
+    body        VARCHAR(4096) NOT NULL DEFAULT '',
+    created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY idx_articles_slug (slug)
+);
+
+CREATE TABLE tag
+(
+    id         BINARY(16) PRIMARY KEY,
+    slug       VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY idx_tag_slug (slug)
+);
+
+CREATE TABLE article_tag
+(
+    id         BINARY(16) PRIMARY KEY,
+    article_id BINARY(16) PRIMARY KEY,
+    tag_id     BINARY(16) PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY idx_article_tags_article_tag (article_id, tag_id)
+);
