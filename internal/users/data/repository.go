@@ -1,4 +1,4 @@
-package infrastructure
+package data
 
 import (
 	"context"
@@ -45,16 +45,6 @@ func (u *UserEntity) ToUser(token string) *users.User {
 	}
 }
 
-func (u *UserEntity) ToProfile(following bool) *users.Profile {
-	return &users.Profile{
-		Username:  u.Username,
-		Email:     u.Email,
-		Image:     u.Image,
-		Bio:       u.Bio,
-		Following: following,
-	}
-}
-
 func NewRepository(db *sqlx.DB) UsersRepository {
 	return &usersRepository{
 		db: db,
@@ -86,7 +76,7 @@ func (r *usersRepository) GetUserById(ctx context.Context, id uuid.UUID) (*UserE
 func (r *usersRepository) GetUserByUsernameAndEmail(ctx context.Context, username, email string) (*UserEntity, error) {
 	var user UserEntity
 
-	// We can use the username/email key here as we index as a unique key in the database on both fields
+	// We can use the username/email key here as we index as a unique key in the data on both fields
 	const query string = "SELECT * FROM users WHERE (username, email) = (?, ?)"
 
 	if err := r.db.GetContext(ctx, &user, query, username, email); err != nil {

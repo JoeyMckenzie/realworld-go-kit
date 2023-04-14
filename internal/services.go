@@ -4,31 +4,41 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
-	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
-	"github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
-	"github.com/joeymckenzie/realworld-go-kit/internal/users/middleware"
+	profilesCore "github.com/joeymckenzie/realworld-go-kit/internal/profiles/core"
+	profilesMiddleware "github.com/joeymckenzie/realworld-go-kit/internal/profiles/middleware"
+	usersCore "github.com/joeymckenzie/realworld-go-kit/internal/users/core"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/data"
+	usersMiddleware "github.com/joeymckenzie/realworld-go-kit/internal/users/middleware"
 	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
 )
 
 type ServiceContainer struct {
-	UsersService core.UsersService
+	UsersService    usersCore.UsersService
+	ProfilesService profilesCore.ProfilesService
 }
 
-// MakeServiceContainer builds the downstream services used throughout the application.
-func MakeServiceContainer(logger log.Logger, db *sqlx.DB) *ServiceContainer {
+// NewServiceContainer builds the downstream services used throughout the application.
+func NewServiceContainer(logger log.Logger, db *sqlx.DB) *ServiceContainer {
 	validation := validator.New()
+	usersRepository := data.NewRepository(db)
 
-	var usersService core.UsersService
+	var usersService usersCore.UsersService
 	{
-		usersRepository := infrastructure.NewRepository(db)
 		tokenService := utilities.NewTokenService()
 		securityService := utilities.NewSecurityService()
-		usersService = core.NewService(logger, usersRepository, tokenService, securityService)
-		usersService = middleware.NewUsersServiceLoggingMiddleware(logger)(usersService)
-		usersService = middleware.NewUsersServiceValidationMiddleware(validation)(usersService)
+		usersService = usersCore.NewUsersService(logger, usersRepository, tokenService, securityService)
+		usersService = usersMiddleware.NewUsersServiceLoggingMiddleware(logger)(usersService)
+		usersService = usersMiddleware.NewUsersServiceValidationMiddleware(validation)(usersService)
+	}
+
+	var profilesService profilesCore.ProfilesService
+	{
+		profilesService = profilesCore.NewProfileService(logger, usersRepository)
+		profilesService = profilesMiddleware.NewProfileServiceLoggingMiddleware(logger)(profilesService)
 	}
 
 	return &ServiceContainer{
-		UsersService: usersService,
+		UsersService:    usersService,
+		ProfilesService: profilesService,
 	}
 }

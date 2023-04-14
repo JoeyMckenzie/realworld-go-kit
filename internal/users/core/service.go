@@ -5,7 +5,7 @@ import (
 	"github.com/go-kit/log"
 	"github.com/google/uuid"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users"
-	"github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/data"
 	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
 )
 
@@ -16,14 +16,11 @@ type (
 		Login(ctx context.Context, request users.AuthenticationRequest[users.LoginUserRequest]) (*users.User, error)
 		Update(ctx context.Context, request users.AuthenticationRequest[users.UpdateUserRequest], id uuid.UUID) (*users.User, error)
 		Get(ctx context.Context, id uuid.UUID) (*users.User, error)
-		GetProfile(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error)
-		Follow(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error)
-		Unfollow(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error)
 	}
 
 	userService struct {
 		logger          log.Logger
-		repository      infrastructure.UsersRepository
+		repository      data.UsersRepository
 		tokenService    utilities.TokenService
 		securityService utilities.SecurityService
 	}
@@ -31,7 +28,7 @@ type (
 	UsersServiceMiddleware func(service UsersService) UsersService
 )
 
-func NewService(logger log.Logger, repository infrastructure.UsersRepository, tokenService utilities.TokenService, securityService utilities.SecurityService) UsersService {
+func NewUsersService(logger log.Logger, repository data.UsersRepository, tokenService utilities.TokenService, securityService utilities.SecurityService) UsersService {
 	return &userService{
 		logger:          logger,
 		repository:      repository,

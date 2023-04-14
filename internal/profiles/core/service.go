@@ -3,14 +3,38 @@ package core
 import (
 	"context"
 	"database/sql"
+	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/google/uuid"
+	"github.com/joeymckenzie/realworld-go-kit/internal/profiles"
 	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
-	"github.com/joeymckenzie/realworld-go-kit/internal/users"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/data"
 	"net/http"
 )
 
-func (us *userService) GetProfile(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error) {
+type (
+	ProfilesService interface {
+		GetProfile(ctx context.Context, username string, followeeId uuid.UUID) (*profiles.Profile, error)
+		Follow(ctx context.Context, username string, followeeId uuid.UUID) (*profiles.Profile, error)
+		Unfollow(ctx context.Context, username string, followeeId uuid.UUID) (*profiles.Profile, error)
+	}
+
+	profileService struct {
+		logger     log.Logger
+		repository data.UsersRepository
+	}
+
+	ProfileServiceMiddleware func(service ProfilesService) ProfilesService
+)
+
+func NewProfileService(logger log.Logger, repository data.UsersRepository) ProfilesService {
+	return &profileService{
+		logger:     logger,
+		repository: repository,
+	}
+}
+
+func (us *profileService) GetProfile(ctx context.Context, username string, followeeId uuid.UUID) (*profiles.Profile, error) {
 	const loggingSpan string = "get_profile"
 
 	level.Info(us.logger).Log(loggingSpan, "attempting to retrieve profile status, verifying existing user", "username", username, "followee_id", followeeId)
@@ -18,10 +42,10 @@ func (us *userService) GetProfile(ctx context.Context, username string, followee
 
 	if err != nil && err != sql.ErrNoRows {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting to retrieve user profile", "username", username, "followee_id", followeeId, "err", err)
-		return &users.Profile{}, shared.MakeApiError(err)
+		return &profiles.Profile{}, shared.MakeApiError(err)
 	} else if err == sql.ErrNoRows {
 		level.Error(us.logger).Log(loggingSpan, "user profile was not found", "username", username, "followee_id", followeeId)
-		return &users.Profile{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
+		return &profiles.Profile{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
 	}
 
 	isFollowing := false
@@ -33,7 +57,7 @@ func (us *userService) GetProfile(ctx context.Context, username string, followee
 
 		if err != nil && err != sql.ErrNoRows {
 			level.Error(us.logger).Log(loggingSpan, "error while attempting checking for existing user follow", "username", username, "follower_id", followerId, "followee_id", followeeId, "err", err)
-			return &users.Profile{}, shared.MakeApiError(err)
+			return &profiles.Profile{}, shared.MakeApiError(err)
 		} else if id != uuid.Nil {
 			level.Warn(us.logger).Log(loggingSpan, "found existing follow for user", "username", username, "follower_id", followerId, "followee_id", followeeId)
 			isFollowing = true
@@ -42,10 +66,11 @@ func (us *userService) GetProfile(ctx context.Context, username string, followee
 
 	level.Info(us.logger).Log(loggingSpan, "user follower successfully added", "follower_id", existingUser.ID, "followee_id", followeeId)
 
-	return existingUser.ToProfile(isFollowing), nil
+	return mapToProfile(existingUser, isFollowing), nil
+
 }
 
-func (us *userService) Follow(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error) {
+func (us *profileService) Follow(ctx context.Context, username string, followeeId uuid.UUID) (*profiles.Profile, error) {
 	const loggingSpan string = "follower_user"
 
 	level.Info(us.logger).Log(loggingSpan, "attempting to add user follower, verifying existing user to follow", "username", username, "followee_id", followeeId)
@@ -53,10 +78,10 @@ func (us *userService) Follow(ctx context.Context, username string, followeeId u
 
 	if err != nil && err != sql.ErrNoRows {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting to search for user to follow", "username", username, "followee_id", followeeId, "err", err)
-		return &users.Profile{}, shared.MakeApiError(err)
+		return &profiles.Profile{}, shared.MakeApiError(err)
 	} else if err == sql.ErrNoRows {
 		level.Error(us.logger).Log(loggingSpan, "user to follow was not found", "username", username, "followee_id", followeeId)
-		return &users.Profile{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
+		return &profiles.Profile{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
 	}
 
 	followerId := existingUserToFollow.ID
@@ -65,22 +90,22 @@ func (us *userService) Follow(ctx context.Context, username string, followeeId u
 
 	if err != nil && err != sql.ErrNoRows {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting checking for existing user follow", "username", username, "follower_id", followerId, "followee_id", followeeId, "err", err)
-		return &users.Profile{}, shared.MakeApiError(err)
+		return &profiles.Profile{}, shared.MakeApiError(err)
 	} else if id != uuid.Nil {
 		level.Warn(us.logger).Log(loggingSpan, "user follow already exists, skipping", "username", username, "follower_id", followerId, "followee_id", followeeId)
-		return existingUserToFollow.ToProfile(true), nil
+		return mapToProfile(existingUserToFollow, true), nil
 	}
 
 	if err := us.repository.AddFollow(ctx, existingUserToFollow.ID, followeeId); err != nil {
-		return &users.Profile{}, err
+		return &profiles.Profile{}, err
 	}
 
 	level.Info(us.logger).Log(loggingSpan, "user follower successfully added", "follower_id", existingUserToFollow.ID, "followee_id", followeeId)
 
-	return existingUserToFollow.ToProfile(true), nil
+	return mapToProfile(existingUserToFollow, true), nil
 }
 
-func (us *userService) Unfollow(ctx context.Context, username string, followeeId uuid.UUID) (*users.Profile, error) {
+func (us *profileService) Unfollow(ctx context.Context, username string, followeeId uuid.UUID) (*profiles.Profile, error) {
 	const loggingSpan string = "unfollower_user"
 
 	level.Info(us.logger).Log(loggingSpan, "attempting to delete user follower, verifying existing user to follow", "username", username, "followee_id", followeeId)
@@ -88,19 +113,19 @@ func (us *userService) Unfollow(ctx context.Context, username string, followeeId
 
 	if err != nil && err != sql.ErrNoRows {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting to search for user to unfollow", "username", username, "followee_id", followeeId, "err", err)
-		return &users.Profile{}, shared.MakeApiError(err)
+		return &profiles.Profile{}, shared.MakeApiError(err)
 	} else if err == sql.ErrNoRows {
 		level.Error(us.logger).Log(loggingSpan, "user to unfollow was not found", "username", username, "followee_id", followeeId)
-		return &users.Profile{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
+		return &profiles.Profile{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrUserNotFound)
 	}
 
 	// No need to check for existing follows, we'll only delete if we find a match
 	if err := us.repository.DeleteFollow(ctx, existingUserToUnfollow.ID, followeeId); err != nil {
 		level.Error(us.logger).Log(loggingSpan, "error while attempting to delete user follow", "username", username, "followee_id", followeeId, "err", err)
-		return &users.Profile{}, shared.MakeApiError(err)
+		return &profiles.Profile{}, shared.MakeApiError(err)
 	}
 
 	level.Info(us.logger).Log(loggingSpan, "user follower successfully removed", "follower_id", existingUserToUnfollow.ID, "followee_id", followeeId)
 
-	return existingUserToUnfollow.ToProfile(false), nil
+	return mapToProfile(existingUserToUnfollow, false), nil
 }

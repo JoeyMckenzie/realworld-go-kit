@@ -42,27 +42,6 @@ func MakeUserRoutes(logger log.Logger, router *chi.Mux, service core.UsersServic
 		shared.HandlerOptions(logger)...,
 	)
 
-	getProfileHandler := httptransport.NewServer(
-		makeGetProfileEndpoint(service),
-		shared.DecodeNilPayload,
-		shared.EncodeSuccessfulOkResponse,
-		shared.HandlerOptions(logger)...,
-	)
-
-	followUserHandler := httptransport.NewServer(
-		makeFollowUserEndpoint(service),
-		shared.DecodeNilPayload,
-		shared.EncodeSuccessfulOkResponse,
-		shared.HandlerOptions(logger)...,
-	)
-
-	unfollowUserHandler := httptransport.NewServer(
-		makeUnfollowUserEndpoint(service),
-		shared.DecodeNilPayload,
-		shared.EncodeSuccessfulOkResponse,
-		shared.HandlerOptions(logger)...,
-	)
-
 	router.Route("/users", func(r chi.Router) {
 		r.Post("/", registerUserHandler.ServeHTTP)
 		r.Post("/login", loginUserHandler.ServeHTTP)
@@ -72,21 +51,6 @@ func MakeUserRoutes(logger log.Logger, router *chi.Mux, service core.UsersServic
 		r.Use(shared.AuthorizationRequired)
 		r.Put("/", updateUserHandler.ServeHTTP)
 		r.Get("/", getUserHandler.ServeHTTP)
-	})
-
-	router.Route("/profiles/{username}", func(r chi.Router) {
-		r.Use(shared.UsernameRequired)
-
-		r.Group(func(r chi.Router) {
-			r.Use(shared.AuthorizationOptional)
-			r.Get("/", getProfileHandler.ServeHTTP)
-		})
-
-		r.Group(func(r chi.Router) {
-			r.Use(shared.AuthorizationRequired)
-			r.Post("/follow", followUserHandler.ServeHTTP)
-			r.Delete("/follow", unfollowUserHandler.ServeHTTP)
-		})
 	})
 
 	return router

@@ -3,7 +3,7 @@ package core
 import (
 	"github.com/google/uuid"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users"
-	"github.com/joeymckenzie/realworld-go-kit/internal/users/infrastructure"
+	"github.com/joeymckenzie/realworld-go-kit/internal/users/data"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -24,11 +24,11 @@ func Test_UpdateReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
 
 	fixture.mockRepository.
 		On("GetUserById", fixture.ctx, mock.AnythingOfType("uuid.UUID")).
-		Return(&infrastructure.UserEntity{}, nil)
+		Return(&data.UserEntity{}, nil)
 
 	fixture.mockRepository.
 		On("SearchUsers", fixture.ctx, mock.AnythingOfType("string"), mock.AnythingOfType("string")).
-		Return([]infrastructure.UserEntity{}, nil)
+		Return([]data.UserEntity{}, nil)
 
 	fixture.mockSecurityService.
 		On("HashPassword", mock.AnythingOfType("string")).
@@ -43,7 +43,7 @@ func Test_UpdateReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string")).
-		Return(&infrastructure.UserEntity{}, nil)
+		Return(&data.UserEntity{}, nil)
 
 	fixture.mockTokenService.
 		On("GenerateUserToken", mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("string")).

@@ -24,7 +24,7 @@ func main() {
 	dataSourceName := os.Getenv("DSN")
 
 	// Grab a connection and verify we're able to ping PlanetScale
-	level.Info(logger).Log(loggingSpan, "initializing database connection...")
+	level.Info(logger).Log(loggingSpan, "initializing data connection...")
 	db, err := sqlx.Open("mysql", dataSourceName)
 
 	if err != nil {
@@ -33,13 +33,13 @@ func main() {
 	}
 
 	if err := db.Ping(); err != nil {
-		level.Error(logger).Log(loggingSpan, "failed to ping database", "err", err)
+		level.Error(logger).Log(loggingSpan, "failed to ping data", "err", err)
 		os.Exit(1)
 	}
 
 	// Initialize the service container and internal router
-	level.Info(logger).Log(loggingSpan, "database connection successfully initialized, building initializing services")
-	serviceContainer := internal.MakeServiceContainer(logger, db)
+	level.Info(logger).Log(loggingSpan, "data connection successfully initialized, building initializing services")
+	serviceContainer := internal.NewServiceContainer(logger, db)
 
 	internal.SeedDatabase(context.Background(), serviceContainer)
 }

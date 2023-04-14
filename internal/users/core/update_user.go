@@ -60,7 +60,7 @@ func (us *userService) Update(ctx context.Context, request users.AuthenticationR
 	existingUser.Bio = shared.GetUpdatedValueIfApplicable(request.User.Bio, existingUser.Bio)
 	existingUser.Image = shared.GetUpdatedValueIfApplicable(request.User.Image, existingUser.Image)
 
-	level.Info(us.logger).Log(loggingSpan, "attempting to update user in the database", "email", request.User.Email, "id", id.String())
+	level.Info(us.logger).Log(loggingSpan, "attempting to update user in the data", "email", request.User.Email, "id", id.String())
 	updatedUser, err := us.repository.UpdateUser(
 		ctx,
 		id,
@@ -71,7 +71,7 @@ func (us *userService) Update(ctx context.Context, request users.AuthenticationR
 		existingUser.Password)
 
 	if err != nil {
-		level.Error(us.logger).Log(loggingSpan, "error while updating user in the database", "err", err, "email", existingUser.Email, "id", id.String())
+		level.Error(us.logger).Log(loggingSpan, "error while updating user in the data", "err", err, "email", existingUser.Email, "id", id.String())
 		return &users.User{}, shared.MakeApiError(err)
 	}
 

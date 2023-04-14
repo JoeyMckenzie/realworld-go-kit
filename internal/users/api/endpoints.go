@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/joeymckenzie/realworld-go-kit/internal/shared"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users"
 	"github.com/joeymckenzie/realworld-go-kit/internal/users/core"
 	"github.com/joeymckenzie/realworld-go-kit/internal/utilities"
@@ -66,54 +65,6 @@ func makeGetUserEndpoint(service core.UsersService) endpoint.Endpoint {
 
 		return &users.AuthenticationResponse{
 			User: existingUser,
-		}, nil
-	}
-}
-
-func makeGetProfileEndpoint(service core.UsersService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
-		usernameToFollow := ctx.Value(shared.UsernameContextKey{}).(shared.UsernameContextKey)
-		profile, err := service.GetProfile(ctx, usernameToFollow.Username, uuidClaim.UserId)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &users.ProfileResponse{
-			Profile: profile,
-		}, nil
-	}
-}
-
-func makeFollowUserEndpoint(service core.UsersService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
-		usernameToFollow := ctx.Value(shared.UsernameContextKey{}).(shared.UsernameContextKey)
-		profile, err := service.Follow(ctx, usernameToFollow.Username, uuidClaim.UserId)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &users.ProfileResponse{
-			Profile: profile,
-		}, nil
-	}
-}
-
-func makeUnfollowUserEndpoint(service core.UsersService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
-		usernameToUnfollow := ctx.Value(shared.UsernameContextKey{}).(shared.UsernameContextKey)
-		profile, err := service.Unfollow(ctx, usernameToUnfollow.Username, uuidClaim.UserId)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &users.ProfileResponse{
-			Profile: profile,
 		}, nil
 	}
 }
