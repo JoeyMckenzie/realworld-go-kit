@@ -19,13 +19,17 @@ type (
     }
 
     ArticleResponse struct {
-        Article `json:"article"`
+        Article *Article `json:"article"`
+    }
+
+    ArticleRequest struct {
+        Title       string   `json:"title" validate:"required"`
+        Description string   `json:"description" validate:"required"`
+        Body        string   `json:"body" validate:"required"`
+        TagList     []string `json:"tagList"`
     }
 
     CreateArticleRequest struct {
-        Title       string   `json:"title"`
-        Description string   `json:"description"`
-        Body        string   `json:"body"`
-        TagList     []string `json:"tagList"`
+        Article *ArticleRequest `json:"article" validate:"required"`
     }
 )

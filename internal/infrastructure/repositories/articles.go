@@ -1,43 +1,46 @@
-package data
+package repositories
 
 import (
     "context"
+    "errors"
     "github.com/google/uuid"
     "github.com/jmoiron/sqlx"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
+    "github.com/joeymckenzie/realworld-go-kit/internal/shared"
     "time"
 )
 
 type (
     ArticleEntity struct {
         ID          uuid.UUID
-        AuthorID    uuid.UUID
+        AuthorID    uuid.UUID `db:"author_id"`
         Slug        string
         Title       string
         Description string
         Body        string
-        CreatedAt   time.Time `db:"create_at"`
-        UpdatedAt   time.Time `db:"update_at"`
+        CreatedAt   string `db:"created_at"`
+        UpdatedAt   string `db:"updated_at"`
     }
 
     TagEntity struct {
         ID          uuid.UUID
         Description string
-        CreatedAt   time.Time `db:"created_at"`
+        CreatedAt   string `db:"created_at"`
     }
 
     ArticleTagEntity struct {
         ID        uuid.UUID
         ArticleID uuid.UUID `db:"article_id"`
         TagID     uuid.UUID `db:"tag_id"`
-        CreatedAt time.Time `db:"created_at"`
+        CreatedAt string    `db:"created_at"`
     }
 
     ArticlesRepository interface {
         BeginTransaction(ctx context.Context) (*sqlx.Tx, error)
         CommitTransaction(tx *sqlx.Tx) error
         RollbackTransaction(tx *sqlx.Tx) error
-        CreateArticle(ctx context.Context, tx *sqlx.Tx, slug, title, description, body string) (*ArticleEntity, error)
+        GetArticleBySlug(ctx context.Context, tx *sqlx.Tx, slug string) (*ArticleEntity, error)
+        CreateArticle(ctx context.Context, tx *sqlx.Tx, authorId uuid.UUID, slug, title, description, body string) (*ArticleEntity, error)
         CreateTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error)
         CreateArticleTag(ctx context.Context, tx *sqlx.Tx, tagId, articleId uuid.UUID) (*ArticleTagEntity, error)
         GetTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error)
@@ -49,15 +52,22 @@ type (
     }
 )
 
-func (a ArticleEntity) ToArticle(user *domain.User, tagList []string, favoritesCount int, following, favorited bool) *domain.Article {
+func (a ArticleEntity) ToArticle(user *domain.Profile, tagList []string, favoritesCount int, following, favorited bool) (*domain.Article, error) {
+    createdAt, createdTimeParseErr := time.Parse(time.DateTime, a.CreatedAt)
+    updatedAt, updatedTimeParseErr := time.Parse(time.DateTime, a.UpdatedAt)
+
+    if err := errors.Join(createdTimeParseErr, updatedTimeParseErr); err != nil {
+        return &domain.Article{}, shared.ErrorWithContext("error while parsing dates for article", err)
+    }
+
     return &domain.Article{
         Slug:           a.Slug,
         Title:          a.Title,
         Description:    a.Description,
         Body:           a.Body,
         TagList:        tagList,
-        CreatedAt:      a.CreatedAt,
-        UpdatedAt:      a.UpdatedAt,
+        CreatedAt:      createdAt,
+        UpdatedAt:      updatedAt,
         Favorited:      favorited,
         FavoritesCount: favoritesCount,
         Author: &domain.Profile{
@@ -67,7 +77,7 @@ func (a ArticleEntity) ToArticle(user *domain.User, tagList []string, favoritesC
             Bio:       user.Bio,
             Following: following,
         },
-    }
+    }, nil
 }
 
 func NewArticlesRepository(db *sqlx.DB) ArticlesRepository {
@@ -128,16 +138,49 @@ func (ar *articlesRepository) GetArticleTag(ctx context.Context, tx *sqlx.Tx, ta
     return &articleTagEntity, nil
 }
 
-func (ar *articlesRepository) CreateArticle(ctx context.Context, tx *sqlx.Tx, slug, title, description, body string) (*ArticleEntity, error) {
-    //TODO implement me
-    panic("implement me")
+func (ar *articlesRepository) GetArticleBySlug(ctx context.Context, tx *sqlx.Tx, slug string) (*ArticleEntity, error) {
+    var articleEntity ArticleEntity
+    const sql string = "SELECT * FROM articles WHERE slug = ?"
+
+    var err error
+    {
+        if tx != nil {
+            err = tx.GetContext(ctx, &articleEntity, sql, slug)
+        } else {
+            err = ar.db.GetContext(ctx, &articleEntity, sql, slug)
+        }
+    }
+
+    if err != nil {
+        return &articleEntity, err
+    }
+
+    return &articleEntity, nil
+}
+
+func (ar *articlesRepository) CreateArticle(ctx context.Context, tx *sqlx.Tx, authorId uuid.UUID, slug, title, description, body string) (*ArticleEntity, error) {
+    const sql string = `
+INSERT INTO articles (id, author_id, slug, title, description, body)
+VALUES (UUID_TO_BIN(UUID(), true), UUID_TO_BIN(?), ?, ?, ?, ?)`
+
+    if _, err := tx.ExecContext(ctx, sql, authorId, slug, title, description, body); err != nil {
+        return &ArticleEntity{}, err
+    }
+
+    return ar.GetArticleBySlug(ctx, tx, slug)
 }
 
 func (ar *articlesRepository) CreateTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error) {
     const sql string = "INSERT IGNORE INTO tags (id, description) VALUES (UUID_TO_BIN(UUID(), true), ?)"
 
-    if _, err := ar.db.Exec(sql, description); err != nil {
-        return &TagEntity{}, err
+    if tx != nil {
+        if _, err := tx.Exec(sql, description); err != nil {
+            return &TagEntity{}, shared.ErrorWithContext("error while attempting to insert tag", err)
+        }
+    } else {
+        if _, err := ar.db.Exec(sql, description); err != nil {
+            return &TagEntity{}, shared.ErrorWithContext("error while attempting to insert tag", err)
+        }
     }
 
     return ar.GetTag(ctx, tx, description)

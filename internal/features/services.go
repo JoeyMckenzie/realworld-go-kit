@@ -7,7 +7,7 @@ import (
     "github.com/joeymckenzie/realworld-go-kit/internal/features/articles"
     "github.com/joeymckenzie/realworld-go-kit/internal/features/profiles"
     "github.com/joeymckenzie/realworld-go-kit/internal/features/users"
-    "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/data"
+    "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/utilities"
 )
 
@@ -20,7 +20,7 @@ type ServiceContainer struct {
 // NewServiceContainer builds the downstream services used throughout the application.
 func NewServiceContainer(logger log.Logger, db *sqlx.DB) *ServiceContainer {
     validation := validator.New()
-    usersRepository := data.NewUsersRepository(db)
+    usersRepository := repositories.NewUsersRepository(db)
 
     var usersService users.UsersService
     {
@@ -39,7 +39,7 @@ func NewServiceContainer(logger log.Logger, db *sqlx.DB) *ServiceContainer {
 
     var articlesService articles.ArticlesService
     {
-        articlesRepository := data.NewArticlesRepository(db)
+        articlesRepository := repositories.NewArticlesRepository(db)
         articlesService = articles.NewArticlesService(logger, articlesRepository, usersRepository)
         articlesService = articles.NewArticlesServiceValidationMiddleware(validation)(articlesService)
     }

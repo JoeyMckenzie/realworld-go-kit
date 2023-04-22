@@ -2,6 +2,7 @@
 -- simple enough that we won't reap the benefits of needing to evolve and maintain
 
 -- We'll need a table for users, with username and email as an indexable key
+DROP TABLE IF EXISTS users;
 CREATE TABLE users
 (
     -- With MySQL, we'll store UUIDs as bytes, using the UUID Go type to map them into structs
@@ -16,6 +17,7 @@ CREATE TABLE users
     UNIQUE KEY idx_users_username_email (username, email)
 );
 
+DROP TABLE IF EXISTS user_follows;
 CREATE TABLE user_follows
 (
     id          BINARY(16) PRIMARY KEY,
@@ -24,6 +26,7 @@ CREATE TABLE user_follows
     created_at  TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+DROP TABLE IF EXISTS articles;
 CREATE TABLE articles
 (
     id          BINARY(16) PRIMARY KEY,
@@ -31,12 +34,13 @@ CREATE TABLE articles
     slug        VARCHAR(255)  NOT NULL,
     title       VARCHAR(255)  NOT NULL,
     description VARCHAR(255)  NOT NULL,
-    body        VARCHAR(4096) NOT NULL DEFAULT '',
+    body        VARCHAR(4096) NOT NULL,
     created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY idx_articles_slug (slug)
 );
 
+DROP TABLE IF EXISTS tags;
 CREATE TABLE tags
 (
     id          BINARY(16) PRIMARY KEY,
@@ -45,6 +49,7 @@ CREATE TABLE tags
     UNIQUE KEY idx_tag_slug (description)
 );
 
+DROP TABLE IF EXISTS article_tags;
 CREATE TABLE article_tags
 (
     id         BINARY(16) PRIMARY KEY,
