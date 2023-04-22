@@ -15,7 +15,7 @@ type (
         UpdatedAt      time.Time `json:"updatedAt"`
         Favorited      bool      `json:"favorited"`
         FavoritesCount int       `json:"favoritesCount"`
-        Author         *Profile
+        Author         *Profile  `json:"author"`
     }
 
     ArticleResponse struct {

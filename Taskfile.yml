@@ -6,6 +6,9 @@ tasks:
   run:
     cmds:
       - DATABASE_URL=$DATABASE_URL PORT=$PORT go run ./cmd/conduit/main.go
+  seed:
+    cmds:
+      - DATABASE_URL=$DATABASE_URL PORT=$PORT go run ./cmd/seed/main.go
   build:
     cmds:
       - go build -v -o ./realworld_go_kit ./cmd/conduit/main.go
