@@ -18,7 +18,7 @@ type dbSeeder struct {
 }
 
 const (
-    // There's a transaction limit for Planet scale, so we'll only keep 30 transactions open at a time
+    // There's a transaction limit for Planet scale, se we're limited on the amount of seed data we can place
     usersToSeed        = 10
     randomArticleLimit = 10
 )
@@ -39,7 +39,6 @@ func SeedDatabase(ctx context.Context, serviceContainer *features.ServiceContain
 }
 
 func (s dbSeeder) seedUsers(ctx context.Context, wg *sync.WaitGroup, userIds *[]uuid.UUID) {
-
     for seedIteration := 1; seedIteration <= usersToSeed; seedIteration++ {
         wg.Add(1)
         go s.seedUser(ctx, wg, userIds)
@@ -54,7 +53,6 @@ func (s dbSeeder) seedUser(ctx context.Context, wg *sync.WaitGroup, userIds *[]u
 
     request := domain.AuthenticationRequest[domain.RegisterUserRequest]{
         User: &domain.RegisterUserRequest{
-            //Username: fmt.Sprintf("user%d", uniqueKey),
             Email:    faker.Email(),
             Username: faker.Username(),
             // We'll reuse the same password, so we can access any unique user
