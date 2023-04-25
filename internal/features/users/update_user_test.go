@@ -1,6 +1,7 @@
 package users
 
 import (
+    "github.com/go-faker/faker/v4"
     "github.com/google/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
@@ -14,11 +15,11 @@ func Test_UpdateReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
     fixture = newUsersServiceTestFixture()
     request := domain.AuthenticationRequest[domain.UpdateUserRequest]{
         User: &domain.UpdateUserRequest{
-            Email:    stubEmail,
-            Password: stubPassword,
-            Image:    stubImage,
-            Bio:      stubBio,
-            Username: stubUsername,
+            Email:    faker.Email(),
+            Password: faker.Password(),
+            Image:    faker.URL(),
+            Bio:      faker.Sentence(),
+            Username: faker.Username(),
         },
     }
 
@@ -32,7 +33,7 @@ func Test_UpdateReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
 
     fixture.mockSecurityService.
         On("HashPassword", mock.AnythingOfType("string")).
-        Return(stubPassword, nil)
+        Return(faker.Password(), nil)
 
     fixture.mockRepository.
         On("UpdateUser",

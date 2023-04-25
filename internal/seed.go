@@ -18,9 +18,14 @@ type dbSeeder struct {
 }
 
 const (
-    // There's a transaction limit for Planet scale, se we're limited on the amount of seed data we can place
+    // There's a transaction limit for PlanetScale, so we're limited on the amount of seed data we can create
     usersToSeed        = 10
     randomArticleLimit = 10
+)
+
+var (
+    wg    = new(sync.WaitGroup)
+    mutex = new(sync.Mutex)
 )
 
 func SeedDatabase(ctx context.Context, serviceContainer *features.ServiceContainer) {
@@ -29,25 +34,24 @@ func SeedDatabase(ctx context.Context, serviceContainer *features.ServiceContain
     }
 
     // We'll use a wait group here as we don't need the seeding to run in sync order - fire all requests at once
-    wg := new(sync.WaitGroup)
 
-    // Keep track of all the user IDs we'll create so we can seed articles
+    // Keep track of all the user IDs we'll create, so we can seed articles
     userIds := make([]uuid.UUID, usersToSeed)
 
-    seeder.seedUsers(ctx, wg, &userIds)
-    seeder.seedArticles(ctx, wg, &userIds)
+    seeder.seedUsers(ctx, &userIds)
+    seeder.seedArticles(ctx, &userIds)
 }
 
-func (s dbSeeder) seedUsers(ctx context.Context, wg *sync.WaitGroup, userIds *[]uuid.UUID) {
+func (s dbSeeder) seedUsers(ctx context.Context, userIds *[]uuid.UUID) {
     for seedIteration := 1; seedIteration <= usersToSeed; seedIteration++ {
         wg.Add(1)
-        go s.seedUser(ctx, wg, userIds)
+        go s.seedUser(ctx, userIds)
     }
 
     wg.Wait()
 }
 
-func (s dbSeeder) seedUser(ctx context.Context, wg *sync.WaitGroup, userIds *[]uuid.UUID) {
+func (s dbSeeder) seedUser(ctx context.Context, userIds *[]uuid.UUID) {
     const loggingSpan = "seed_user"
     defer wg.Done()
 
@@ -65,11 +69,13 @@ func (s dbSeeder) seedUser(ctx context.Context, wg *sync.WaitGroup, userIds *[]u
     if err != nil {
         level.Warn(s.logger).Log(loggingSpan, "error occurred while seeding a user, skipping current iteration", "err", err)
     } else {
+        mutex.Lock()
         *userIds = append(*userIds, createdUser.ID)
+        mutex.Unlock()
     }
 }
 
-func (s dbSeeder) seedArticles(ctx context.Context, wg *sync.WaitGroup, userIds *[]uuid.UUID) {
+func (s dbSeeder) seedArticles(ctx context.Context, userIds *[]uuid.UUID) {
     for _, userId := range *userIds {
         // We'll seed a random number of articles per user to simulate more active/inactive users
         randomNumberOfArticlesToSeed := rand.Intn(randomArticleLimit)

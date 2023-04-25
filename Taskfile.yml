@@ -5,10 +5,10 @@ dotenv: ['.env']
 tasks:
   run:
     cmds:
-      - DATABASE_URL=$DATABASE_URL PORT=$PORT go run ./cmd/conduit/main.go
+      - DSN=DSN PORT=$PORT go run ./cmd/conduit/main.go
   seed:
     cmds:
-      - DATABASE_URL=$DATABASE_URL PORT=$PORT go run ./cmd/seed/main.go
+      - DSN=$DSN PORT=$PORT go run ./cmd/seed/main.go
   build:
     cmds:
       - go build -v -o ./realworld_go_kit ./cmd/conduit/main.go
@@ -26,7 +26,7 @@ tasks:
       - golangci-lint run
   test:
     cmds:
-      - go test ./...
+      - DSN=$DSN go test ./...
   integration:production:
     cmds:
       - ./integrations/run-postman-tests.sh https://realworld-go-kit.fly.dev

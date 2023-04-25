@@ -1,6 +1,7 @@
 package users
 
 import (
+    "github.com/go-faker/faker/v4"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
     "github.com/stretchr/testify/assert"
@@ -13,8 +14,8 @@ func Test_LoginReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
     fixture = newUsersServiceTestFixture()
     request := domain.AuthenticationRequest[domain.LoginUserRequest]{
         User: &domain.LoginUserRequest{
-            Email:    stubEmail,
-            Password: stubPassword,
+            Email:    faker.Email(),
+            Password: faker.Password(),
         },
     }
 
