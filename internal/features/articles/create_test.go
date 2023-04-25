@@ -4,17 +4,11 @@ import (
     "github.com/go-faker/faker/v4"
     "github.com/google/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
-    "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
     "github.com/stretchr/testify/assert"
-    "github.com/stretchr/testify/mock"
-    "testing"
 )
 
-// TODO: Swap out mocks for real PlanetScale connections
-func Test_CreateReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
+func (s *ArticlesServiceTestSuite) Test_ReturnsSuccess_WhenDownstreamServicesAreOk() {
     // Arrange
-    fixture := newArticlesServiceTestFixture()
-
     request := domain.CreateArticleRequest{
         Article: &domain.ArticleRequest{
             Title:       faker.Sentence(),
@@ -27,14 +21,31 @@ func Test_CreateReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
         },
     }
 
-    fixture.mockUsersRepository.
-        On("GetUserById", fixture.ctx, mock.AnythingOfType("uuid.UUID")).
-        Return(&repositories.UserEntity{}, nil)
-
     // Act
-    response, err := fixture.service.CreateArticle(fixture.ctx, request, uuid.New())
+    response, err := s.Service.CreateArticle(s.Ctx, request, s.SeedUserId)
 
     // Assert
-    assert.NotNil(t, response)
-    assert.Nil(t, err)
+    assert.NotNil(s.T(), response)
+    assert.Nil(s.T(), err)
+}
+
+func (s *ArticlesServiceTestSuite) Test_ReturnsError_WhenUserIsNotFound() {
+    request := domain.CreateArticleRequest{
+        Article: &domain.ArticleRequest{
+            Title:       faker.Sentence(),
+            Description: faker.Sentence(),
+            Body:        faker.Sentence(),
+            TagList: []string{
+                faker.Word(),
+                faker.Word(),
+            },
+        },
+    }
+
+    // Act
+    response, err := s.Service.CreateArticle(s.Ctx, request, uuid.New())
+
+    // Assert
+    assert.Equal(s.T(), &domain.Article{}, response)
+    assert.Error(s.T(), err)
 }
