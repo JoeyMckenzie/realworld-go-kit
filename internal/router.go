@@ -3,16 +3,16 @@ package internal
 import (
     "github.com/go-chi/chi"
     "github.com/go-chi/chi/middleware"
-    "github.com/go-kit/log"
     "github.com/joeymckenzie/realworld-go-kit/internal/features"
     articlesApi "github.com/joeymckenzie/realworld-go-kit/internal/features/articles"
     profilesApi "github.com/joeymckenzie/realworld-go-kit/internal/features/profiles"
     usersApi "github.com/joeymckenzie/realworld-go-kit/internal/features/users"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"
+    "golang.org/x/exp/slog"
 )
 
 // NewRouter initializes a new instance of the chi router, mounting all sub-routes for users, articles, etc.
-func NewRouter(logger log.Logger, container *features.ServiceContainer) *chi.Mux {
+func NewRouter(logger *slog.Logger, container *features.ServiceContainer) *chi.Mux {
     router := chi.NewRouter()
     router.Use(middleware.Logger)
     router.Use(middleware.Recoverer)

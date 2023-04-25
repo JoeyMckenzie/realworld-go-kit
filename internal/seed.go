@@ -3,18 +3,17 @@ package internal
 import (
     "context"
     "github.com/go-faker/faker/v4"
-    "github.com/go-kit/log"
-    "github.com/go-kit/log/level"
     "github.com/google/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/features"
+    "golang.org/x/exp/slog"
     "math/rand"
     "sync"
 )
 
 type dbSeeder struct {
     container *features.ServiceContainer
-    logger    log.Logger
+    logger    *slog.Logger
 }
 
 const (
@@ -52,7 +51,6 @@ func (s dbSeeder) seedUsers(ctx context.Context, userIds *[]uuid.UUID) {
 }
 
 func (s dbSeeder) seedUser(ctx context.Context, userIds *[]uuid.UUID) {
-    const loggingSpan = "seed_user"
     defer wg.Done()
 
     request := domain.AuthenticationRequest[domain.RegisterUserRequest]{
@@ -67,7 +65,7 @@ func (s dbSeeder) seedUser(ctx context.Context, userIds *[]uuid.UUID) {
     createdUser, err := s.container.UsersService.Register(ctx, request)
 
     if err != nil {
-        level.Warn(s.logger).Log(loggingSpan, "error occurred while seeding a user, skipping current iteration", "err", err)
+        s.logger.WarnCtx(ctx, "error occurred while seeding a user, skipping current iteration", "err", err)
     } else {
         mutex.Lock()
         *userIds = append(*userIds, createdUser.ID)
@@ -89,7 +87,6 @@ func (s dbSeeder) seedArticles(ctx context.Context, userIds *[]uuid.UUID) {
 }
 
 func (s dbSeeder) seedArticle(ctx context.Context, wg *sync.WaitGroup, userId uuid.UUID) {
-    const loggingSpan = "seed_article"
     defer wg.Done()
 
     if userId == uuid.Nil {
@@ -108,6 +105,6 @@ func (s dbSeeder) seedArticle(ctx context.Context, wg *sync.WaitGroup, userId uu
     }
 
     if _, err := s.container.ArticlesService.CreateArticle(ctx, request, userId); err != nil {
-        level.Warn(s.logger).Log(loggingSpan, "error occurred while seeding an article, skipping current iteration", "err", err)
+        s.logger.WarnCtx(ctx, "error occurred while seeding an article, skipping current iteration", "err", err)
     }
 }

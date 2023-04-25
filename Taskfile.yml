@@ -5,7 +5,7 @@ dotenv: ['.env']
 tasks:
   run:
     cmds:
-      - DSN=DSN PORT=$PORT go run ./cmd/conduit/main.go
+      - DSN=$DSN PORT=$PORT go run ./cmd/conduit/main.go
   seed:
     cmds:
       - DSN=$DSN PORT=$PORT go run ./cmd/seed/main.go

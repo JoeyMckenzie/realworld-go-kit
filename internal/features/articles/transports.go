@@ -5,13 +5,13 @@ import (
     "encoding/json"
     "github.com/go-chi/chi"
     httptransport "github.com/go-kit/kit/transport/http"
-    "github.com/go-kit/log"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"
+    "golang.org/x/exp/slog"
     "net/http"
 )
 
-func MakeArticlesRoutes(logger log.Logger, router *chi.Mux, service ArticlesService) *chi.Mux {
+func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesService) *chi.Mux {
     createArticleHandler := httptransport.NewServer(
         makeCreateArticleEndpoint(service),
         decodeCreateArticleRequest,

@@ -5,8 +5,8 @@ go 1.20
 require (
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/cors v1.2.1
+	github.com/go-faker/faker/v4 v4.1.0
 	github.com/go-kit/kit v0.12.0
-	github.com/go-kit/log v0.2.1
 	github.com/go-playground/validator/v10 v10.12.0
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.2
@@ -15,11 +15,12 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/stretchr/testify v1.8.2
 	golang.org/x/crypto v0.8.0
+	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-faker/faker/v4 v4.1.0 // indirect
+	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

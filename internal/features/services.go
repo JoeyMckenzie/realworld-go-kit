@@ -1,7 +1,6 @@
 package features
 
 import (
-    "github.com/go-kit/log"
     "github.com/go-playground/validator/v10"
     "github.com/jmoiron/sqlx"
     "github.com/joeymckenzie/realworld-go-kit/internal/features/articles"
@@ -9,6 +8,7 @@ import (
     "github.com/joeymckenzie/realworld-go-kit/internal/features/users"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/utilities"
+    "golang.org/x/exp/slog"
 )
 
 type ServiceContainer struct {
@@ -18,7 +18,7 @@ type ServiceContainer struct {
 }
 
 // NewServiceContainer builds the downstream services used throughout the application.
-func NewServiceContainer(logger log.Logger, db *sqlx.DB) *ServiceContainer {
+func NewServiceContainer(logger *slog.Logger, db *sqlx.DB) *ServiceContainer {
     validation := validator.New()
     usersRepository := repositories.NewUsersRepository(db)
 

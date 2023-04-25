@@ -2,9 +2,9 @@ package users
 
 import (
     "context"
-    "github.com/go-kit/log"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/utilities"
+    "golang.org/x/exp/slog"
 )
 
 var fixture *usersServiceTestFixture
@@ -19,7 +19,7 @@ type usersServiceTestFixture struct {
 
 func newUsersServiceTestFixture() *usersServiceTestFixture {
     ctx := context.Background()
-    nopLogger := log.NewNopLogger()
+    nopLogger := slog.Default()
     mockTokenService := new(utilities.MockTokenService)
     mockSecurityService := new(utilities.MockSecurityService)
     mockRepository := new(repositories.MockUsersRepository)

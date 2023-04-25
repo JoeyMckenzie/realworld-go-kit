@@ -2,10 +2,10 @@ package articles
 
 import (
     "context"
-    "github.com/go-kit/log"
     "github.com/google/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
+    "golang.org/x/exp/slog"
 )
 
 type (
@@ -14,7 +14,7 @@ type (
     }
 
     articlesService struct {
-        logger             log.Logger
+        logger             *slog.Logger
         articlesRepository repositories.ArticlesRepository
         usersRepository    repositories.UsersRepository
     }
@@ -22,7 +22,7 @@ type (
     ArticlesServiceMiddleware func(service ArticlesService) ArticlesService
 )
 
-func NewArticlesService(logger log.Logger, articlesRepository repositories.ArticlesRepository, usersRepository repositories.UsersRepository) ArticlesService {
+func NewArticlesService(logger *slog.Logger, articlesRepository repositories.ArticlesRepository, usersRepository repositories.UsersRepository) ArticlesService {
     return &articlesService{
         logger:             logger,
         articlesRepository: articlesRepository,

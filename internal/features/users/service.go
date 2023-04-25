@@ -2,11 +2,11 @@ package users
 
 import (
     "context"
-    "github.com/go-kit/log"
     "github.com/google/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/utilities"
+    "golang.org/x/exp/slog"
 )
 
 type (
@@ -19,7 +19,7 @@ type (
     }
 
     userService struct {
-        logger          log.Logger
+        logger          *slog.Logger
         repository      repositories.UsersRepository
         tokenService    utilities.TokenService
         securityService utilities.SecurityService
@@ -28,7 +28,7 @@ type (
     UsersServiceMiddleware func(service UsersService) UsersService
 )
 
-func NewUsersService(logger log.Logger, repository repositories.UsersRepository, tokenService utilities.TokenService, securityService utilities.SecurityService) UsersService {
+func NewUsersService(logger *slog.Logger, repository repositories.UsersRepository, tokenService utilities.TokenService, securityService utilities.SecurityService) UsersService {
     return &userService{
         logger:          logger,
         repository:      repository,

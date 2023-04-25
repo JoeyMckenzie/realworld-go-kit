@@ -1,38 +1,37 @@
 package main
 
 import (
-	"context"
-	"github.com/go-kit/log/level"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
-	"github.com/joeymckenzie/realworld-go-kit/internal"
-	"github.com/joeymckenzie/realworld-go-kit/internal/features"
-	"os"
+    "context"
+    _ "github.com/go-sql-driver/mysql"
+    "github.com/jmoiron/sqlx"
+    "github.com/joeymckenzie/realworld-go-kit/internal"
+    "github.com/joeymckenzie/realworld-go-kit/internal/features"
+    "golang.org/x/exp/slog"
+    "os"
 )
 
 func main() {
-    const loggingSpan string = "seed"
-
     // First, spin up our internal dependencies and logger
-    logger := internal.NewLogger()
+    logger := slog.Default()
     dataSourceName := os.Getenv("DSN")
+    ctx := context.Background()
 
     // Grab a connection and verify we're able to ping PlanetScale
-    level.Info(logger).Log(loggingSpan, "initializing data connection...")
+    logger.InfoCtx(ctx, "initializing data connection...")
     db, err := sqlx.Open("mysql", dataSourceName)
 
     if err != nil {
-        level.Error(logger).Log(loggingSpan, "failed to initialize a connection to postgres", "err", err)
+        logger.ErrorCtx(ctx, "failed to initialize a connection to postgres", "err", err)
         os.Exit(1)
     }
 
     if err := db.Ping(); err != nil {
-        level.Error(logger).Log(loggingSpan, "failed to ping data", "err", err)
+        logger.ErrorCtx(ctx, "failed to ping data", "err", err)
         os.Exit(1)
     }
 
     // Initialize the service container and internal router
-    level.Info(logger).Log(loggingSpan, "data connection successfully initialized, building initializing services")
+    logger.InfoCtx(ctx, "data connection successfully initialized, building initializing services")
     serviceContainer := features.NewServiceContainer(logger, db)
 
     internal.SeedDatabase(context.Background(), serviceContainer)

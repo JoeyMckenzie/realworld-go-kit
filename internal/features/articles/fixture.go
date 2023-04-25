@@ -2,9 +2,9 @@ package articles
 
 import (
     "context"
-    "github.com/go-kit/log"
     "github.com/jmoiron/sqlx"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
+    "golang.org/x/exp/slog"
     "os"
 
     _ "github.com/go-sql-driver/mysql"
@@ -18,7 +18,7 @@ type articlesServiceTestFixture struct {
 
 func newArticlesServiceTestFixture() *articlesServiceTestFixture {
     ctx := context.Background()
-    nopLogger := log.NewNopLogger()
+    nopLogger := slog.Default()
     dsn := os.Getenv("DSN")
     db := sqlx.MustOpen("mysql", dsn)
     articlesRepository := repositories.NewArticlesRepository(db)
