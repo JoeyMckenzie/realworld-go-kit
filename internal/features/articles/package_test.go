@@ -19,6 +19,7 @@ type ArticlesServiceTestSuite struct {
     Ctx        context.Context
     Service    ArticlesService
     SeedUserId uuid.UUID
+    Db         *sqlx.DB
 }
 
 func (s *ArticlesServiceTestSuite) SetupSuite() {

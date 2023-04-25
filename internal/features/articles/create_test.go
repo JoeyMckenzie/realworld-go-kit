@@ -4,6 +4,7 @@ import (
     "github.com/go-faker/faker/v4"
     "github.com/google/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
+    "github.com/joeymckenzie/realworld-go-kit/internal/shared"
     "github.com/stretchr/testify/assert"
 )
 
@@ -48,4 +49,5 @@ func (s *ArticlesServiceTestSuite) Test_ReturnsError_WhenUserIsNotFound() {
     // Assert
     assert.Equal(s.T(), &domain.Article{}, response)
     assert.Error(s.T(), err)
+    assert.ErrorIs(s.T(), err.(*shared.ApiError[string]).Err, shared.ErrUserNotFound)
 }

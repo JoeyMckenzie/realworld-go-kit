@@ -40,8 +40,10 @@ type (
     ApiErrorMap[T string | []string] map[string]T
 
     // ApiError represents the serialized error response to be propagated back to clients.
+    // We include is solely for test assertions and inspection of errors for debugging, no need to report them back to users.
     ApiError[T string | []string] struct {
         Code   int            `json:"-"`
+        Err    error          `json:"-"`
         Errors ApiErrorMap[T] `json:"errors"`
     }
 )
@@ -126,6 +128,7 @@ func MakeApiErrorWithFallback(currentError, fallback error) *ApiError[string] {
 
 func MakeApiErrorWithStatus(code int, err error) *ApiError[string] {
     return &ApiError[string]{
+        Err:    err,
         Code:   code,
         Errors: makeApiErrorMapWithMessage(err),
     }

@@ -37,8 +37,6 @@ type (
 
     ArticlesRepository interface {
         BeginTransaction(ctx context.Context) (*sqlx.Tx, error)
-        CommitTransaction(tx *sqlx.Tx) error
-        RollbackTransaction(tx *sqlx.Tx) error
         GetArticleBySlug(ctx context.Context, tx *sqlx.Tx, slug string) (*ArticleEntity, error)
         CreateArticle(ctx context.Context, tx *sqlx.Tx, authorId uuid.UUID, slug, title, description, body string) (*ArticleEntity, error)
         CreateTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error)
@@ -88,14 +86,6 @@ func NewArticlesRepository(db *sqlx.DB) ArticlesRepository {
 
 func (ar *articlesRepository) BeginTransaction(ctx context.Context) (*sqlx.Tx, error) {
     return ar.db.BeginTxx(ctx, nil)
-}
-
-func (ar *articlesRepository) CommitTransaction(tx *sqlx.Tx) error {
-    return tx.Commit()
-}
-
-func (ar *articlesRepository) RollbackTransaction(tx *sqlx.Tx) error {
-    return tx.Rollback()
 }
 
 func (ar *articlesRepository) GetTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error) {
