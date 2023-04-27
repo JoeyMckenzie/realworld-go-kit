@@ -35,6 +35,9 @@ func (as *articlesService) ListArticles(ctx context.Context, request domain.List
             // Capture the current article to avoid unexpected derefs
             currentArticle := article
             wg.Add(1)
+
+            // We'll wrap our call to add article tags in an anonymous go routine,
+            // which we'll then communicate back any errors back to the error channel
             go func() {
                 tagQueryErrors <- as.addArticleWithTags(ctx, currentArticle, &mappedArticles)
             }()
@@ -67,6 +70,7 @@ func (as *articlesService) addArticleWithTags(ctx context.Context, article repos
         return err
     }
 
+    // Since we're mutating a shared list, only allow a single routine to update the list at a time
     syncLock.Lock()
     *mappedArticles = append(*mappedArticles, *mappedArticle)
     syncLock.Unlock()
