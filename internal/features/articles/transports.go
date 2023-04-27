@@ -50,7 +50,7 @@ func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesSe
         r.Group(func(r chi.Router) {
             r.Use(shared.AuthorizationOptional)
             r.Get("/", listArticleHandler.ServeHTTP)
-            r.Get("{slug}", getArticleHandler.ServeHTTP)
+            r.Get("/{slug}", getArticleHandler.ServeHTTP)
         })
 
         r.Group(func(r chi.Router) {
