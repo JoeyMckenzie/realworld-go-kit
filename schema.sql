@@ -26,6 +26,15 @@ CREATE TABLE user_follows
     created_at  TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+DROP TABLE IF EXISTS user_favorites;
+CREATE TABLE user_favorites
+(
+    id         BINARY(16) PRIMARY KEY,
+    user_id    BINARY(16) NOT NULL,
+    article_id BINARY(16) NOT NULL,
+    created_at TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 DROP TABLE IF EXISTS articles;
 CREATE TABLE articles
 (

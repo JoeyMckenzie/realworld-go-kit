@@ -10,6 +10,7 @@ import (
 
 type (
     ArticlesService interface {
+        ListArticles(ctx context.Context, request domain.ListArticlesRequest, userId uuid.UUID) ([]domain.Article, error)
         CreateArticle(ctx context.Context, request domain.CreateArticleRequest, authorId uuid.UUID) (*domain.Article, error)
     }
 

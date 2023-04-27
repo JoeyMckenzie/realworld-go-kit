@@ -23,8 +23,8 @@ const (
 )
 
 var (
-    wg    = new(sync.WaitGroup)
-    mutex = new(sync.Mutex)
+    wg       = new(sync.WaitGroup)
+    syncLock = new(sync.Mutex)
 )
 
 func SeedDatabase(ctx context.Context, serviceContainer *features.ServiceContainer) {
@@ -35,10 +35,11 @@ func SeedDatabase(ctx context.Context, serviceContainer *features.ServiceContain
     // We'll use a wait group here as we don't need the seeding to run in sync order - fire all requests at once
 
     // Keep track of all the user IDs we'll create, so we can seed articles
-    userIds := make([]uuid.UUID, usersToSeed)
-
-    seeder.seedUsers(ctx, &userIds)
-    seeder.seedArticles(ctx, &userIds)
+    var userIds []uuid.UUID
+    {
+        seeder.seedUsers(ctx, &userIds)
+        seeder.seedArticles(ctx, &userIds)
+    }
 }
 
 func (s dbSeeder) seedUsers(ctx context.Context, userIds *[]uuid.UUID) {
@@ -67,9 +68,9 @@ func (s dbSeeder) seedUser(ctx context.Context, userIds *[]uuid.UUID) {
     if err != nil {
         s.logger.WarnCtx(ctx, "error occurred while seeding a user, skipping current iteration", "err", err)
     } else {
-        mutex.Lock()
+        syncLock.Lock()
         *userIds = append(*userIds, createdUser.ID)
-        mutex.Unlock()
+        syncLock.Unlock()
     }
 }
 

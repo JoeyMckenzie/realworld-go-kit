@@ -22,6 +22,11 @@ type (
         Article *Article `json:"article"`
     }
 
+    ArticlesResponse struct {
+        Articles      []Article `json:"articles"`
+        ArticlesCount int       `json:"articlesCount"`
+    }
+
     ArticleRequest struct {
         Title       string   `json:"title" validate:"required"`
         Description string   `json:"description" validate:"required"`
@@ -31,5 +36,13 @@ type (
 
     CreateArticleRequest struct {
         Article *ArticleRequest `json:"article" validate:"required"`
+    }
+
+    ListArticlesRequest struct {
+        Limit     int
+        Offset    int
+        Tag       string
+        Author    string
+        Favorited string
     }
 )

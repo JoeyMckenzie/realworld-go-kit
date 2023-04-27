@@ -4,7 +4,7 @@ import (
     "context"
     "github.com/go-kit/kit/endpoint"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
-    "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/utilities"
+    "github.com/joeymckenzie/realworld-go-kit/internal/shared"
 )
 
 func makeRegisterUserEndpoint(service UsersService) endpoint.Endpoint {
@@ -39,7 +39,7 @@ func makeLoginUserEndpoint(service UsersService) endpoint.Endpoint {
 
 func makeUpdateUserEndpoint(service UsersService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
-        uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
+        uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
         updateRequest := request.(domain.AuthenticationRequest[domain.UpdateUserRequest])
         updatedUser, err := service.Update(ctx, updateRequest, uuidClaim.UserId)
 
@@ -55,7 +55,7 @@ func makeUpdateUserEndpoint(service UsersService) endpoint.Endpoint {
 
 func makeGetUserEndpoint(service UsersService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
-        uuidClaim := ctx.Value(utilities.TokenContextKey{}).(utilities.TokenContextKey)
+        uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
         existingUser, err := service.Get(ctx, uuidClaim.UserId)
 
         if err != nil {

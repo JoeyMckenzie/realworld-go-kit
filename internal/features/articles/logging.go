@@ -43,3 +43,26 @@ func (mw articlesServiceLoggingMiddleware) CreateArticle(ctx context.Context, re
 
     return mw.next.CreateArticle(ctx, request, authorId)
 }
+
+func (mw articlesServiceLoggingMiddleware) ListArticles(ctx context.Context, request domain.ListArticlesRequest, userId uuid.UUID) (articles []domain.Article, err error) {
+    defer func(begin time.Time) {
+        mw.logger.InfoCtx(ctx,
+            "method", "ListArticles",
+            "request_time", time.Since(begin),
+            "error", err,
+            "articles_found", len(articles),
+        )
+    }(time.Now())
+
+    mw.logger.InfoCtx(ctx,
+        "method", "CreateArticleWithTags",
+        "tag", request.Tag,
+        "author", request.Author,
+        "favorited", request.Favorited,
+        "limit", request.Limit,
+        "offset", request.Offset,
+        "user_id", userId,
+    )
+
+    return mw.next.ListArticles(ctx, request, userId)
+}

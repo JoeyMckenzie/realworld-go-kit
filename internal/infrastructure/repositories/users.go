@@ -49,7 +49,6 @@ func (u *UserEntity) ToUser(token string) *domain.User {
 func (u *UserEntity) ToProfile(following bool) *domain.Profile {
     return &domain.Profile{
         Username:  u.Username,
-        Email:     u.Email,
         Image:     u.Image,
         Bio:       u.Bio,
         Following: following,

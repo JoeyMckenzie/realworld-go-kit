@@ -29,3 +29,7 @@ func (mw articlesServiceValidationMiddleware) CreateArticle(ctx context.Context,
 
     return mw.next.CreateArticle(ctx, request, authorId)
 }
+
+func (mw articlesServiceValidationMiddleware) ListArticles(ctx context.Context, request domain.ListArticlesRequest, userId uuid.UUID) ([]domain.Article, error) {
+    return mw.next.ListArticles(ctx, request, userId)
+}

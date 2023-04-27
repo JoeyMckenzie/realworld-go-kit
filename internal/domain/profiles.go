@@ -3,7 +3,7 @@ package domain
 type (
     Profile struct {
         Username  string `json:"username"`
-        Email     string `json:"email"`
+        Email     string `json:"email,omitempty"`
         Image     string `json:"image"`
         Bio       string `json:"bio"`
         Following bool   `json:"following"`

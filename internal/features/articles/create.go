@@ -37,20 +37,21 @@ func (as *articlesService) CreateArticle(ctx context.Context, request domain.Cre
     }
 
     // Keep a reference to all the created tags, if any, to add to the article tags table
-    createdTags := make([]uuid.UUID, len(articleRequest.TagList))
+    var createdTags []uuid.UUID
+    {
+        // Next, we'll roll through all the tags on the request and create new tags that don't exist
+        for _, tag := range articleRequest.TagList {
+            as.logger.InfoCtx(ctx, "attempting to create tag", "tag", tag, "author_id", authorId, "article_title", articleRequest.Title)
+            createdTag, err := as.articlesRepository.CreateTag(ctx, tx, tag)
 
-    // Next, we'll roll through all the tags on the request and create new tags that don't exist
-    for _, tag := range articleRequest.TagList {
-        as.logger.InfoCtx(ctx, "attempting to create tag", "tag", tag, "author_id", authorId, "article_title", articleRequest.Title)
-        createdTag, err := as.articlesRepository.CreateTag(ctx, tx, tag)
+            if err != nil {
+                as.logger.ErrorCtx(ctx, "error while adding tag", "tag", tag, "err", err)
+                return &domain.Article{}, shared.MakeApiErrorWithFallback(err, tx.Rollback())
+            }
 
-        if err != nil {
-            as.logger.ErrorCtx(ctx, "error while adding tag", "tag", tag, "err", err)
-            return &domain.Article{}, shared.MakeApiErrorWithFallback(err, tx.Rollback())
+            as.logger.InfoCtx(ctx, "tag successfully created", "tag", tag, "author_id", authorId, "article_title", articleRequest.Title)
+            createdTags = append(createdTags, createdTag.ID)
         }
-
-        as.logger.InfoCtx(ctx, "tag successfully created", "tag", tag, "author_id", authorId, "article_title", articleRequest.Title)
-        createdTags = append(createdTags, createdTag.ID)
     }
 
     as.logger.InfoCtx(ctx, "verifying slug uniqueness", "author_id", authorId, "article_title", articleRequest.Title)
