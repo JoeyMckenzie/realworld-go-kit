@@ -30,6 +30,18 @@ func (mw articlesServiceValidationMiddleware) CreateArticle(ctx context.Context,
     return mw.next.CreateArticle(ctx, request, authorId)
 }
 
+func (mw articlesServiceValidationMiddleware) UpdateArticle(ctx context.Context, request domain.UpdateArticleRequest, authorId uuid.UUID) (*domain.Article, error) {
+    if err := mw.validation.StructCtx(ctx, request); err != nil {
+        return &domain.Article{}, shared.MakeValidationError(err)
+    }
+
+    return mw.next.UpdateArticle(ctx, request, authorId)
+}
+
+func (mw articlesServiceValidationMiddleware) DeleteArticle(ctx context.Context, slug string, authorId uuid.UUID) error {
+    return mw.next.DeleteArticle(ctx, slug, authorId)
+}
+
 func (mw articlesServiceValidationMiddleware) ListArticles(ctx context.Context, request domain.ListArticlesRequest, userId uuid.UUID) ([]domain.Article, error) {
     return mw.next.ListArticles(ctx, request, userId)
 }

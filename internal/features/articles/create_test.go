@@ -11,7 +11,7 @@ import (
 func (s *ArticlesServiceTestSuite) Test_ReturnsSuccess_WhenDownstreamServicesAreOk() {
     // Arrange
     request := domain.CreateArticleRequest{
-        Article: &domain.ArticleRequest{
+        Article: &domain.CreateArticleRequestDto{
             Title:       faker.Sentence(),
             Description: faker.Sentence(),
             Body:        faker.Sentence(),
@@ -32,7 +32,7 @@ func (s *ArticlesServiceTestSuite) Test_ReturnsSuccess_WhenDownstreamServicesAre
 
 func (s *ArticlesServiceTestSuite) Test_ReturnsError_WhenUserIsNotFound() {
     request := domain.CreateArticleRequest{
-        Article: &domain.ArticleRequest{
+        Article: &domain.CreateArticleRequestDto{
             Title:       faker.Sentence(),
             Description: faker.Sentence(),
             Body:        faker.Sentence(),

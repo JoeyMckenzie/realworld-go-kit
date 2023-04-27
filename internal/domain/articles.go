@@ -27,7 +27,7 @@ type (
         ArticlesCount int       `json:"articlesCount"`
     }
 
-    ArticleRequest struct {
+    CreateArticleRequestDto struct {
         Title       string   `json:"title" validate:"required"`
         Description string   `json:"description" validate:"required"`
         Body        string   `json:"body" validate:"required"`
@@ -35,7 +35,18 @@ type (
     }
 
     CreateArticleRequest struct {
-        Article *ArticleRequest `json:"article" validate:"required"`
+        Article *CreateArticleRequestDto `json:"article" validate:"required"`
+    }
+
+    UpdateArticleRequestDto struct {
+        Title       string `json:"title"`
+        Description string `json:"description"`
+        Body        string `json:"body"`
+    }
+
+    UpdateArticleRequest struct {
+        Article *UpdateArticleRequestDto `json:"article" validate:"required"`
+        Slug    string                   `validate:"required"`
     }
 
     ListArticlesRequest struct {
@@ -46,7 +57,7 @@ type (
         Favorited string
     }
 
-    GetArticleRequest struct {
-        Slug string
+    ArticleRetrievalRequest struct {
+        Slug string `validate:"required"`
     }
 )

@@ -23,6 +23,30 @@ func makeCreateArticleEndpoint(service ArticlesService) endpoint.Endpoint {
     }
 }
 
+func makeUpdateArticleEndpoint(service ArticlesService) endpoint.Endpoint {
+    return func(ctx context.Context, request interface{}) (interface{}, error) {
+        uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
+        updateArticleRequest := request.(domain.UpdateArticleRequest)
+        updatedArticle, err := service.UpdateArticle(ctx, updateArticleRequest, uuidClaim.UserId)
+
+        if err != nil {
+            return nil, err
+        }
+
+        return &domain.ArticleResponse{
+            Article: updatedArticle,
+        }, nil
+    }
+}
+
+func makeDeleteArticleEndpoint(service ArticlesService) endpoint.Endpoint {
+    return func(ctx context.Context, request interface{}) (interface{}, error) {
+        uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
+        articleRequest := request.(domain.ArticleRetrievalRequest)
+        return nil, service.DeleteArticle(ctx, articleRequest.Slug, uuidClaim.UserId)
+    }
+}
+
 func makeListArticlesEndpoint(service ArticlesService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
@@ -60,7 +84,7 @@ func makeFeedArticlesEndpoint(service ArticlesService) endpoint.Endpoint {
 func makeGetArticleEndpoint(service ArticlesService) endpoint.Endpoint {
     return func(ctx context.Context, request interface{}) (interface{}, error) {
         uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
-        articleRequest := request.(domain.GetArticleRequest)
+        articleRequest := request.(domain.ArticleRetrievalRequest)
         article, err := service.GetArticle(ctx, articleRequest.Slug, uuidClaim.UserId)
 
         if err != nil {

@@ -95,7 +95,7 @@ func (s dbSeeder) seedArticle(ctx context.Context, wg *sync.WaitGroup, userId uu
     }
 
     request := domain.CreateArticleRequest{
-        Article: &domain.ArticleRequest{
+        Article: &domain.CreateArticleRequestDto{
             Title:       faker.Sentence(),
             Description: faker.Sentence(),
             Body:        faker.Sentence(),

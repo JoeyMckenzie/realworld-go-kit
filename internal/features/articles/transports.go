@@ -25,6 +25,20 @@ func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesSe
         shared.HandlerOptions(logger)...,
     )
 
+    updateArticleHandler := httptransport.NewServer(
+        makeUpdateArticleEndpoint(service),
+        decodeUpdateArticleRequest,
+        shared.EncodeSuccessfulOkResponse,
+        shared.HandlerOptions(logger)...,
+    )
+
+    deleteArticleHandler := httptransport.NewServer(
+        makeDeleteArticleEndpoint(service),
+        decodeDeleteArticleRequest,
+        shared.EncodeSuccessfulOkResponse,
+        shared.HandlerOptions(logger)...,
+    )
+
     listArticleHandler := httptransport.NewServer(
         makeListArticlesEndpoint(service),
         decodeListArticlesRequest,
@@ -56,6 +70,8 @@ func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesSe
         r.Group(func(r chi.Router) {
             r.Use(shared.AuthorizationRequired)
             r.Post("/", createArticleHandler.ServeHTTP)
+            r.Delete("/", deleteArticleHandler.ServeHTTP)
+            r.Put("/{slug}", updateArticleHandler.ServeHTTP)
             r.Get("/feed", getFeedHandler.ServeHTTP)
         })
     })
@@ -63,8 +79,31 @@ func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesSe
     return router
 }
 
-func decodeCreateArticleRequest(_ context.Context, r *http.Request) (interface{}, error) {
-    var request domain.CreateArticleRequest
+func decodeCreateArticleRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+    return decodeArticleRequest[domain.CreateArticleRequest](ctx, r)
+}
+
+func decodeUpdateArticleRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+    request, err := decodeArticleRequest[domain.UpdateArticleRequest](ctx, r)
+
+    if err != nil {
+        return nil, err
+    }
+
+    updatedRequest := request.(domain.UpdateArticleRequest)
+    updatedRequest.Slug = chi.URLParam(r, "slug")
+
+    return updatedRequest, nil
+}
+
+func decodeDeleteArticleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+    return domain.ArticleRetrievalRequest{
+        Slug: chi.URLParam(r, "slug"),
+    }, nil
+}
+
+func decodeArticleRequest[T domain.CreateArticleRequest | domain.UpdateArticleRequest](_ context.Context, r *http.Request) (interface{}, error) {
+    var request T
 
     if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
         return nil, shared.ErrorWithContext("error while attempting to decode the article request", shared.ErrInvalidRequestBody)
@@ -85,7 +124,7 @@ func decodeFeedArticlesRequest(_ context.Context, r *http.Request) (interface{},
 }
 
 func decodeGetArticlesRequest(_ context.Context, r *http.Request) (interface{}, error) {
-    return domain.GetArticleRequest{
+    return domain.ArticleRetrievalRequest{
         Slug: chi.URLParam(r, "slug"),
     }, nil
 }

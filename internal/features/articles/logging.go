@@ -44,6 +44,45 @@ func (mw articlesServiceLoggingMiddleware) CreateArticle(ctx context.Context, re
     return mw.next.CreateArticle(ctx, request, authorId)
 }
 
+func (mw articlesServiceLoggingMiddleware) UpdateArticle(ctx context.Context, request domain.UpdateArticleRequest, authorId uuid.UUID) (article *domain.Article, err error) {
+    defer func(begin time.Time) {
+        mw.logger.InfoCtx(ctx,
+            "UpdateArticle",
+            "request_time", time.Since(begin),
+            "error", err,
+            "article_updated", article != nil,
+        )
+    }(time.Now())
+
+    mw.logger.InfoCtx(ctx,
+        "UpdateArticle",
+        "title", request.Article.Title,
+        "description", request.Article.Description,
+        "body", request.Article.Body,
+        "author_id", authorId,
+    )
+
+    return mw.next.UpdateArticle(ctx, request, authorId)
+}
+
+func (mw articlesServiceLoggingMiddleware) DeleteArticle(ctx context.Context, slug string, authorId uuid.UUID) (err error) {
+    defer func(begin time.Time) {
+        mw.logger.InfoCtx(ctx,
+            "DeleteArticle",
+            "request_time", time.Since(begin),
+            "error", err,
+        )
+    }(time.Now())
+
+    mw.logger.InfoCtx(ctx,
+        "DeleteArticle",
+        "author_id", authorId,
+        "slug", slug,
+    )
+
+    return mw.next.DeleteArticle(ctx, slug, authorId)
+}
+
 func (mw articlesServiceLoggingMiddleware) ListArticles(ctx context.Context, request domain.ListArticlesRequest, userId uuid.UUID) (articles []domain.Article, err error) {
     defer func(begin time.Time) {
         mw.logger.InfoCtx(ctx,

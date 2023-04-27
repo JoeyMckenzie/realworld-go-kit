@@ -44,8 +44,9 @@ type (
         BeginTransaction(ctx context.Context) (*sqlx.Tx, error)
         GetArticleBySlug(ctx context.Context, tx *sqlx.Tx, slug string) (*ArticleEntity, error)
         CreateArticle(ctx context.Context, tx *sqlx.Tx, authorId uuid.UUID, slug, title, description, body string) (*ArticleEntity, error)
+        UpdateArticle(ctx context.Context, articleId, userId uuid.UUID, slug, title, description, body string) (*ArticleCompositeQuery, error)
         GetArticles(ctx context.Context, userId uuid.UUID, tag, author, favorited string, limit, offset int) ([]ArticleCompositeQuery, error)
-        GetArticle(ctx context.Context, slug string, userId uuid.UUID) (ArticleCompositeQuery, error)
+        GetArticle(ctx context.Context, slug string, userId uuid.UUID) (*ArticleCompositeQuery, error)
     }
 
     articlesRepository struct {
@@ -153,6 +154,23 @@ VALUES (UUID_TO_BIN(UUID(), true), UUID_TO_BIN(?), ?, ?, ?, ?)`
     return ar.GetArticleBySlug(ctx, tx, slug)
 }
 
+func (ar *articlesRepository) UpdateArticle(ctx context.Context, articleId, userId uuid.UUID, slug, title, description, body string) (*ArticleCompositeQuery, error) {
+    const sql = `
+UPDATE articles
+SET slug = ?,
+    title = ?,
+    description = ?,
+    body = ?
+WHERE id = UUID_TO_BIN(?)
+`
+
+    if _, err := ar.db.ExecContext(ctx, sql, slug, title, description, body, articleId); err != nil {
+        return &ArticleCompositeQuery{}, err
+    }
+
+    return ar.GetArticle(ctx, slug, userId)
+}
+
 func (ar *articlesRepository) GetArticles(ctx context.Context, userId uuid.UUID, tag, author, favorited string, limit, offset int) ([]ArticleCompositeQuery, error) {
     var articles []ArticleCompositeQuery
     {
@@ -220,7 +238,7 @@ LIMIT ? OFFSET ?`
     return articles, nil
 }
 
-func (ar *articlesRepository) GetArticle(ctx context.Context, slug string, userId uuid.UUID) (ArticleCompositeQuery, error) {
+func (ar *articlesRepository) GetArticle(ctx context.Context, slug string, userId uuid.UUID) (*ArticleCompositeQuery, error) {
     var article ArticleCompositeQuery
     {
         // Note: this monster/abomination of a query encapsulates all the data we need to conform
@@ -259,9 +277,9 @@ WHERE a.slug = ?;`
             slug)
 
         if err != nil {
-            return article, shared.ErrorWithContext("error while querying for articles", err)
+            return &article, shared.ErrorWithContext("error while querying for articles", err)
         }
     }
 
-    return article, nil
+    return &article, nil
 }
