@@ -45,6 +45,7 @@ type (
         GetArticleBySlug(ctx context.Context, tx *sqlx.Tx, slug string) (*ArticleEntity, error)
         CreateArticle(ctx context.Context, tx *sqlx.Tx, authorId uuid.UUID, slug, title, description, body string) (*ArticleEntity, error)
         UpdateArticle(ctx context.Context, articleId, userId uuid.UUID, slug, title, description, body string) (*ArticleCompositeQuery, error)
+        DeleteArticle(ctx context.Context, articleId uuid.UUID) error
         GetArticles(ctx context.Context, userId uuid.UUID, tag, author, favorited string, limit, offset int) ([]ArticleCompositeQuery, error)
         GetArticle(ctx context.Context, slug string, userId uuid.UUID) (*ArticleCompositeQuery, error)
     }
@@ -161,14 +162,25 @@ SET slug = ?,
     title = ?,
     description = ?,
     body = ?
-WHERE id = UUID_TO_BIN(?)
-`
+WHERE id = UUID_TO_BIN(?)`
 
     if _, err := ar.db.ExecContext(ctx, sql, slug, title, description, body, articleId); err != nil {
         return &ArticleCompositeQuery{}, err
     }
 
     return ar.GetArticle(ctx, slug, userId)
+}
+
+func (ar *articlesRepository) DeleteArticle(ctx context.Context, articleId uuid.UUID) error {
+    const sql = `
+DELETE FROM articles
+WHERE id = UUID_TO_BIN(?)`
+
+    if _, err := ar.db.ExecContext(ctx, sql, articleId); err != nil {
+        return err
+    }
+
+    return nil
 }
 
 func (ar *articlesRepository) GetArticles(ctx context.Context, userId uuid.UUID, tag, author, favorited string, limit, offset int) ([]ArticleCompositeQuery, error) {
