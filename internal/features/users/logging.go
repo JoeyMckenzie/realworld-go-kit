@@ -25,7 +25,7 @@ func NewUsersServiceLoggingMiddleware(logger *slog.Logger) UsersServiceMiddlewar
 func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request domain.AuthenticationRequest[domain.RegisterUserRequest]) (user *domain.User, err error) {
     defer func(begin time.Time) {
         mw.logger.InfoCtx(ctx,
-            "method", "Register",
+            "Register",
             "request_time", time.Since(begin),
             "error", err,
             "user_created", user != nil,
@@ -33,7 +33,7 @@ func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request d
     }(time.Now())
 
     mw.logger.InfoCtx(ctx,
-        "method", "Register",
+        "Register",
         "request", request,
     )
 
@@ -43,7 +43,7 @@ func (mw *usersServiceLoggingMiddleware) Register(ctx context.Context, request d
 func (mw *usersServiceLoggingMiddleware) Login(ctx context.Context, request domain.AuthenticationRequest[domain.LoginUserRequest]) (user *domain.User, err error) {
     defer func(begin time.Time) {
         mw.logger.InfoCtx(ctx,
-            "method", "Login",
+            "Login",
             "request_time", time.Since(begin),
             "error", err,
             "user_verified", user != nil,
@@ -51,7 +51,7 @@ func (mw *usersServiceLoggingMiddleware) Login(ctx context.Context, request doma
     }(time.Now())
 
     mw.logger.InfoCtx(ctx,
-        "method", "Login",
+        "Login",
         "request", request,
     )
 
@@ -61,7 +61,7 @@ func (mw *usersServiceLoggingMiddleware) Login(ctx context.Context, request doma
 func (mw *usersServiceLoggingMiddleware) Update(ctx context.Context, request domain.AuthenticationRequest[domain.UpdateUserRequest], id uuid.UUID) (user *domain.User, err error) {
     defer func(begin time.Time) {
         mw.logger.InfoCtx(ctx,
-            "method", "Update",
+            "Update",
             "request_time", time.Since(begin),
             "error", err,
             "user_updated", user != nil,
@@ -69,7 +69,7 @@ func (mw *usersServiceLoggingMiddleware) Update(ctx context.Context, request dom
     }(time.Now())
 
     mw.logger.InfoCtx(ctx,
-        "method", "Update",
+        "Update",
         "request", request,
     )
 
@@ -79,7 +79,7 @@ func (mw *usersServiceLoggingMiddleware) Update(ctx context.Context, request dom
 func (mw *usersServiceLoggingMiddleware) Get(ctx context.Context, id uuid.UUID) (user *domain.User, err error) {
     defer func(begin time.Time) {
         mw.logger.InfoCtx(ctx,
-            "method", "Get",
+            "Get",
             "request_time", time.Since(begin),
             "error", err,
             "user_found", user != nil,
@@ -87,7 +87,7 @@ func (mw *usersServiceLoggingMiddleware) Get(ctx context.Context, id uuid.UUID) 
     }(time.Now())
 
     mw.logger.InfoCtx(ctx,
-        "method", "Get",
+        "Get",
         "id", id,
     )
 

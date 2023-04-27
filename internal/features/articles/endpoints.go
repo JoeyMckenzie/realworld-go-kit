@@ -56,3 +56,19 @@ func makeFeedArticlesEndpoint(service ArticlesService) endpoint.Endpoint {
         }, nil
     }
 }
+
+func makeGetArticleEndpoint(service ArticlesService) endpoint.Endpoint {
+    return func(ctx context.Context, request interface{}) (interface{}, error) {
+        uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
+        articleRequest := request.(domain.GetArticleRequest)
+        article, err := service.GetArticle(ctx, articleRequest.Slug, uuidClaim.UserId)
+
+        if err != nil {
+            return nil, err
+        }
+
+        return &domain.ArticleResponse{
+            Article: article,
+        }, nil
+    }
+}

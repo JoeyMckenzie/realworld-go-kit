@@ -25,7 +25,7 @@ func NewProfileServiceLoggingMiddleware(logger *slog.Logger) ProfileServiceMiddl
 func (mw *profileServiceLoggingMiddleware) Follow(ctx context.Context, username string, followeeId uuid.UUID) (profile *domain.Profile, err error) {
     defer func(begin time.Time) {
         mw.logger.InfoCtx(ctx,
-            "method", "Follow",
+            "Follow",
             "request_time", time.Since(begin),
             "error", err,
             "profile_found", profile != nil,
@@ -33,7 +33,7 @@ func (mw *profileServiceLoggingMiddleware) Follow(ctx context.Context, username 
     }(time.Now())
 
     mw.logger.InfoCtx(ctx,
-        "method", "Follow",
+        "Follow",
         "username", username,
         "followee_id", followeeId,
     )
@@ -44,7 +44,7 @@ func (mw *profileServiceLoggingMiddleware) Follow(ctx context.Context, username 
 func (mw *profileServiceLoggingMiddleware) GetProfile(ctx context.Context, username string, followeeId uuid.UUID) (profile *domain.Profile, err error) {
     defer func(begin time.Time) {
         mw.logger.InfoCtx(ctx,
-            "method", "GetProfile",
+            "GetProfile",
             "request_time", time.Since(begin),
             "error", err,
             "profile_found", profile != nil,
@@ -52,7 +52,7 @@ func (mw *profileServiceLoggingMiddleware) GetProfile(ctx context.Context, usern
     }(time.Now())
 
     mw.logger.InfoCtx(ctx,
-        "method", "GetProfile",
+        "GetProfile",
         "username", username,
         "followee_id", followeeId,
     )
@@ -63,7 +63,7 @@ func (mw *profileServiceLoggingMiddleware) GetProfile(ctx context.Context, usern
 func (mw *profileServiceLoggingMiddleware) Unfollow(ctx context.Context, username string, followeeId uuid.UUID) (profile *domain.Profile, err error) {
     defer func(begin time.Time) {
         mw.logger.InfoCtx(ctx,
-            "method", "Unfollow",
+            "Unfollow",
             "request_time", time.Since(begin),
             "error", err,
             "profile_found", profile != nil,
@@ -71,7 +71,7 @@ func (mw *profileServiceLoggingMiddleware) Unfollow(ctx context.Context, usernam
     }(time.Now())
 
     mw.logger.InfoCtx(ctx,
-        "method", "Unfollow",
+        "Unfollow",
         "username", username,
         "followee_id", followeeId,
     )

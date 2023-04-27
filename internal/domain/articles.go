@@ -45,4 +45,8 @@ type (
         Author    string
         Favorited string
     }
+
+    GetArticleRequest struct {
+        Slug string
+    }
 )

@@ -39,10 +39,18 @@ func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesSe
         shared.HandlerOptions(logger)...,
     )
 
+    getArticleHandler := httptransport.NewServer(
+        makeGetArticleEndpoint(service),
+        decodeGetArticlesRequest,
+        shared.EncodeSuccessfulOkResponse,
+        shared.HandlerOptions(logger)...,
+    )
+
     router.Route("/articles", func(r chi.Router) {
         r.Group(func(r chi.Router) {
             r.Use(shared.AuthorizationOptional)
             r.Get("/", listArticleHandler.ServeHTTP)
+            r.Get("{slug}", getArticleHandler.ServeHTTP)
         })
 
         r.Group(func(r chi.Router) {
@@ -74,6 +82,12 @@ func decodeListArticlesRequest(_ context.Context, r *http.Request) (interface{},
 
 func decodeFeedArticlesRequest(_ context.Context, r *http.Request) (interface{}, error) {
     return getContextForArticlesRequest(r, "", "", "")
+}
+
+func decodeGetArticlesRequest(_ context.Context, r *http.Request) (interface{}, error) {
+    return domain.GetArticleRequest{
+        Slug: chi.URLParam(r, "slug"),
+    }, nil
 }
 
 func getContextForArticlesRequest(r *http.Request, tag, author, favorited string) (interface{}, error) {
