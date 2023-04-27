@@ -3,7 +3,6 @@ package repositories
 import (
     "context"
     "errors"
-    "fmt"
     "github.com/google/uuid"
     "github.com/jmoiron/sqlx"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
@@ -41,29 +40,12 @@ type (
         Email           string    `db:"author_email"`
     }
 
-    TagEntity struct {
-        ID          uuid.UUID
-        Description string
-        CreatedAt   string `db:"created_at"`
-    }
-
-    ArticleTagEntity struct {
-        ID        uuid.UUID
-        ArticleID uuid.UUID `db:"article_id"`
-        TagID     uuid.UUID `db:"tag_id"`
-        CreatedAt string    `db:"created_at"`
-    }
-
     ArticlesRepository interface {
         BeginTransaction(ctx context.Context) (*sqlx.Tx, error)
         GetArticleBySlug(ctx context.Context, tx *sqlx.Tx, slug string) (*ArticleEntity, error)
         CreateArticle(ctx context.Context, tx *sqlx.Tx, authorId uuid.UUID, slug, title, description, body string) (*ArticleEntity, error)
         GetArticles(ctx context.Context, userId uuid.UUID, tag, author, favorited string, limit, offset int) ([]ArticleCompositeQuery, error)
-        CreateTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error)
-        CreateArticleTag(ctx context.Context, tx *sqlx.Tx, tagId, articleId uuid.UUID) (*ArticleTagEntity, error)
-        GetTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error)
-        GetArticleTag(ctx context.Context, tx *sqlx.Tx, tagId, articleId uuid.UUID) (*ArticleTagEntity, error)
-        GetArticleTags(ctx context.Context, articleId uuid.UUID) ([]string, error)
+        GetArticle(ctx context.Context, slug string, userId uuid.UUID) (ArticleCompositeQuery, error)
     }
 
     articlesRepository struct {
@@ -135,48 +117,6 @@ func NewArticlesRepository(db *sqlx.DB) ArticlesRepository {
 
 func (ar *articlesRepository) BeginTransaction(ctx context.Context) (*sqlx.Tx, error) {
     return ar.db.BeginTxx(ctx, nil)
-}
-
-func (ar *articlesRepository) GetTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error) {
-    var tag TagEntity
-    {
-        const sql = "SELECT * FROM tags WHERE description = ?"
-        var err error
-        {
-            if tx != nil {
-                err = tx.GetContext(ctx, &tag, sql, description)
-            } else {
-                err = ar.db.GetContext(ctx, &tag, sql, description)
-            }
-        }
-
-        if err != nil {
-            return &tag, shared.ErrorWithContext("error occurred while retrieving tags", err)
-        }
-    }
-
-    return &tag, nil
-}
-
-func (ar *articlesRepository) GetArticleTag(ctx context.Context, tx *sqlx.Tx, tagId, articleId uuid.UUID) (*ArticleTagEntity, error) {
-    var articleTagEntity ArticleTagEntity
-    {
-        const sql = "SELECT * FROM article_tags WHERE (tag_id, article_id) = (UUID_TO_BIN(?), UUID_TO_BIN(?))"
-        var err error
-        {
-            if tx != nil {
-                err = tx.GetContext(ctx, &articleTagEntity, sql, tagId, articleId)
-            } else {
-                err = ar.db.GetContext(ctx, &articleTagEntity, sql, tagId, articleId)
-            }
-        }
-
-        if err != nil {
-            return &articleTagEntity, err
-        }
-    }
-
-    return &articleTagEntity, nil
 }
 
 func (ar *articlesRepository) GetArticleBySlug(ctx context.Context, tx *sqlx.Tx, slug string) (*ArticleEntity, error) {
@@ -280,48 +220,48 @@ LIMIT ? OFFSET ?`
     return articles, nil
 }
 
-func (ar *articlesRepository) CreateTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error) {
-    const sql = "INSERT IGNORE INTO tags (id, description) VALUES (UUID_TO_BIN(UUID(), true), ?)"
-
-    if tx != nil {
-        if _, err := tx.Exec(sql, description); err != nil {
-            return &TagEntity{}, shared.ErrorWithContext("error while attempting to insert tag", err)
-        }
-    } else {
-        if _, err := ar.db.Exec(sql, description); err != nil {
-            return &TagEntity{}, shared.ErrorWithContext("error while attempting to insert tag", err)
-        }
-    }
-
-    return ar.GetTag(ctx, tx, description)
-}
-
-func (ar *articlesRepository) CreateArticleTag(ctx context.Context, tx *sqlx.Tx, tagId, articleId uuid.UUID) (*ArticleTagEntity, error) {
-    const sql = `
-INSERT IGNORE INTO article_tags (id, article_id, tag_id)
-VALUES (UUID_TO_BIN(UUID(), true), UUID_TO_BIN(?), UUID_TO_BIN(?))`
-
-    if _, err := tx.Exec(sql, articleId, tagId); err != nil {
-        return &ArticleTagEntity{}, err
-    }
-
-    return ar.GetArticleTag(ctx, tx, tagId, articleId)
-}
-
-func (ar *articlesRepository) GetArticleTags(ctx context.Context, articleId uuid.UUID) ([]string, error) {
-    var articleTags []string
+func (ar *articlesRepository) GetArticle(ctx context.Context, slug string, userId uuid.UUID) (ArticleCompositeQuery, error) {
+    var article ArticleCompositeQuery
     {
+        // Note: this monster/abomination of a query encapsulates all the data we need to conform
+        // for article queries including article information, follower and favorite info, and author info
         const sql = `
-SELECT description FROM tags t
-JOIN article_tags at
-    ON t.id = at.tag_id
-WHERE article_id = UUID_TO_BIN(?)
-ORDER BY description`
+SELECT a.id                                                                     AS "id",
+       a.created_at                                                             AS "created_at",
+       a.updated_at                                                             AS "updated_at",
+       a.title                                                                  AS "title",
+       a.body                                                                   AS "body",
+       a.description                                                            AS "description",
+       a.slug                                                                   AS "slug",
+       u.id                                                                     AS "user_id",
+       EXISTS(SELECT 1
+              FROM user_favorites af
+              WHERE (af.user_id, af.article_id) = (UUID_TO_BIN(?), a.id))       AS "favorited",
+       (SELECT count(*) FROM user_favorites WHERE article_id = a.id)            AS "favorites",
+       EXISTS(SELECT 1
+              FROM user_follows
+              WHERE (followee_id, follower_id) = (a.author_id, UUID_TO_BIN(?))) AS "following_author",
+       u.username                                                               AS "author_username",
+       u.bio                                                                    AS "author_bio",
+       u.image                                                                  AS "author_image"
+FROM articles a
+         JOIN users u ON u.id = a.author_id
+WHERE a.slug = ?;`
 
-        if err := ar.db.SelectContext(ctx, &articleTags, sql, articleId); err != nil {
-            return articleTags, shared.ErrorWithContext(fmt.Sprintf("error while querying for article tags for article %s", articleId), err)
+        // Unlike Postgres, MySQL can't quite handler positional parameterized arguments,
+        // so we need to pass the  same arguments multiple times to reuse parameters in a query
+        err := ar.db.GetContext(
+            ctx,
+            &article,
+            sql,
+            userId,
+            userId,
+            slug)
+
+        if err != nil {
+            return article, shared.ErrorWithContext("error while querying for articles", err)
         }
     }
 
-    return articleTags, nil
+    return article, nil
 }

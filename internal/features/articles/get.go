@@ -2,9 +2,12 @@ package articles
 
 import (
     "context"
+    "database/sql"
     "github.com/google/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
+    "github.com/joeymckenzie/realworld-go-kit/internal/shared"
+    "net/http"
     "sync"
 )
 
@@ -13,9 +16,38 @@ var (
     syncLock = new(sync.Mutex)
 )
 
+func (as *articlesService) GetFeed(ctx context.Context, request domain.ListArticlesRequest, userId uuid.UUID) ([]domain.Article, error) {
+    articles, err := as.articlesRepository.GetArticles(ctx, userId, "", "", "", request.Limit, request.Offset)
+    return as.getMappedArticles(ctx, articles, err)
+}
+
 func (as *articlesService) ListArticles(ctx context.Context, request domain.ListArticlesRequest, userId uuid.UUID) ([]domain.Article, error) {
     articles, err := as.articlesRepository.GetArticles(ctx, userId, request.Tag, request.Author, request.Favorited, request.Limit, request.Offset)
+    return as.getMappedArticles(ctx, articles, err)
+}
 
+func (as *articlesService) GetArticle(ctx context.Context, slug string, userId uuid.UUID) (*domain.Article, error) {
+    article, err := as.articlesRepository.GetArticle(ctx, slug, userId)
+
+    if err != nil && err != sql.ErrNoRows {
+        as.logger.ErrorCtx(ctx, "error while attempting find article", "slug", slug, "user_id", userId)
+        return &domain.Article{}, shared.MakeApiError(err)
+    } else if err == sql.ErrNoRows {
+        as.logger.ErrorCtx(ctx, "article not found", "slug", slug, "user_id", userId)
+        return &domain.Article{}, shared.MakeApiErrorWithStatus(http.StatusNotFound, shared.ErrArticlesNotFound)
+    }
+
+    tagList, err := as.tagsRepository.GetArticleTags(ctx, article.ID)
+
+    if err != nil {
+        as.logger.ErrorCtx(ctx, "error while attempting retrieve tags for article", "slug", slug, "user_id", userId, "article_id", article.ID)
+        return &domain.Article{}, nil
+    }
+
+    return article.ToArticle(tagList)
+}
+
+func (as *articlesService) getMappedArticles(ctx context.Context, articles []repositories.ArticleCompositeQuery, err error) ([]domain.Article, error) {
     if err != nil {
         as.logger.ErrorCtx(ctx, "error while attempting to retrieve articles", "err", err)
         return []domain.Article{}, err
@@ -56,7 +88,7 @@ func (as *articlesService) ListArticles(ctx context.Context, request domain.List
 
 func (as *articlesService) addArticleWithTags(ctx context.Context, article repositories.ArticleCompositeQuery, mappedArticles *[]domain.Article) error {
     defer wg.Done()
-    associatedTags, err := as.articlesRepository.GetArticleTags(ctx, article.ID)
+    associatedTags, err := as.tagsRepository.GetArticleTags(ctx, article.ID)
 
     if err != nil {
         as.logger.ErrorCtx(ctx, "error while attempting to retrieve article tags", "err", err, "article_id", article.ID)

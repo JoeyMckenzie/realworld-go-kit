@@ -32,6 +32,13 @@ func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesSe
         shared.HandlerOptions(logger)...,
     )
 
+    getFeedHandler := httptransport.NewServer(
+        makeFeedArticlesEndpoint(service),
+        decodeFeedArticlesRequest,
+        shared.EncodeSuccessfulOkResponse,
+        shared.HandlerOptions(logger)...,
+    )
+
     router.Route("/articles", func(r chi.Router) {
         r.Group(func(r chi.Router) {
             r.Use(shared.AuthorizationOptional)
@@ -41,6 +48,7 @@ func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesSe
         r.Group(func(r chi.Router) {
             r.Use(shared.AuthorizationRequired)
             r.Post("/", createArticleHandler.ServeHTTP)
+            r.Get("/feed", getFeedHandler.ServeHTTP)
         })
     })
 
@@ -58,11 +66,19 @@ func decodeCreateArticleRequest(_ context.Context, r *http.Request) (interface{}
 }
 
 func decodeListArticlesRequest(_ context.Context, r *http.Request) (interface{}, error) {
-    limit := defaultLimit
-    offset := defaultOffset
     tag := r.URL.Query().Get("tag")
     author := r.URL.Query().Get("author")
     favorited := r.URL.Query().Get("favorited")
+    return getContextForArticlesRequest(r, tag, author, favorited)
+}
+
+func decodeFeedArticlesRequest(_ context.Context, r *http.Request) (interface{}, error) {
+    return getContextForArticlesRequest(r, "", "", "")
+}
+
+func getContextForArticlesRequest(r *http.Request, tag, author, favorited string) (interface{}, error) {
+    limit := defaultLimit
+    offset := defaultOffset
     requestLimit := r.URL.Query().Get("limit")
     requestOffset := r.URL.Query().Get("offset")
 

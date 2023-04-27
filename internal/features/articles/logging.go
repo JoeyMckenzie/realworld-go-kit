@@ -66,3 +66,23 @@ func (mw articlesServiceLoggingMiddleware) ListArticles(ctx context.Context, req
 
     return mw.next.ListArticles(ctx, request, userId)
 }
+
+func (mw articlesServiceLoggingMiddleware) GetFeed(ctx context.Context, request domain.ListArticlesRequest, userId uuid.UUID) (articles []domain.Article, err error) {
+    defer func(begin time.Time) {
+        mw.logger.InfoCtx(ctx,
+            "method", "GetFeed",
+            "request_time", time.Since(begin),
+            "error", err,
+            "articles_found", len(articles),
+        )
+    }(time.Now())
+
+    mw.logger.InfoCtx(ctx,
+        "method", "CreateArticleWithTags",
+        "limit", request.Limit,
+        "offset", request.Offset,
+        "user_id", userId,
+    )
+
+    return mw.next.GetFeed(ctx, request, userId)
+}

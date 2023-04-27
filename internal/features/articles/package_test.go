@@ -32,12 +32,13 @@ func (s *ArticlesServiceTestSuite) SetupSuite() {
     // Next, setup our service dependencies
     articlesRepository := repositories.NewArticlesRepository(db)
     usersRepository := repositories.NewUsersRepository(db)
+    tagsRepository := repositories.NewTagsRepository(db)
 
     // Seed an existing user to use for assertions
     seedUser, _ := usersRepository.CreateUser(ctx, faker.Username(), faker.Email(), faker.PASSWORD)
 
     s.Ctx = ctx
-    s.Service = NewArticlesService(nopLogger, articlesRepository, usersRepository)
+    s.Service = NewArticlesService(nopLogger, articlesRepository, usersRepository, tagsRepository)
     s.SeedUserId = seedUser.ID
 }
 

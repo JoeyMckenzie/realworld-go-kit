@@ -42,7 +42,7 @@ func (as *articlesService) CreateArticle(ctx context.Context, request domain.Cre
         // Next, we'll roll through all the tags on the request and create new tags that don't exist
         for _, tag := range articleRequest.TagList {
             as.logger.InfoCtx(ctx, "attempting to create tag", "tag", tag, "author_id", authorId, "article_title", articleRequest.Title)
-            createdTag, err := as.articlesRepository.CreateTag(ctx, tx, tag)
+            createdTag, err := as.tagsRepository.CreateTag(ctx, tx, tag)
 
             if err != nil {
                 as.logger.ErrorCtx(ctx, "error while adding tag", "tag", tag, "err", err)
@@ -84,7 +84,7 @@ func (as *articlesService) CreateArticle(ctx context.Context, request domain.Cre
         if tagId != uuid.Nil {
             as.logger.InfoCtx(ctx, "attempting to add article tags", "author_id", authorId, "article_id", createdArticle.ID, "tag_id", tagId)
 
-            if _, err = as.articlesRepository.CreateArticleTag(ctx, tx, tagId, createdArticle.ID); err != nil {
+            if _, err = as.tagsRepository.CreateArticleTag(ctx, tx, tagId, createdArticle.ID); err != nil {
                 as.logger.ErrorCtx(ctx, "error while creating article tag", "article_id", createdArticle.ID, "tag_id", tagId)
                 return &domain.Article{}, shared.MakeApiErrorWithFallback(err, tx.Rollback())
             }

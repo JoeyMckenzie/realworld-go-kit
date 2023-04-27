@@ -33,3 +33,7 @@ func (mw articlesServiceValidationMiddleware) CreateArticle(ctx context.Context,
 func (mw articlesServiceValidationMiddleware) ListArticles(ctx context.Context, request domain.ListArticlesRequest, userId uuid.UUID) ([]domain.Article, error) {
     return mw.next.ListArticles(ctx, request, userId)
 }
+
+func (mw articlesServiceValidationMiddleware) GetFeed(ctx context.Context, request domain.ListArticlesRequest, userId uuid.UUID) ([]domain.Article, error) {
+    return mw.next.ListArticles(ctx, request, userId)
+}

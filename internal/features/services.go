@@ -39,8 +39,9 @@ func NewServiceContainer(logger *slog.Logger, db *sqlx.DB) *ServiceContainer {
 
     var articlesService articles.ArticlesService
     {
+        tagsRepository := repositories.NewTagsRepository(db)
         articlesRepository := repositories.NewArticlesRepository(db)
-        articlesService = articles.NewArticlesService(logger, articlesRepository, usersRepository)
+        articlesService = articles.NewArticlesService(logger, articlesRepository, usersRepository, tagsRepository)
         articlesService = articles.NewArticlesServiceValidationMiddleware(validation)(articlesService)
     }
 
