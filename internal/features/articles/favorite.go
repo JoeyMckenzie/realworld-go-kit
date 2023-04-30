@@ -40,7 +40,13 @@ func (as *articlesService) handleFavoriteRequest(ctx context.Context, favorite b
     }
 
     // Re-retrieve the article and tags
-    existingArticle, err := as.articlesRepository.GetArticle(ctx, nil, slug, userId)
+    existingArticle, err = as.articlesRepository.GetArticle(ctx, nil, slug, userId)
+
+    if shared.IsValidSqlErr(err) {
+        as.logger.ErrorCtx(ctx, "error while attempting tore-retrieve article to favorite", "favorite", favorite, "slug", slug, "user_id", userId)
+        return &domain.Article{}, shared.MakeApiError(err)
+    }
+
     articleTags, err := as.tagsRepository.GetArticleTags(ctx, existingArticle.ID)
 
     if err != nil {
