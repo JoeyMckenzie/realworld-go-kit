@@ -2,7 +2,7 @@ name: Build, test, and deploy
 
 on:
   workflow_run:
-    workflows: ['Lint']
+    workflows: [ 'Lint' ]
     types:
       - completed
 
@@ -26,6 +26,8 @@ jobs:
 
       - name: Run unit tests
         run: task test
+        env:
+          DSN: ${{ secrets.DSN }}
 
       - name: Deploy to fly
         run: flyctl deploy --remote-only
