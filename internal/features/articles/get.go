@@ -27,9 +27,9 @@ func (as *articlesService) ListArticles(ctx context.Context, request domain.List
 }
 
 func (as *articlesService) GetArticle(ctx context.Context, slug string, userId uuid.UUID) (*domain.Article, error) {
-    article, err := as.articlesRepository.GetArticle(ctx, slug, userId)
+    article, err := as.articlesRepository.GetArticle(ctx, nil, slug, userId)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         as.logger.ErrorCtx(ctx, "error while attempting find article", "slug", slug, "user_id", userId)
         return &domain.Article{}, shared.MakeApiError(err)
     } else if err == sql.ErrNoRows {

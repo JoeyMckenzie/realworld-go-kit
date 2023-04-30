@@ -33,8 +33,8 @@ tasks:
   integration:local:
     cmds:
       - ./integrations/run-postman-tests.sh http://localhost:8080
-    deps:
-      - docker:start
+    # deps:
+    #   - docker:start
 
 includes:
   docker:

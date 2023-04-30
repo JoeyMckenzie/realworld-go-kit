@@ -53,3 +53,15 @@ func (mw articlesServiceValidationMiddleware) GetFeed(ctx context.Context, reque
 func (mw articlesServiceValidationMiddleware) GetArticle(ctx context.Context, slug string, userId uuid.UUID) (*domain.Article, error) {
     return mw.next.GetArticle(ctx, slug, userId)
 }
+
+func (mw articlesServiceValidationMiddleware) FavoriteArticle(ctx context.Context, slug string, userId uuid.UUID) (*domain.Article, error) {
+    return mw.next.FavoriteArticle(ctx, slug, userId)
+}
+
+func (mw articlesServiceValidationMiddleware) UnavoriteArticle(ctx context.Context, slug string, userId uuid.UUID) (*domain.Article, error) {
+    return mw.next.UnavoriteArticle(ctx, slug, userId)
+}
+
+func (mw articlesServiceValidationMiddleware) GetArticleTags(ctx context.Context) ([]string, error) {
+    return mw.next.GetArticleTags(ctx)
+}

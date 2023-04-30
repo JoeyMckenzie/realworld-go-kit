@@ -14,7 +14,7 @@ func (us *userService) Update(ctx context.Context, request domain.Authentication
     us.logger.InfoCtx(ctx, "attempting to update user, checking for existing user", "email", request.User.Email, "id", id.String())
     existingUser, err := us.repository.GetUserById(ctx, id)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         us.logger.ErrorCtx(ctx, "error while attempting check for existing user", "err", err, "email", request.User.Email, "id", id.String())
         return &domain.User{}, shared.MakeApiError(err)
     } else if err == sql.ErrNoRows {
@@ -30,7 +30,7 @@ func (us *userService) Update(ctx context.Context, request domain.Authentication
         us.logger.InfoCtx(ctx, "attempting to verify username and email uniqueness", "email", request.User.Email, "username", request.User.Username, "id", id.String())
         existingUsers, err := us.repository.SearchUsers(ctx, request.User.Username, request.User.Email)
 
-        if err != nil && err != sql.ErrNoRows {
+        if shared.IsValidSqlErr(err) {
             us.logger.ErrorCtx(ctx, "error attempting to verify username and email uniqueness", "err", err, "email", request.User.Email, "username", request.User.Username, "id", id.String())
             return &domain.User{}, shared.MakeApiError(err)
         } else if len(existingUsers) > 0 {

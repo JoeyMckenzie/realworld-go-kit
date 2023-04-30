@@ -14,10 +14,10 @@ import (
 func (as *articlesService) CreateArticle(ctx context.Context, request domain.CreateArticleRequest, authorId uuid.UUID) (*domain.Article, error) {
     as.logger.InfoCtx(ctx, "verifying user exists before creating article", "author_id", authorId)
 
-    // First, grab the associated user
-    author, err := as.usersRepository.GetUserById(ctx, authorId)
+    // First, check that the author exists in the database
+    _, err := as.usersRepository.GetUserById(ctx, authorId)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         as.logger.ErrorCtx(ctx, "error while attempting to retrieve author", "author_id", authorId)
         return &domain.Article{}, shared.MakeApiError(err)
     } else if err == sql.ErrNoRows {
@@ -58,9 +58,9 @@ func (as *articlesService) CreateArticle(ctx context.Context, request domain.Cre
 
     // Then, verify the slug is unique - if not, add a unique hash to the slug
     articleSlug := slug.Make(articleRequest.Title)
-    existingArticle, err := as.articlesRepository.GetArticleBySlug(ctx, tx, articleSlug)
+    existingArticle, err := as.articlesRepository.GetArticle(ctx, tx, articleSlug, authorId)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         as.logger.ErrorCtx(ctx, "error while verifying slug uniqueness", "slug", articleSlug, "err", err)
         return &domain.Article{}, shared.MakeApiErrorWithFallback(err, tx.Rollback())
     } else if existingArticle != nil && existingArticle.Slug != "" {
@@ -102,5 +102,5 @@ func (as *articlesService) CreateArticle(ctx context.Context, request domain.Cre
 
     as.logger.InfoCtx(ctx, "transaction successfully saved", "author_id", authorId, "article_id", createdArticle.ID)
 
-    return createdArticle.ToArticle(author.ToProfile(false), request.Article.TagList, 0, false, false)
+    return createdArticle.ToArticle(request.Article.TagList)
 }

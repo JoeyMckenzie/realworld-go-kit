@@ -5,6 +5,7 @@ import (
     "github.com/go-chi/chi/middleware"
     "github.com/joeymckenzie/realworld-go-kit/internal/features"
     articlesApi "github.com/joeymckenzie/realworld-go-kit/internal/features/articles"
+    commentsApi "github.com/joeymckenzie/realworld-go-kit/internal/features/comments"
     profilesApi "github.com/joeymckenzie/realworld-go-kit/internal/features/profiles"
     usersApi "github.com/joeymckenzie/realworld-go-kit/internal/features/users"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"
@@ -24,6 +25,7 @@ func NewRouter(logger *slog.Logger, container *features.ServiceContainer) *chi.M
     router = usersApi.MakeUserRoutes(logger, router, container.UsersService)
     router = profilesApi.MakeProfileRoutes(logger, router, container.ProfilesService)
     router = articlesApi.MakeArticlesRoutes(logger, router, container.ArticlesService)
+    router = commentsApi.MakeCommentsRoutes(logger, router, container.CommentsService)
     router.Mount("/api", router)
 
     return router

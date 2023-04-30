@@ -3,9 +3,7 @@ package articles
 import (
     "context"
     "database/sql"
-    "fmt"
     "github.com/google/uuid"
-    "github.com/gosimple/slug"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"
     "net/http"
@@ -13,9 +11,9 @@ import (
 
 func (as *articlesService) UpdateArticle(ctx context.Context, request domain.UpdateArticleRequest, authorId uuid.UUID) (*domain.Article, error) {
     // First, verify the article exists
-    article, err := as.articlesRepository.GetArticle(ctx, request.Slug, authorId)
+    article, err := as.articlesRepository.GetArticle(ctx, nil, request.Slug, authorId)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         as.logger.ErrorCtx(ctx, "error while attempting to update article", "slug", request.Slug, "author_id", authorId)
         return &domain.Article{}, shared.MakeApiError(err)
     } else if err == sql.ErrNoRows {
@@ -35,22 +33,10 @@ func (as *articlesService) UpdateArticle(ctx context.Context, request domain.Upd
     updatedTitle := shared.GetUpdatedValueIfApplicable(request.Article.Title, article.Title)
     updatedBody := shared.GetUpdatedValueIfApplicable(request.Article.Body, article.Body)
     updatedDescription := shared.GetUpdatedValueIfApplicable(request.Article.Description, article.Description)
-
-    // Slugify the title, and update it if we find a clashing slug
-    updatedSlug := slug.Make(updatedTitle)
-    existingArticleWithClashingSlug, err := as.articlesRepository.GetArticle(ctx, updatedSlug, authorId)
-
-    if err != nil && err != sql.ErrNoRows {
-        as.logger.ErrorCtx(ctx, "error while attempting to check for clashing article slug", "slug", updatedSlug, "article_id", article.ID)
-        return &domain.Article{}, shared.MakeApiError(err)
-    } else if existingArticleWithClashingSlug.Slug != "" {
-        updatedSlug = slug.Make(fmt.Sprintf("%s-%s", updatedSlug, uuid.New().String()))
-    }
-
-    updatedArticle, err := as.articlesRepository.UpdateArticle(ctx, article.ID, authorId, updatedSlug, updatedTitle, updatedBody, updatedDescription)
+    updatedArticle, err := as.articlesRepository.UpdateArticle(ctx, article.ID, authorId, article.Slug, updatedTitle, updatedBody, updatedDescription)
 
     if err != nil {
-        as.logger.ErrorCtx(ctx, "error while updating article", "slug", updatedSlug, "article_id", article.ID)
+        as.logger.ErrorCtx(ctx, "error while updating article", "slug", article.Slug, "article_id", article.ID)
         return &domain.Article{}, shared.MakeApiError(err)
     }
 
@@ -58,7 +44,7 @@ func (as *articlesService) UpdateArticle(ctx context.Context, request domain.Upd
     associatedTags, err := as.tagsRepository.GetArticleTags(ctx, updatedArticle.ID)
 
     if err != nil {
-        as.logger.ErrorCtx(ctx, "error while updating article", "slug", updatedSlug, "article_id", article.ID)
+        as.logger.ErrorCtx(ctx, "error while updating article", "slug", article.Slug, "article_id", article.ID)
         return &domain.Article{}, shared.MakeApiError(err)
     }
 

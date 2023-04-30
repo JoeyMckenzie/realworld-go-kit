@@ -37,7 +37,7 @@ func (us *profileService) GetProfile(ctx context.Context, username string, follo
     us.logger.InfoCtx(ctx, "attempting to retrieve profile status, verifying existing user", "username", username, "followee_id", followeeId)
     existingUser, err := us.repository.GetUserByUsername(ctx, username)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         us.logger.ErrorCtx(ctx, "error while attempting to retrieve user profile", "username", username, "followee_id", followeeId, "err", err)
         return &domain.Profile{}, shared.MakeApiError(err)
     } else if err == sql.ErrNoRows {
@@ -52,7 +52,7 @@ func (us *profileService) GetProfile(ctx context.Context, username string, follo
         us.logger.InfoCtx(ctx, "checking for existing user follow", "username", username, "follower_id", followerId, "followee_id", followeeId)
         id, err := us.repository.GetExistingFollow(ctx, followerId, followeeId)
 
-        if err != nil && err != sql.ErrNoRows {
+        if shared.IsValidSqlErr(err) {
             us.logger.ErrorCtx(ctx, "error while attempting checking for existing user follow", "username", username, "follower_id", followerId, "followee_id", followeeId, "err", err)
             return &domain.Profile{}, shared.MakeApiError(err)
         } else if id != uuid.Nil {
@@ -70,7 +70,7 @@ func (us *profileService) Follow(ctx context.Context, username string, followeeI
     us.logger.InfoCtx(ctx, "attempting to add user follower, verifying existing user to follow", "username", username, "followee_id", followeeId)
     existingUserToFollow, err := us.repository.GetUserByUsername(ctx, username)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         us.logger.ErrorCtx(ctx, "error while attempting to search for user to follow", "username", username, "followee_id", followeeId, "err", err)
         return &domain.Profile{}, shared.MakeApiError(err)
     } else if err == sql.ErrNoRows {
@@ -82,7 +82,7 @@ func (us *profileService) Follow(ctx context.Context, username string, followeeI
     us.logger.InfoCtx(ctx, "checking for existing user follow", "username", username, "follower_id", followerId, "followee_id", followeeId)
     id, err := us.repository.GetExistingFollow(ctx, followerId, followeeId)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         us.logger.ErrorCtx(ctx, "error while attempting checking for existing user follow", "username", username, "follower_id", followerId, "followee_id", followeeId, "err", err)
         return &domain.Profile{}, shared.MakeApiError(err)
     } else if id != uuid.Nil {
@@ -103,7 +103,7 @@ func (us *profileService) Unfollow(ctx context.Context, username string, followe
     us.logger.InfoCtx(ctx, "attempting to delete user follower, verifying existing user to follow", "username", username, "followee_id", followeeId)
     existingUserToUnfollow, err := us.repository.GetUserByUsername(ctx, username)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         us.logger.ErrorCtx(ctx, "error while attempting to search for user to unfollow", "username", username, "followee_id", followeeId, "err", err)
         return &domain.Profile{}, shared.MakeApiError(err)
     } else if err == sql.ErrNoRows {

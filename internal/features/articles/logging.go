@@ -13,7 +13,7 @@ type articlesServiceLoggingMiddleware struct {
     next   ArticlesService
 }
 
-func NewProfileServiceLoggingMiddleware(logger *slog.Logger) ArticlesServiceMiddleware {
+func NewArticlesServiceLoggingMiddleware(logger *slog.Logger) ArticlesServiceMiddleware {
     return func(next ArticlesService) ArticlesService {
         return &articlesServiceLoggingMiddleware{
             logger: logger,
@@ -143,4 +143,57 @@ func (mw articlesServiceLoggingMiddleware) GetArticle(ctx context.Context, slug 
     )
 
     return mw.next.GetArticle(ctx, slug, userId)
+}
+
+func (mw articlesServiceLoggingMiddleware) FavoriteArticle(ctx context.Context, slug string, userId uuid.UUID) (article *domain.Article, err error) {
+    defer func(begin time.Time) {
+        mw.logger.InfoCtx(ctx,
+            "FavoriteArticle",
+            "request_time", time.Since(begin),
+            "error", err,
+            "article_found", article != nil,
+        )
+    }(time.Now())
+
+    mw.logger.InfoCtx(ctx,
+        "FavoriteArticle",
+        "slug", slug,
+        "user_id", userId,
+    )
+
+    return mw.next.FavoriteArticle(ctx, slug, userId)
+}
+
+func (mw articlesServiceLoggingMiddleware) UnavoriteArticle(ctx context.Context, slug string, userId uuid.UUID) (article *domain.Article, err error) {
+    defer func(begin time.Time) {
+        mw.logger.InfoCtx(ctx,
+            "UnfavoriteArticle",
+            "request_time", time.Since(begin),
+            "error", err,
+            "article_found", article != nil,
+        )
+    }(time.Now())
+
+    mw.logger.InfoCtx(ctx,
+        "UnfavoriteArticle",
+        "slug", slug,
+        "user_id", userId,
+    )
+
+    return mw.next.UnavoriteArticle(ctx, slug, userId)
+}
+
+func (mw articlesServiceLoggingMiddleware) GetArticleTags(ctx context.Context) (tags []string, err error) {
+    defer func(begin time.Time) {
+        mw.logger.InfoCtx(ctx,
+            "GetArticleTags",
+            "request_time", time.Since(begin),
+            "error", err,
+            "article_found", len(tags),
+        )
+    }(time.Now())
+
+    mw.logger.InfoCtx(ctx, "GetArticleTags")
+
+    return mw.next.GetArticleTags(ctx)
 }

@@ -60,4 +60,8 @@ type (
     ArticleRetrievalRequest struct {
         Slug string `validate:"required"`
     }
+
+    ArticleTagsResponse struct {
+        Tags []string `json:"tags"`
+    }
 )

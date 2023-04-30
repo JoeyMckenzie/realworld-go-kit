@@ -49,6 +49,17 @@ CREATE TABLE articles
     UNIQUE KEY idx_articles_slug (slug)
 );
 
+DROP TABLE IF EXISTS comments;
+CREATE TABLE comments
+(
+    id         BINARY(16) PRIMARY KEY,
+    author_id  BINARY(16)    NOT NULL,
+    article_id BINARY(16)    NOT NULL,
+    body       VARCHAR(4096) NOT NULL,
+    created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 DROP TABLE IF EXISTS tags;
 CREATE TABLE tags
 (

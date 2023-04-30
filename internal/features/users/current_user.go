@@ -13,7 +13,7 @@ func (us *userService) Get(ctx context.Context, id uuid.UUID) (*domain.User, err
     us.logger.InfoCtx(ctx, "attempting to get existing user", "email", "id", id)
     existingUser, err := us.repository.GetUserById(ctx, id)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         us.logger.ErrorCtx(ctx, "error while attempting check for existing user", "err", err, "id", id)
         return &domain.User{}, shared.MakeApiError(err)
     } else if err == sql.ErrNoRows {

@@ -96,3 +96,49 @@ func makeGetArticleEndpoint(service ArticlesService) endpoint.Endpoint {
         }, nil
     }
 }
+
+func makeFavoriteArticleEndpoint(service ArticlesService) endpoint.Endpoint {
+    return func(ctx context.Context, request interface{}) (interface{}, error) {
+        uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
+        articleRequest := request.(domain.ArticleRetrievalRequest)
+        article, err := service.FavoriteArticle(ctx, articleRequest.Slug, uuidClaim.UserId)
+
+        if err != nil {
+            return nil, err
+        }
+
+        return &domain.ArticleResponse{
+            Article: article,
+        }, nil
+    }
+}
+
+func makeUnfavoriteArticleEndpoint(service ArticlesService) endpoint.Endpoint {
+    return func(ctx context.Context, request interface{}) (interface{}, error) {
+        uuidClaim := ctx.Value(shared.TokenContextKey{}).(shared.TokenContextKey)
+        articleRequest := request.(domain.ArticleRetrievalRequest)
+        article, err := service.UnavoriteArticle(ctx, articleRequest.Slug, uuidClaim.UserId)
+
+        if err != nil {
+            return nil, err
+        }
+
+        return &domain.ArticleResponse{
+            Article: article,
+        }, nil
+    }
+}
+
+func makeTagsEndpoint(service ArticlesService) endpoint.Endpoint {
+    return func(ctx context.Context, request interface{}) (interface{}, error) {
+        tags, err := service.GetArticleTags(ctx)
+
+        if err != nil {
+            return nil, err
+        }
+
+        return &domain.ArticleTagsResponse{
+            Tags: tags,
+        }, nil
+    }
+}

@@ -34,7 +34,7 @@ func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesSe
 
     deleteArticleHandler := httptransport.NewServer(
         makeDeleteArticleEndpoint(service),
-        decodeDeleteArticleRequest,
+        decodeArticleRetrievalRequest,
         shared.EncodeSuccessfulOkResponse,
         shared.HandlerOptions(logger)...,
     )
@@ -60,6 +60,29 @@ func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesSe
         shared.HandlerOptions(logger)...,
     )
 
+    favoriteArticleHandler := httptransport.NewServer(
+        makeFavoriteArticleEndpoint(service),
+        decodeArticleRetrievalRequest,
+        shared.EncodeSuccessfulOkResponse,
+        shared.HandlerOptions(logger)...,
+    )
+
+    unfavoriteArticleHandler := httptransport.NewServer(
+        makeUnfavoriteArticleEndpoint(service),
+        decodeArticleRetrievalRequest,
+        shared.EncodeSuccessfulOkResponse,
+        shared.HandlerOptions(logger)...,
+    )
+
+    getArticleTags := httptransport.NewServer(
+        makeTagsEndpoint(service),
+        shared.DecodeNilPayload,
+        shared.EncodeSuccessfulOkResponse,
+        shared.HandlerOptions(logger)...,
+    )
+
+    router.Get("/tags", getArticleTags.ServeHTTP)
+
     router.Route("/articles", func(r chi.Router) {
         r.Group(func(r chi.Router) {
             r.Use(shared.AuthorizationOptional)
@@ -70,9 +93,11 @@ func MakeArticlesRoutes(logger *slog.Logger, router *chi.Mux, service ArticlesSe
         r.Group(func(r chi.Router) {
             r.Use(shared.AuthorizationRequired)
             r.Post("/", createArticleHandler.ServeHTTP)
-            r.Delete("/", deleteArticleHandler.ServeHTTP)
-            r.Put("/{slug}", updateArticleHandler.ServeHTTP)
             r.Get("/feed", getFeedHandler.ServeHTTP)
+            r.Delete("/{slug}", deleteArticleHandler.ServeHTTP)
+            r.Put("/{slug}", updateArticleHandler.ServeHTTP)
+            r.Post("/{slug}/favorite", favoriteArticleHandler.ServeHTTP)
+            r.Delete("/{slug}/favorite", unfavoriteArticleHandler.ServeHTTP)
         })
     })
 
@@ -96,7 +121,7 @@ func decodeUpdateArticleRequest(ctx context.Context, r *http.Request) (interface
     return updatedRequest, nil
 }
 
-func decodeDeleteArticleRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeArticleRetrievalRequest(_ context.Context, r *http.Request) (interface{}, error) {
     return domain.ArticleRetrievalRequest{
         Slug: chi.URLParam(r, "slug"),
     }, nil

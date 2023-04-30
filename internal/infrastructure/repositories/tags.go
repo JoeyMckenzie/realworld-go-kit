@@ -26,6 +26,7 @@ type (
         CreateTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error)
         CreateArticleTag(ctx context.Context, tx *sqlx.Tx, tagId, articleId uuid.UUID) (*ArticleTagEntity, error)
         GetTag(ctx context.Context, tx *sqlx.Tx, description string) (*TagEntity, error)
+        GetTags(ctx context.Context) ([]string, error)
         GetArticleTag(ctx context.Context, tx *sqlx.Tx, tagId, articleId uuid.UUID) (*ArticleTagEntity, error)
         GetArticleTags(ctx context.Context, articleId uuid.UUID) ([]string, error)
     }
@@ -127,4 +128,20 @@ ORDER BY description`
     }
 
     return articleTags, nil
+}
+
+func (t *tagsRepository) GetTags(ctx context.Context) ([]string, error) {
+    var tags []string
+    {
+        // Tags are indexed by their description, so no need for a unique query here
+        const sql = `
+SELECT description FROM tags
+ORDER BY description`
+
+        if err := t.db.SelectContext(ctx, &tags, sql); err != nil {
+            return tags, err
+        }
+    }
+
+    return tags, nil
 }

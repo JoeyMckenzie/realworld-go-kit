@@ -10,9 +10,9 @@ import (
 
 func (as *articlesService) DeleteArticle(ctx context.Context, slug string, authorId uuid.UUID) error {
     // First, verify the article exists
-    article, err := as.articlesRepository.GetArticle(ctx, slug, authorId)
+    article, err := as.articlesRepository.GetArticle(ctx, nil, slug, authorId)
 
-    if err != nil && err != sql.ErrNoRows {
+    if shared.IsValidSqlErr(err) {
         as.logger.ErrorCtx(ctx, "error while attempting to delete article", "slug", slug, "author_id", authorId)
         return shared.MakeApiError(err)
     } else if err == sql.ErrNoRows {
