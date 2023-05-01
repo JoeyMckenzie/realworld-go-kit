@@ -2,7 +2,7 @@ package repositories
 
 import (
     "context"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/stretchr/testify/mock"
 )
 

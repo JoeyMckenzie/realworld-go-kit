@@ -2,7 +2,7 @@ package articles
 
 import (
     "github.com/go-faker/faker/v4"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"
     "github.com/stretchr/testify/assert"
@@ -44,7 +44,7 @@ func (s *ArticlesServiceTestSuite) Test_ReturnsError_WhenUserIsNotFound() {
     }
 
     // Act
-    response, err := s.Service.CreateArticle(s.Ctx, request, uuid.New())
+    response, err := s.Service.CreateArticle(s.Ctx, request, uuid.Must(uuid.NewV4()))
 
     // Assert
     assert.Equal(s.T(), &domain.Article{}, response)

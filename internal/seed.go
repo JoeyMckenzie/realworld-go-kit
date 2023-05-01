@@ -3,7 +3,7 @@ package internal
 import (
     "context"
     "github.com/go-faker/faker/v4"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/features"
     "golang.org/x/exp/slog"

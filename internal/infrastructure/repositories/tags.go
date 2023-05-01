@@ -3,7 +3,7 @@ package repositories
 import (
     "context"
     "fmt"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/jmoiron/sqlx"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"
 )

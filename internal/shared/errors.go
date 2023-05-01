@@ -1,6 +1,7 @@
 package shared
 
 import (
+    "database/sql"
     "encoding/json"
     "errors"
     "fmt"
@@ -34,6 +35,10 @@ var (
     ErrNilInput                  = errors.New("cannot pass nil value")
     ErrForbiddenArticleUpdate    = errors.New("forbidden to update this article")
 )
+
+func IsValidSqlErr(err error) bool {
+    return err != nil && err != sql.ErrNoRows
+}
 
 type (
     // ApiErrorMap represents a map of application errors that can occur while processing requests.

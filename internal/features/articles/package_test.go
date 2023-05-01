@@ -3,7 +3,7 @@ package articles
 import (
     "context"
     "github.com/go-faker/faker/v4"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/jmoiron/sqlx"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
     "github.com/stretchr/testify/suite"

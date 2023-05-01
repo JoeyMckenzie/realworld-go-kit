@@ -3,7 +3,7 @@ package articles
 import (
     "context"
     "database/sql"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"
     "net/http"
 )

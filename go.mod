@@ -9,8 +9,8 @@ require (
 	github.com/go-kit/kit v0.12.0
 	github.com/go-playground/validator/v10 v10.12.0
 	github.com/go-sql-driver/mysql v1.7.0
+	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.2
-	github.com/google/uuid v1.3.0
 	github.com/gosimple/slug v1.13.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/stretchr/testify v1.8.2

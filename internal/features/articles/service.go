@@ -2,7 +2,7 @@ package articles
 
 import (
     "context"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"

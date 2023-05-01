@@ -5,7 +5,7 @@ import (
     "encoding/json"
     "github.com/go-chi/chi"
     httptransport "github.com/go-kit/kit/transport/http"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"
     "golang.org/x/exp/slog"
@@ -64,7 +64,7 @@ func decodeAddCommentRequest(_ context.Context, r *http.Request) (interface{}, e
 
 func decodeDeleteCommentRequest(_ context.Context, r *http.Request) (interface{}, error) {
     requestId := chi.URLParam(r, "id")
-    parsedId, err := uuid.Parse(requestId)
+    parsedId, err := uuid.FromString(requestId)
 
     if err != nil {
         return nil, shared.ErrorWithContext("error while attempting to parse the comment ID", err)

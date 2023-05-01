@@ -2,7 +2,7 @@ package users
 
 import (
     "context"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "golang.org/x/exp/slog"
     "time"

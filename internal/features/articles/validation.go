@@ -3,7 +3,7 @@ package articles
 import (
     "context"
     "github.com/go-playground/validator/v10"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"
 )

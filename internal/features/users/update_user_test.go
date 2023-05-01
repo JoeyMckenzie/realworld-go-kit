@@ -2,7 +2,7 @@ package users
 
 import (
     "github.com/go-faker/faker/v4"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/infrastructure/repositories"
     "github.com/stretchr/testify/assert"
@@ -51,7 +51,7 @@ func Test_UpdateReturnsSuccess_WhenDownstreamServicesAreOk(t *testing.T) {
         Return("stub token", nil)
 
     // Act
-    response, err := fixture.service.Update(fixture.ctx, request, uuid.New())
+    response, err := fixture.service.Update(fixture.ctx, request, uuid.Must(uuid.NewV4()))
 
     assert.Nil(t, err)
     assert.NotNil(t, response)

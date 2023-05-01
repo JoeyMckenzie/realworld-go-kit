@@ -4,7 +4,7 @@ import (
     "context"
     "database/sql"
     "fmt"
-    "github.com/google/uuid"
+    "github.com/gofrs/uuid"
     "github.com/gosimple/slug"
     "github.com/joeymckenzie/realworld-go-kit/internal/domain"
     "github.com/joeymckenzie/realworld-go-kit/internal/shared"
@@ -65,7 +65,7 @@ func (as *articlesService) CreateArticle(ctx context.Context, request domain.Cre
         return &domain.Article{}, shared.MakeApiErrorWithFallback(err, tx.Rollback())
     } else if existingArticle != nil && existingArticle.Slug != "" {
         as.logger.InfoCtx(ctx, "slug is not unique, overriding with unique ID", "author_id", authorId, "article_title", articleRequest.Title, "slug", articleSlug)
-        articleSlug = fmt.Sprintf("%s-%s", articleSlug, uuid.New().String())
+        articleSlug = fmt.Sprintf("%s-%s", articleSlug, uuid.Must(uuid.NewV4()))
     }
 
     // Next, we'll create the article
