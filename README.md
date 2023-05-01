@@ -40,4 +40,11 @@ Once the tool are installed, run the application as a task:
 task run
 ```
 
-That's it! Checkout the [Taskfile](./Taskfile.yml) to see the various tasks available for running.
+That's it! Checkout the [Taskfile](./Taskfile.yml) to see the various tasks available for running. To run integration tests
+against the running server, open a new terminal and run:
+
+```bash
+task integration:local
+```
+
+All tests should pass and there is CI setup to run integration tests against the deployed instance on Fly.
