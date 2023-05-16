@@ -19,7 +19,6 @@ func NewSecurityService() SecurityService {
 
 func (s *securityService) HashPassword(rawPassword string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(rawPassword), bcrypt.DefaultCost)
-
 	if err != nil {
 		return "", err
 	}

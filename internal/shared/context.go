@@ -1,15 +1,15 @@
 package shared
 
 import (
-    "github.com/gofrs/uuid"
+	"github.com/gofrs/uuid"
 )
 
 type (
-    TokenContextKey struct {
-        UserId uuid.UUID
-    }
+	TokenContextKey struct {
+		UserId uuid.UUID
+	}
 
-    UsernameContextKey struct {
-        Username string
-    }
+	UsernameContextKey struct {
+		Username string
+	}
 )

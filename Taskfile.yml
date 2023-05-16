@@ -17,7 +17,7 @@ tasks:
       - ./realworld_go_kit
   format:
     cmds:
-      - go fmt ./...
+      - gofumpt -l -w .
   vet:
     cmds:
       - go vet ./...

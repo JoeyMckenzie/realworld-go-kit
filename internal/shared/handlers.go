@@ -1,20 +1,21 @@
 package shared
 
 import (
-    "context"
-    "golang.org/x/exp/slog"
+	"context"
+
+	"golang.org/x/exp/slog"
 )
 
 type logErrorHandler struct {
-    logger *slog.Logger
+	logger *slog.Logger
 }
 
 func (h logErrorHandler) Handle(ctx context.Context, err error) {
-    h.logger.ErrorCtx(ctx, "err", err)
+	h.logger.ErrorCtx(ctx, "err", err)
 }
 
 func newLogErrorHandler(logger *slog.Logger) *logErrorHandler {
-    return &logErrorHandler{
-        logger: logger,
-    }
+	return &logErrorHandler{
+		logger: logger,
+	}
 }
