@@ -17,7 +17,7 @@ FROM debian:bullseye-slim as deploy
 RUN set -eux; \
     export DEBIAN_FRONTEND=noninteractive; \
     apt update; \
-    apt install -y --no-install-recommends bind9-dnsutils iputils-ping iproute2 curl ca-certificates htop; \
+    apt install -y --no-install-recommends ca-certificates; \
     apt clean autoclean; \
     apt autoremove -y; \
     rm -rf /var/lib/{apt,dpkg,cache,log}/;
